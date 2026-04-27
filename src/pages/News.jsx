@@ -50,13 +50,11 @@ const EMPTY_EVENT = {
 };
 
 // ── Safe string extractor ────────────────────────────────────────────────
-// Handles: plain string | { _id, name } | { _id, title } | null | undefined
 function str(val) {
   if (val == null) return "";
   if (typeof val === "string") return val;
   if (typeof val === "number") return String(val);
   if (typeof val === "object") {
-    // populated MongoDB ref: { _id, name } or { _id, title }
     return val.name || val.title || val.label || val._id?.toString() || "";
   }
   return String(val);
@@ -83,6 +81,13 @@ function fmtDate(d) {
   } catch {
     return "";
   }
+}
+
+// Strip base64 data URLs — backend expects a real URL string or empty string
+function safeImageUrl(preview) {
+  if (!preview) return "";
+  if (typeof preview === "string" && preview.startsWith("data:")) return "";
+  return preview;
 }
 
 // ── Small components ──────────────────────────────────────────────────────
@@ -427,12 +432,25 @@ export default function News() {
   }
 
   // ── Fetch ──────────────────────────────────────────────────────────────
+
+  // FIX: send auth token so backend returns ALL events (not just isActive:true)
+  // FIX: backend returns array directly, not { events: [...] }
   async function fetchNews() {
     setNewsLoading(true);
     try {
-      const r = await fetch(getAPI("/api/news"));
+      const r = await fetch(getAPI("/api/news"), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const d = await r.json();
-      setPosts(Array.isArray(d.news) ? d.news : []);
+      // Handle both direct array and wrapped { news: [...] }
+      const list = Array.isArray(d)
+        ? d
+        : Array.isArray(d.news)
+          ? d.news
+          : Array.isArray(d.data)
+            ? d.data
+            : [];
+      setPosts(list);
     } catch (e) {
       console.error("News fetch error:", e);
       setPosts([]);
@@ -444,9 +462,20 @@ export default function News() {
   async function fetchEvents() {
     setEventsLoading(true);
     try {
-      const r = await fetch(getAPI("/api/events"));
+      // FIX: pass admin=true so backend skips isActive filter
+      const r = await fetch(getAPI("/api/events?admin=true"), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const d = await r.json();
-      setEvents(Array.isArray(d.events) ? d.events : []);
+      // FIX: backend returns array directly, not { events: [...] }
+      const list = Array.isArray(d)
+        ? d
+        : Array.isArray(d.events)
+          ? d.events
+          : Array.isArray(d.data)
+            ? d.data
+            : [];
+      setEvents(list);
     } catch (e) {
       console.error("Events fetch error:", e);
       setEvents([]);
@@ -513,13 +542,15 @@ export default function News() {
       });
       const d = await r.json();
       if (!r.ok) {
-        showToast(d.message || "Save failed", "error");
+        console.error("Save news error:", JSON.stringify(d));
+        showToast(d.message || d.error || "Save failed", "error");
         return;
       }
       showToast(editNewsId ? "Post updated!" : "Post published!");
       closeNewsPanel();
       fetchNews();
-    } catch {
+    } catch (err) {
+      console.error("Save news network error:", err);
       showToast("Network error", "error");
     } finally {
       setNewsSaving(false);
@@ -571,37 +602,51 @@ export default function News() {
       showToast("Title is required", "error");
       return;
     }
+    if (!eventForm.date) {
+      showToast("Date is required", "error");
+      return;
+    }
     setEventSaving(true);
     try {
       const url = editEventId
         ? getAPI(`/api/events/${editEventId}`)
         : getAPI("/api/events");
+
+      const payload = {
+        title: eventForm.title.trim(),
+        type: eventForm.type,
+        location: eventForm.location.trim(),
+        date: eventForm.date,
+        description: eventForm.description.trim(),
+        isActive: eventForm.status === "Upcoming",
+        imageUrl: safeImageUrl(eventForm.imagePreview),
+      };
+
+      // Only include time if user entered one
+      if (eventForm.time && eventForm.time.trim() !== "") {
+        payload.time = eventForm.time.trim();
+      }
+
       const r = await fetch(url, {
         method: editEventId ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          title: eventForm.title,
-          type: eventForm.type,
-          location: eventForm.location,
-          date: eventForm.date,
-          time: eventForm.time,
-          description: eventForm.description,
-          isActive: eventForm.status === "Upcoming",
-          imageUrl: eventForm.imagePreview || "",
-        }),
+        body: JSON.stringify(payload),
       });
+
       const d = await r.json();
       if (!r.ok) {
-        showToast(d.message || "Save failed", "error");
+        console.error("Save event error:", JSON.stringify(d));
+        showToast(d.message || d.error || "Save failed", "error");
         return;
       }
       showToast(editEventId ? "Event updated!" : "Event created!");
       closeEventPanel();
       fetchEvents();
-    } catch {
+    } catch (err) {
+      console.error("Save event network error:", err);
       showToast("Network error", "error");
     } finally {
       setEventSaving(false);
@@ -1026,7 +1071,6 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div>
                     <FieldLabel label="Category" />
                     <select
@@ -1041,7 +1085,6 @@ export default function News() {
                       ))}
                     </select>
                   </div>
-
                   <div>
                     <FieldLabel label="Author" />
                     <input
@@ -1053,7 +1096,6 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div>
                     <FieldLabel label="Tag" />
                     <input
@@ -1065,7 +1107,6 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div>
                     <FieldLabel label="Date" />
                     <input
@@ -1077,7 +1118,6 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Status" />
                     <div style={{ display: "flex", gap: 8 }}>
@@ -1121,7 +1161,6 @@ export default function News() {
                       ))}
                     </div>
                   </div>
-
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Short Description" />
                     <textarea
@@ -1133,7 +1172,6 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Full Body" required />
                     <textarea
@@ -1620,7 +1658,6 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div>
                     <FieldLabel label="Event Type" />
                     <select
@@ -1635,7 +1672,6 @@ export default function News() {
                       ))}
                     </select>
                   </div>
-
                   <div>
                     <FieldLabel label="Location" />
                     <input
@@ -1650,7 +1686,6 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div>
                     <FieldLabel label="Date" required />
                     <input
@@ -1662,9 +1697,8 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div>
-                    <FieldLabel label="Time" />
+                    <FieldLabel label="Time (optional)" />
                     <input
                       style={inputStyle()}
                       type="time"
@@ -1674,7 +1708,6 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Status" />
                     <div style={{ display: "flex", gap: 8 }}>
@@ -1718,7 +1751,6 @@ export default function News() {
                       ))}
                     </div>
                   </div>
-
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Description" />
                     <textarea
@@ -1733,13 +1765,42 @@ export default function News() {
                       }
                     />
                   </div>
-
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Event Banner Image" />
                     <ImageUpload
                       preview={eventForm.imagePreview}
                       onChange={(preview) =>
                         setEventForm((f) => ({ ...f, imagePreview: preview }))
+                      }
+                    />
+                    {eventForm.imagePreview?.startsWith("data:") && (
+                      <p
+                        style={{
+                          fontSize: 11,
+                          color: "#f59e0b",
+                          marginTop: 6,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 5,
+                        }}
+                      >
+                        ⚠️ Image preview only — paste a hosted URL below to save
+                        it permanently.
+                      </p>
+                    )}
+                    <input
+                      style={inputStyle({ marginTop: 8 })}
+                      placeholder="Or paste an image URL (https://…)"
+                      value={
+                        eventForm.imagePreview?.startsWith("data:")
+                          ? ""
+                          : eventForm.imagePreview || ""
+                      }
+                      onChange={(e) =>
+                        setEventForm((f) => ({
+                          ...f,
+                          imagePreview: e.target.value,
+                        }))
                       }
                     />
                   </div>
