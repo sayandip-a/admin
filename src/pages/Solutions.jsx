@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/* ─── FONTS ─────────────────────────────────────────────────────────────────── */
+const API = "https://accelia-backend.onrender.com/api/solutions";
+const getToken = () => localStorage.getItem("token");
+
+/* ─── FONTS ── */
 const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap');`;
 
-/* ─── DESIGN TOKENS ──────────────────────────────────────────────────────────── */
 const T = {
   bg: "#070d1a",
   bg2: "#0c1525",
@@ -22,58 +24,19 @@ const T = {
   border2: "rgba(79,156,249,0.20)",
 };
 
-/* ─── CATEGORY CONFIG ────────────────────────────────────────────────────────── */
-const CATEGORY_META = {
-  "Trial Services": {
-    color: "#4f9cf9",
-    bg: "rgba(79,156,249,0.12)",
-    dot: "#4f9cf9",
-  },
-  "Data Science": {
-    color: "#7c6af7",
-    bg: "rgba(124,106,247,0.12)",
-    dot: "#7c6af7",
-  },
-  Regulatory: { color: "#f59e0b", bg: "rgba(245,158,11,0.12)", dot: "#f59e0b" },
-  "Patient Services": {
-    color: "#22d3a0",
-    bg: "rgba(34,211,160,0.12)",
-    dot: "#22d3a0",
-  },
-  Communications: {
-    color: "#f43f5e",
-    bg: "rgba(244,63,94,0.12)",
-    dot: "#f43f5e",
-  },
-  Safety: { color: "#fb923c", bg: "rgba(251,146,60,0.12)", dot: "#fb923c" },
-};
-
-const CATEGORIES = Object.keys(CATEGORY_META);
-
 const STATUS_META = {
   Active: {
     color: "#22d3a0",
     bg: "rgba(34,211,160,0.10)",
     border: "rgba(34,211,160,0.25)",
   },
-  Draft: {
+  Inactive: {
     color: "#f59e0b",
     bg: "rgba(245,158,11,0.10)",
     border: "rgba(245,158,11,0.25)",
   },
-  Archived: {
-    color: "#6b7fa3",
-    bg: "rgba(107,127,163,0.10)",
-    border: "rgba(107,127,163,0.25)",
-  },
-  "In Review": {
-    color: "#7c6af7",
-    bg: "rgba(124,106,247,0.10)",
-    border: "rgba(124,106,247,0.25)",
-  },
 };
 
-/* ─── UNSPLASH IMAGE SEEDS ───────────────────────────────────────────────────── */
 const IMG_SEEDS = [
   "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80",
   "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=600&auto=format&fit=crop&q=80",
@@ -83,151 +46,19 @@ const IMG_SEEDS = [
   "https://images.unsplash.com/photo-1581093458791-9f3c3250a8b0?w=600&auto=format&fit=crop&q=80",
 ];
 
-/* ─── INITIAL DATA ───────────────────────────────────────────────────────────── */
-const INITIAL = [
-  {
-    id: 1,
-    title: "Clinical Trial Management",
-    category: "Trial Services",
-    status: "Active",
-    image: IMG_SEEDS[0],
-    description:
-      "End-to-end clinical trial management platform covering full protocol lifecycle, multi-site coordination, and real-time compliance tracking.",
-    features: [
-      "Protocol Design",
-      "Site Management",
-      "Data Collection",
-      "Compliance",
-    ],
-    clients: 38,
-    uptime: "99.9%",
-    updated: "2 days ago",
-  },
-  {
-    id: 2,
-    title: "Advanced Data Analytics",
-    category: "Data Science",
-    status: "Active",
-    image: IMG_SEEDS[1],
-    description:
-      "AI-driven analytics pipeline delivering predictive models, statistical analysis, and interactive insight dashboards for clinical data.",
-    features: [
-      "Machine Learning",
-      "Statistical Analysis",
-      "Dashboards",
-      "Reporting",
-    ],
-    clients: 52,
-    uptime: "99.7%",
-    updated: "5 hours ago",
-  },
-  {
-    id: 3,
-    title: "Regulatory Submissions",
-    category: "Regulatory",
-    status: "In Review",
-    image: IMG_SEEDS[2],
-    description:
-      "Streamlined regulatory document management and automated submission workflows for FDA, EMA, and global health authority filings.",
-    features: [
-      "Document Management",
-      "eCTD Formatting",
-      "Global Submissions",
-      "Audit Trail",
-    ],
-    clients: 24,
-    uptime: "99.5%",
-    updated: "1 week ago",
-  },
-  {
-    id: 4,
-    title: "Patient Engagement Suite",
-    category: "Patient Services",
-    status: "Active",
-    image: IMG_SEEDS[3],
-    description:
-      "Comprehensive patient recruitment, retention, and engagement tools including mobile ePRO, telehealth, and consent management.",
-    features: ["ePRO", "eConsent", "Telehealth", "Recruitment"],
-    clients: 61,
-    uptime: "99.8%",
-    updated: "Yesterday",
-  },
-  {
-    id: 5,
-    title: "Medical Communications",
-    category: "Communications",
-    status: "Draft",
-    image: IMG_SEEDS[4],
-    description:
-      "Scientific publication services, medical writing, and stakeholder communication management across the full product lifecycle.",
-    features: [
-      "Medical Writing",
-      "Publications",
-      "KOL Management",
-      "Presentations",
-    ],
-    clients: 17,
-    uptime: "98.9%",
-    updated: "3 weeks ago",
-  },
-  {
-    id: 6,
-    title: "Pharmacovigilance & Safety",
-    category: "Safety",
-    status: "Active",
-    image: IMG_SEEDS[5],
-    description:
-      "Real-time adverse event monitoring, signal detection, and automated safety reporting integrated with global vigilance databases.",
-    features: [
-      "Adverse Events",
-      "Signal Detection",
-      "SUSAR Reporting",
-      "Risk Management",
-    ],
-    clients: 43,
-    uptime: "99.99%",
-    updated: "1 day ago",
-  },
-];
-
 const EMPTY_FORM = {
   title: "",
-  category: "Trial Services",
-  status: "Active",
-  image: "",
-  description: "",
-  features: "",
-  clients: "",
-  uptime: "",
+  icon: "🔬",
+  desc: "",
+  imageUrl: "",
+  order: 0,
+  isActive: true,
 };
 
-/* ─── SMALL COMPONENTS ───────────────────────────────────────────────────────── */
-
-function CategoryBadge({ label }) {
-  const m = CATEGORY_META[label] || {
-    color: T.text2,
-    bg: "rgba(107,127,163,0.1)",
-  };
-  return (
-    <span
-      style={{
-        fontSize: 10.5,
-        fontWeight: 600,
-        letterSpacing: "0.04em",
-        padding: "3px 9px",
-        borderRadius: 20,
-        background: m.bg,
-        color: m.color,
-        border: `1px solid ${m.color}30`,
-      }}
-    >
-      {label}
-    </span>
-  );
-}
-
-function StatusBadge({ label }) {
-  const m = STATUS_META[label] || STATUS_META.Draft;
+/* ── Small components ── */
+function StatusBadge({ active }) {
+  const m = active ? STATUS_META.Active : STATUS_META.Inactive;
+  const label = active ? "Active" : "Inactive";
   return (
     <span
       style={{
@@ -253,24 +84,6 @@ function StatusBadge({ label }) {
           display: "inline-block",
         }}
       />
-      {label}
-    </span>
-  );
-}
-
-function FeatureTag({ label }) {
-  return (
-    <span
-      style={{
-        fontSize: 11,
-        fontWeight: 400,
-        padding: "3px 10px",
-        borderRadius: 6,
-        background: T.bg4,
-        color: T.text2,
-        border: `1px solid ${T.border}`,
-      }}
-    >
       {label}
     </span>
   );
@@ -303,7 +116,6 @@ function StatChip({ label, value }) {
   );
 }
 
-/* ─── INPUT FIELD ────────────────────────────────────────────────────────────── */
 function Field({ label, children, required }) {
   return (
     <div style={{ marginBottom: 16 }}>
@@ -339,25 +151,26 @@ const inputStyle = {
   transition: "border-color 0.2s",
 };
 
-/* ─── MODAL ──────────────────────────────────────────────────────────────────── */
-function SolutionModal({ open, onClose, onSave, editData }) {
+/* ── Modal ── */
+function SolutionModal({ open, onClose, onSave, editData, saving }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState(null);
   const [imgPreview, setImgPreview] = useState("");
-  const [imgLoading, setImgLoading] = useState(false);
   const fileRef = useRef();
 
   useEffect(() => {
     if (open) {
       if (editData) {
         setForm({
-          ...editData,
-          features: editData.features.join(", "),
-          clients: String(editData.clients),
-          uptime: editData.uptime,
+          title: editData.title || "",
+          icon: editData.icon || "🔬",
+          desc: editData.desc || "",
+          imageUrl: editData.imageUrl || "",
+          order: editData.order ?? 0,
+          isActive: editData.isActive ?? true,
         });
-        setImgPreview(editData.image || "");
+        setImgPreview(editData.imageUrl || "");
       } else {
         setForm(EMPTY_FORM);
         setImgPreview("");
@@ -374,12 +187,10 @@ function SolutionModal({ open, onClose, onSave, editData }) {
   const handleFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setImgLoading(true);
     const reader = new FileReader();
     reader.onload = (ev) => {
       setImgPreview(ev.target.result);
-      set("image", ev.target.result);
-      setImgLoading(false);
+      set("imageUrl", ev.target.result);
     };
     reader.readAsDataURL(file);
   };
@@ -387,8 +198,7 @@ function SolutionModal({ open, onClose, onSave, editData }) {
   const validate = () => {
     const e = {};
     if (!form.title.trim()) e.title = "Title is required";
-    if (!form.description.trim()) e.description = "Description is required";
-    if (!form.features.trim()) e.features = "At least one feature required";
+    if (!form.desc.trim()) e.desc = "Description is required";
     return e;
   };
 
@@ -398,18 +208,7 @@ function SolutionModal({ open, onClose, onSave, editData }) {
       setErrors(e);
       return;
     }
-    onSave({
-      ...form,
-      image:
-        imgPreview ||
-        form.image ||
-        IMG_SEEDS[Math.floor(Math.random() * IMG_SEEDS.length)],
-      features: form.features
-        .split(",")
-        .map((f) => f.trim())
-        .filter(Boolean),
-      clients: parseInt(form.clients) || 0,
-    });
+    onSave({ ...form, imageUrl: imgPreview || form.imageUrl || IMG_SEEDS[0] });
   };
 
   const focusBorder = (name) => (focusedField === name ? T.accent : T.border2);
@@ -444,7 +243,7 @@ function SolutionModal({ open, onClose, onSave, editData }) {
               border: `1px solid ${T.border2}`,
               borderRadius: 16,
               width: "100%",
-              maxWidth: 560,
+              maxWidth: 520,
               maxHeight: "90vh",
               overflow: "hidden",
               display: "flex",
@@ -452,7 +251,7 @@ function SolutionModal({ open, onClose, onSave, editData }) {
               fontFamily: "'DM Sans', sans-serif",
             }}
           >
-            {/* Modal Header */}
+            {/* Header */}
             <div
               style={{
                 padding: "20px 24px 16px",
@@ -472,12 +271,12 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                     fontFamily: "'Syne', sans-serif",
                   }}
                 >
-                  {editData ? "Edit Solution" : "Add New Solution"}
+                  {editData ? "Edit Solution" : "Add Solution"}
                 </div>
                 <div style={{ fontSize: 12, color: T.text3, marginTop: 3 }}>
                   {editData
-                    ? "Update solution details and configuration"
-                    : "Create a new managed solution for your portal"}
+                    ? "Update solution details"
+                    : "Create a new solution for the frontend"}
                 </div>
               </div>
               <button
@@ -508,7 +307,7 @@ function SolutionModal({ open, onClose, onSave, editData }) {
               </button>
             </div>
 
-            {/* Scrollable body */}
+            {/* Body */}
             <div
               style={{
                 padding: "20px 24px",
@@ -518,11 +317,20 @@ function SolutionModal({ open, onClose, onSave, editData }) {
               }}
             >
               {/* Image upload */}
-              <Field label="Cover Image">
+              <Field label="Cover Image (URL or Upload)">
+                <input
+                  value={form.imageUrl}
+                  onChange={(e) => {
+                    set("imageUrl", e.target.value);
+                    setImgPreview(e.target.value);
+                  }}
+                  placeholder="https://... or upload below"
+                  style={{ ...inputStyle, marginBottom: 8 }}
+                />
                 <div
                   onClick={() => fileRef.current.click()}
                   style={{
-                    height: 130,
+                    height: 110,
                     borderRadius: 10,
                     border: `1.5px dashed ${T.border2}`,
                     background: T.bg3,
@@ -541,55 +349,24 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                     (e.currentTarget.style.borderColor = T.border2)
                   }
                 >
-                  {imgLoading ? (
-                    <div style={{ color: T.text2, fontSize: 13 }}>Loading…</div>
-                  ) : imgPreview ? (
-                    <>
-                      <img
-                        src={imgPreview}
-                        alt="preview"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                      />
-                      <div
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          background: "rgba(0,0,0,0.45)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          opacity: 0,
-                          transition: "opacity 0.2s",
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.opacity = 1)
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.opacity = 0)
-                        }
-                      >
-                        <span
-                          style={{
-                            color: "#fff",
-                            fontSize: 13,
-                            fontWeight: 500,
-                          }}
-                        >
-                          Change Image
-                        </span>
-                      </div>
-                    </>
+                  {imgPreview ? (
+                    <img
+                      src={imgPreview}
+                      alt="preview"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                      onError={() => setImgPreview("")}
+                    />
                   ) : (
                     <div
                       style={{
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        gap: 8,
+                        gap: 6,
                       }}
                     >
                       <svg
@@ -597,12 +374,12 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                         fill="none"
                         stroke={T.text3}
                         strokeWidth="1.5"
-                        style={{ width: 28, height: 28 }}
+                        style={{ width: 24, height: 24 }}
                       >
                         <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <div style={{ fontSize: 12, color: T.text3 }}>
-                        Click to upload image
+                      <div style={{ fontSize: 11, color: T.text3 }}>
+                        Click to upload
                       </div>
                     </div>
                   )}
@@ -614,11 +391,12 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                   onChange={handleFile}
                   style={{ display: "none" }}
                 />
+                {/* Quick picks */}
                 <div
                   style={{
                     marginTop: 6,
                     display: "flex",
-                    gap: 8,
+                    gap: 6,
                     flexWrap: "wrap",
                   }}
                 >
@@ -629,7 +407,7 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                       alt=""
                       onClick={() => {
                         setImgPreview(src);
-                        set("image", src);
+                        set("imageUrl", src);
                       }}
                       style={{
                         width: 44,
@@ -655,7 +433,7 @@ function SolutionModal({ open, onClose, onSave, editData }) {
               </Field>
 
               {/* Title */}
-              <Field label="Solution Title" required>
+              <Field label="Title" required>
                 <input
                   value={form.title}
                   onChange={(e) => set("title", e.target.value)}
@@ -674,7 +452,7 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                 )}
               </Field>
 
-              {/* Category + Status row */}
+              {/* Icon + Order row */}
               <div
                 style={{
                   display: "grid",
@@ -691,22 +469,16 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                       fontWeight: 500,
                       color: T.text2,
                       marginBottom: 6,
-                      letterSpacing: "0.04em",
                     }}
                   >
-                    Category
+                    Icon (emoji)
                   </label>
-                  <select
-                    value={form.category}
-                    onChange={(e) => set("category", e.target.value)}
-                    style={{ ...inputStyle, cursor: "pointer" }}
-                  >
-                    {CATEGORIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    value={form.icon}
+                    onChange={(e) => set("icon", e.target.value)}
+                    placeholder="🔬"
+                    style={{ ...inputStyle, fontSize: 20, textAlign: "center" }}
+                  />
                 </div>
                 <div>
                   <label
@@ -716,30 +488,27 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                       fontWeight: 500,
                       color: T.text2,
                       marginBottom: 6,
-                      letterSpacing: "0.04em",
                     }}
                   >
-                    Status
+                    Display Order
                   </label>
-                  <select
-                    value={form.status}
-                    onChange={(e) => set("status", e.target.value)}
-                    style={{ ...inputStyle, cursor: "pointer" }}
-                  >
-                    {Object.keys(STATUS_META).map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.order}
+                    onChange={(e) =>
+                      set("order", parseInt(e.target.value) || 0)
+                    }
+                    style={inputStyle}
+                  />
                 </div>
               </div>
 
               {/* Description */}
               <Field label="Description" required>
                 <textarea
-                  value={form.description}
-                  onChange={(e) => set("description", e.target.value)}
+                  value={form.desc}
+                  onChange={(e) => set("desc", e.target.value)}
                   onFocus={() => setFocusedField("desc")}
                   onBlur={() => setFocusedField(null)}
                   placeholder="Describe what this solution provides…"
@@ -747,68 +516,65 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                   style={{
                     ...inputStyle,
                     resize: "vertical",
-                    borderColor: errors.description
-                      ? T.rose
-                      : focusBorder("desc"),
+                    borderColor: errors.desc ? T.rose : focusBorder("desc"),
                   }}
                 />
-                {errors.description && (
+                {errors.desc && (
                   <div style={{ fontSize: 11, color: T.rose, marginTop: 4 }}>
-                    {errors.description}
+                    {errors.desc}
                   </div>
                 )}
               </Field>
 
-              {/* Features */}
-              <Field label="Key Features" required>
-                <input
-                  value={form.features}
-                  onChange={(e) => set("features", e.target.value)}
-                  onFocus={() => setFocusedField("feat")}
-                  onBlur={() => setFocusedField(null)}
-                  placeholder="Protocol Design, Site Management, Compliance…"
-                  style={{
-                    ...inputStyle,
-                    borderColor: errors.features ? T.rose : focusBorder("feat"),
-                  }}
-                />
-                {errors.features && (
-                  <div style={{ fontSize: 11, color: T.rose, marginTop: 4 }}>
-                    {errors.features}
-                  </div>
-                )}
-                <div style={{ fontSize: 10.5, color: T.text3, marginTop: 4 }}>
-                  Comma-separated list of features
+              {/* Active toggle */}
+              <Field label="Visibility">
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <button
+                    type="button"
+                    onClick={() => set("isActive", !form.isActive)}
+                    style={{
+                      width: 46,
+                      height: 26,
+                      borderRadius: 13,
+                      border: "none",
+                      cursor: "pointer",
+                      background: form.isActive
+                        ? T.green
+                        : "rgba(255,255,255,0.1)",
+                      position: "relative",
+                      transition: "background 0.25s",
+                      flexShrink: 0,
+                      boxShadow: form.isActive
+                        ? `0 0 10px ${T.green}55`
+                        : "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 3,
+                        left: form.isActive ? 23 : 3,
+                        width: 20,
+                        height: 20,
+                        borderRadius: "50%",
+                        background: "#fff",
+                        transition: "left 0.22s",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
+                      }}
+                    />
+                  </button>
+                  <span
+                    style={{
+                      fontSize: 13,
+                      color: form.isActive ? T.green : T.text2,
+                    }}
+                  >
+                    {form.isActive
+                      ? "Visible on frontend"
+                      : "Hidden from frontend"}
+                  </span>
                 </div>
               </Field>
-
-              {/* Clients + Uptime */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 12,
-                }}
-              >
-                <Field label="Active Clients">
-                  <input
-                    value={form.clients}
-                    onChange={(e) => set("clients", e.target.value)}
-                    placeholder="e.g. 42"
-                    type="number"
-                    min="0"
-                    style={inputStyle}
-                  />
-                </Field>
-                <Field label="Uptime SLA">
-                  <input
-                    value={form.uptime}
-                    onChange={(e) => set("uptime", e.target.value)}
-                    placeholder="e.g. 99.9%"
-                    style={inputStyle}
-                  />
-                </Field>
-              </div>
             </div>
 
             {/* Footer */}
@@ -834,49 +600,35 @@ function SolutionModal({ open, onClose, onSave, editData }) {
                   fontWeight: 500,
                   cursor: "pointer",
                   fontFamily: "'DM Sans', sans-serif",
-                  transition: "background 0.2s, color 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = T.bg4;
-                  e.currentTarget.style.color = T.text1;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = T.bg3;
-                  e.currentTarget.style.color = T.text2;
                 }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
+                disabled={saving}
                 style={{
                   padding: "9px 24px",
                   borderRadius: 8,
-                  background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
+                  background: saving
+                    ? T.bg3
+                    : `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
                   border: "none",
-                  color: "#fff",
+                  color: saving ? T.text2 : "#fff",
                   fontSize: 13,
                   fontWeight: 600,
-                  cursor: "pointer",
+                  cursor: saving ? "not-allowed" : "pointer",
                   fontFamily: "'DM Sans', sans-serif",
                   display: "flex",
                   alignItems: "center",
                   gap: 7,
-                  transition: "opacity 0.2s",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.88")}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2.5"
-                  style={{ width: 13, height: 13 }}
-                >
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                {editData ? "Save Changes" : "Create Solution"}
+                {saving
+                  ? "Saving…"
+                  : editData
+                    ? "Save Changes"
+                    : "Create Solution"}
               </button>
             </div>
           </motion.div>
@@ -886,7 +638,7 @@ function SolutionModal({ open, onClose, onSave, editData }) {
   );
 }
 
-/* ─── DELETE CONFIRM ─────────────────────────────────────────────────────────── */
+/* ── Delete Confirm ── */
 function DeleteConfirm({ open, onClose, onConfirm, title }) {
   return (
     <AnimatePresence>
@@ -914,7 +666,7 @@ function DeleteConfirm({ open, onClose, onConfirm, title }) {
             transition={{ type: "spring", damping: 24, stiffness: 300 }}
             style={{
               background: T.bg2,
-              border: `1px solid rgba(244,63,94,0.25)`,
+              border: "1px solid rgba(244,63,94,0.25)",
               borderRadius: 14,
               padding: "28px 28px 22px",
               width: 340,
@@ -966,8 +718,8 @@ function DeleteConfirm({ open, onClose, onConfirm, title }) {
               }}
             >
               Are you sure you want to delete{" "}
-              <strong style={{ color: T.text1 }}>{title}</strong>? This action
-              cannot be undone.
+              <strong style={{ color: T.text1 }}>{title}</strong>? This cannot
+              be undone.
             </div>
             <div style={{ display: "flex", gap: 10 }}>
               <button
@@ -1000,14 +752,7 @@ function DeleteConfirm({ open, onClose, onConfirm, title }) {
                   fontWeight: 600,
                   cursor: "pointer",
                   fontFamily: "'DM Sans', sans-serif",
-                  transition: "background 0.2s",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "rgba(244,63,94,0.25)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "rgba(244,63,94,0.15)")
-                }
               >
                 Delete
               </button>
@@ -1019,10 +764,9 @@ function DeleteConfirm({ open, onClose, onConfirm, title }) {
   );
 }
 
-/* ─── SOLUTION CARD ──────────────────────────────────────────────────────────── */
+/* ── Solution Card ── */
 function SolutionCard({ sol, onEdit, onDelete, index }) {
   const [hovered, setHovered] = useState(false);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -1052,26 +796,41 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
       {/* Image */}
       <div
         style={{
-          height: 160,
+          height: 150,
           position: "relative",
           overflow: "hidden",
           flexShrink: 0,
+          background: T.bg3,
         }}
       >
-        <motion.img
-          src={sol.image}
-          alt={sol.title}
-          animate={{ scale: hovered ? 1.05 : 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            display: "block",
-          }}
-          loading="lazy"
-        />
-        {/* Gradient overlay */}
+        {sol.imageUrl ? (
+          <motion.img
+            src={sol.imageUrl}
+            alt={sol.title}
+            animate={{ scale: hovered ? 1.05 : 1 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
+            }}
+            loading="lazy"
+          />
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 40,
+            }}
+          >
+            {sol.icon || "🔬"}
+          </div>
+        )}
         <div
           style={{
             position: "absolute",
@@ -1080,7 +839,7 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
               "linear-gradient(to top, rgba(7,13,26,0.85) 0%, transparent 55%)",
           }}
         />
-        {/* Badges on image */}
+        {/* Badges */}
         <div
           style={{
             position: "absolute",
@@ -1088,10 +847,11 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
             left: 12,
             display: "flex",
             gap: 6,
+            alignItems: "center",
           }}
         >
-          <CategoryBadge label={sol.category} />
-          <StatusBadge label={sol.status} />
+          <span style={{ fontSize: 20 }}>{sol.icon}</span>
+          <StatusBadge active={sol.isActive} />
         </div>
         {/* Action buttons */}
         <motion.div
@@ -1125,14 +885,7 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
               color: T.accent,
               padding: 0,
               backdropFilter: "blur(4px)",
-              transition: "background 0.15s",
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = `rgba(79,156,249,0.2)`)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(15,23,42,0.8)")
-            }
           >
             <svg
               viewBox="0 0 24 24"
@@ -1156,7 +909,7 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
               height: 30,
               borderRadius: 8,
               background: "rgba(15,23,42,0.8)",
-              border: `1px solid rgba(244,63,94,0.25)`,
+              border: "1px solid rgba(244,63,94,0.25)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1164,14 +917,7 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
               color: T.rose,
               padding: 0,
               backdropFilter: "blur(4px)",
-              transition: "background 0.15s",
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = `rgba(244,63,94,0.18)`)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(15,23,42,0.8)")
-            }
           >
             <svg
               viewBox="0 0 24 24"
@@ -1190,7 +936,7 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
       {/* Body */}
       <div
         style={{
-          padding: "16px 18px 18px",
+          padding: "14px 16px 16px",
           flex: 1,
           display: "flex",
           flexDirection: "column",
@@ -1198,7 +944,7 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
       >
         <h3
           style={{
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: 700,
             color: T.text1,
             fontFamily: "'Syne', sans-serif",
@@ -1213,41 +959,24 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
             fontSize: 12.5,
             color: T.text2,
             lineHeight: 1.6,
-            marginBottom: 14,
+            marginBottom: 12,
             flex: 1,
           }}
         >
-          {sol.description}
+          {sol.desc}
         </p>
-
-        {/* Features */}
         <div
           style={{
             display: "flex",
-            flexWrap: "wrap",
-            gap: 5,
-            marginBottom: 16,
-          }}
-        >
-          {sol.features.map((f, i) => (
-            <FeatureTag key={i} label={f} />
-          ))}
-        </div>
-
-        {/* Stats row */}
-        <div
-          style={{
-            display: "flex",
-            gap: 20,
-            paddingTop: 14,
+            gap: 16,
+            paddingTop: 12,
             borderTop: `1px solid ${T.border}`,
           }}
         >
-          <StatChip label="Clients" value={sol.clients} />
-          <StatChip label="Uptime" value={sol.uptime} />
+          <StatChip label="Order" value={`#${sol.order}`} />
           <div style={{ marginLeft: "auto", alignSelf: "flex-end" }}>
             <span style={{ fontSize: 10.5, color: T.text3 }}>
-              Updated {sol.updated}
+              {new Date(sol.updatedAt || sol.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
@@ -1256,101 +985,76 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
   );
 }
 
-/* ─── EMPTY STATE ────────────────────────────────────────────────────────────── */
-function EmptyState({ onAdd }) {
+/* ── Toast ── */
+function Toast({ msg, type }) {
+  if (!msg) return null;
+  const color = type === "error" ? T.rose : T.green;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
       style={{
-        gridColumn: "1 / -1",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "80px 20px",
+        position: "fixed",
+        bottom: 24,
+        right: 24,
+        zIndex: 200,
         background: T.bg2,
-        border: `1.5px dashed ${T.border2}`,
-        borderRadius: 16,
-        textAlign: "center",
+        border: `1px solid ${color}44`,
+        borderRadius: 10,
+        padding: "12px 18px",
+        color,
+        fontSize: 13,
+        fontWeight: 600,
         fontFamily: "'DM Sans', sans-serif",
+        boxShadow: `0 4px 20px rgba(0,0,0,0.4)`,
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
       }}
     >
-      <div
-        style={{
-          width: 64,
-          height: 64,
-          borderRadius: 16,
-          background: T.bg3,
-          border: `1px solid ${T.border2}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 18,
-        }}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke={T.text3}
-          strokeWidth="1.5"
-          style={{ width: 28, height: 28 }}
-        >
-          <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-        </svg>
-      </div>
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: 700,
-          color: T.text1,
-          fontFamily: "'Syne', sans-serif",
-          marginBottom: 8,
-        }}
-      >
-        No solutions found
-      </div>
-      <div
-        style={{
-          fontSize: 13,
-          color: T.text2,
-          marginBottom: 24,
-          maxWidth: 300,
-        }}
-      >
-        No solutions match your current filters. Try adjusting your search or
-        add a new one.
-      </div>
-      <button
-        onClick={onAdd}
-        style={{
-          padding: "9px 22px",
-          borderRadius: 9,
-          background: `linear-gradient(135deg, ${T.accent}, ${T.accent2})`,
-          border: "none",
-          color: "#fff",
-          fontSize: 13,
-          fontWeight: 600,
-          cursor: "pointer",
-          fontFamily: "'DM Sans', sans-serif",
-        }}
-      >
-        + Add Solution
-      </button>
+      {type === "error" ? "⚠️" : "✓"} {msg}
     </motion.div>
   );
 }
 
-/* ─── MAIN PAGE ──────────────────────────────────────────────────────────────── */
+/* ── MAIN PAGE ── */
 export default function Solutions() {
-  const [solutions, setSolutions] = useState(INITIAL);
+  const [solutions, setSolutions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
-  const [filterCat, setFilterCat] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchFocus, setSearchFocus] = useState(false);
+  const [toast, setToast] = useState({ msg: "", type: "success" });
+
+  const showToast = (msg, type = "success") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast({ msg: "", type: "success" }), 3000);
+  };
+
+  /* Fetch all (admin=true to get inactive too) */
+  const fetchSolutions = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}?admin=true`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      const data = await res.json();
+      setSolutions(Array.isArray(data) ? data : []);
+    } catch {
+      showToast("Failed to load solutions", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSolutions();
+  }, []);
 
   const openAdd = () => {
     setEditData(null);
@@ -1361,25 +1065,61 @@ export default function Solutions() {
     setShowModal(true);
   };
 
-  const handleSave = (form) => {
-    if (editData) {
-      setSolutions((s) =>
-        s.map((x) =>
-          x.id === editData.id ? { ...x, ...form, updated: "Just now" } : x,
-        ),
-      );
-    } else {
-      setSolutions((s) => [
-        ...s,
-        { ...form, id: Date.now(), updated: "Just now" },
-      ]);
+  /* Create or Update */
+  const handleSave = async (form) => {
+    setSaving(true);
+    try {
+      if (editData) {
+        const res = await fetch(`${API}/${editData._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+          body: JSON.stringify(form),
+        });
+        if (!res.ok) throw new Error();
+        const updated = await res.json();
+        setSolutions((s) =>
+          s.map((x) => (x._id === editData._id ? updated : x)),
+        );
+        showToast("Solution updated successfully");
+      } else {
+        const res = await fetch(API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+          body: JSON.stringify(form),
+        });
+        if (!res.ok) throw new Error();
+        const created = await res.json();
+        setSolutions((s) => [...s, created]);
+        showToast("Solution created successfully");
+      }
+      setShowModal(false);
+    } catch {
+      showToast("Failed to save solution", "error");
+    } finally {
+      setSaving(false);
     }
-    setShowModal(false);
   };
 
-  const confirmDelete = () => {
-    if (deleteTarget) {
-      setSolutions((s) => s.filter((x) => x.id !== deleteTarget.id));
+  /* Delete */
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      const res = await fetch(`${API}/${deleteTarget._id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (!res.ok) throw new Error();
+      setSolutions((s) => s.filter((x) => x._id !== deleteTarget._id));
+      showToast("Solution deleted");
+    } catch {
+      showToast("Failed to delete", "error");
+    } finally {
       setDeleteTarget(null);
     }
   };
@@ -1388,17 +1128,14 @@ export default function Solutions() {
     const matchSearch =
       !search ||
       s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.description.toLowerCase().includes(search.toLowerCase());
-    const matchCat = filterCat === "All" || s.category === filterCat;
-    const matchStatus = filterStatus === "All" || s.status === filterStatus;
-    return matchSearch && matchCat && matchStatus;
+      s.desc.toLowerCase().includes(search.toLowerCase());
+    const matchStatus =
+      filterStatus === "All" ||
+      (filterStatus === "Active" ? s.isActive : !s.isActive);
+    return matchSearch && matchStatus;
   });
 
-  const totalActive = solutions.filter((s) => s.status === "Active").length;
-  const totalClients = solutions.reduce(
-    (a, s) => a + (parseInt(s.clients) || 0),
-    0,
-  );
+  const totalActive = solutions.filter((s) => s.isActive).length;
 
   return (
     <div
@@ -1409,18 +1146,10 @@ export default function Solutions() {
         color: T.text1,
       }}
     >
-      <style>{`
-        ${FONT_IMPORT}
-        * { box-sizing: border-box; }
-        ::placeholder { color: ${T.text3}; }
-        select option { background: ${T.bg2}; color: ${T.text1}; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: ${T.border2}; border-radius: 10px; }
-      `}</style>
+      <style>{`${FONT_IMPORT} * { box-sizing: border-box; } ::placeholder { color: ${T.text3}; } select option { background: ${T.bg2}; color: ${T.text1}; }`}</style>
 
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }}>
-        {/* ── Page Header ── */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1477,7 +1206,7 @@ export default function Solutions() {
               Solutions
             </h1>
             <p style={{ fontSize: 13, color: T.text2, marginTop: 6 }}>
-              Manage and monitor all clinical solutions across your organization
+              Changes here reflect immediately on the frontend
             </p>
           </div>
           <button
@@ -1496,16 +1225,11 @@ export default function Solutions() {
               cursor: "pointer",
               fontFamily: "'DM Sans', sans-serif",
               boxShadow: `0 4px 18px rgba(79,156,249,0.25)`,
-              transition: "transform 0.15s, box-shadow 0.15s",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-1px)";
-              e.currentTarget.style.boxShadow = `0 6px 24px rgba(79,156,249,0.35)`;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "";
-              e.currentTarget.style.boxShadow = `0 4px 18px rgba(79,156,249,0.25)`;
-            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "translateY(-1px)")
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "")}
           >
             <svg
               viewBox="0 0 24 24"
@@ -1520,14 +1244,14 @@ export default function Solutions() {
           </button>
         </motion.div>
 
-        {/* ── KPI Strip ── */}
+        {/* KPI Strip */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.08 }}
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
             gap: 10,
             marginBottom: 24,
           }}
@@ -1538,11 +1262,10 @@ export default function Solutions() {
               value: solutions.length,
               color: T.accent,
             },
-            { label: "Active", value: totalActive, color: T.green },
-            { label: "Total Clients", value: totalClients, color: T.accent2 },
+            { label: "Active (Visible)", value: totalActive, color: T.green },
             {
-              label: "Categories",
-              value: new Set(solutions.map((s) => s.category)).size,
+              label: "Hidden",
+              value: solutions.length - totalActive,
               color: T.amber,
             },
           ].map((k, i) => (
@@ -1580,7 +1303,7 @@ export default function Solutions() {
           ))}
         </motion.div>
 
-        {/* ── Filters Bar ── */}
+        {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1593,7 +1316,6 @@ export default function Solutions() {
             marginBottom: 24,
           }}
         >
-          {/* Search */}
           <div
             style={{
               display: "flex",
@@ -1644,32 +1366,6 @@ export default function Solutions() {
               </span>
             )}
           </div>
-
-          {/* Category filter */}
-          <select
-            value={filterCat}
-            onChange={(e) => setFilterCat(e.target.value)}
-            style={{
-              background: T.bg2,
-              border: `1px solid ${T.border2}`,
-              borderRadius: 9,
-              padding: "9px 12px",
-              color: filterCat !== "All" ? T.accent : T.text2,
-              fontSize: 13,
-              cursor: "pointer",
-              fontFamily: "'DM Sans', sans-serif",
-              outline: "none",
-            }}
-          >
-            <option value="All">All Categories</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-
-          {/* Status filter */}
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -1685,15 +1381,10 @@ export default function Solutions() {
               outline: "none",
             }}
           >
-            <option value="All">All Statuses</option>
-            {Object.keys(STATUS_META).map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
+            <option value="All">All</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
           </select>
-
-          {/* Count chip */}
           <div
             style={{
               marginLeft: "auto",
@@ -1712,39 +1403,74 @@ export default function Solutions() {
           </div>
         </motion.div>
 
-        {/* ── Cards Grid ── */}
-        <motion.div
-          layout
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: 20,
-          }}
-        >
-          <AnimatePresence mode="popLayout">
-            {filtered.length === 0 ? (
-              <EmptyState key="empty" onAdd={openAdd} />
-            ) : (
-              filtered.map((sol, i) => (
-                <SolutionCard
-                  key={sol.id}
-                  sol={sol}
-                  index={i}
-                  onEdit={openEdit}
-                  onDelete={setDeleteTarget}
-                />
-              ))
-            )}
-          </AnimatePresence>
-        </motion.div>
+        {/* Grid */}
+        {loading ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "80px 20px",
+              color: T.text3,
+              fontSize: 14,
+            }}
+          >
+            Loading solutions…
+          </div>
+        ) : (
+          <motion.div
+            layout
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: 18,
+            }}
+          >
+            <AnimatePresence mode="popLayout">
+              {filtered.length === 0 ? (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  style={{
+                    gridColumn: "1/-1",
+                    textAlign: "center",
+                    padding: "80px 20px",
+                    background: T.bg2,
+                    border: `1.5px dashed ${T.border2}`,
+                    borderRadius: 16,
+                    color: T.text3,
+                    fontSize: 14,
+                  }}
+                >
+                  No solutions found.{" "}
+                  <span
+                    onClick={openAdd}
+                    style={{ color: T.accent, cursor: "pointer" }}
+                  >
+                    Add one
+                  </span>
+                </motion.div>
+              ) : (
+                filtered.map((sol, i) => (
+                  <SolutionCard
+                    key={sol._id}
+                    sol={sol}
+                    index={i}
+                    onEdit={openEdit}
+                    onDelete={setDeleteTarget}
+                  />
+                ))
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
       </div>
 
-      {/* ── Modals ── */}
       <SolutionModal
         open={showModal}
         onClose={() => setShowModal(false)}
         onSave={handleSave}
         editData={editData}
+        saving={saving}
       />
       <DeleteConfirm
         open={!!deleteTarget}
@@ -1752,6 +1478,9 @@ export default function Solutions() {
         onConfirm={confirmDelete}
         title={deleteTarget?.title}
       />
+      <AnimatePresence>
+        <Toast key={toast.msg} msg={toast.msg} type={toast.type} />
+      </AnimatePresence>
     </div>
   );
 }
