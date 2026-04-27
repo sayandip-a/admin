@@ -1,95 +1,17 @@
 import { useState, useRef, useEffect } from "react";
-let _id = 8;
-const INITIAL = [
-  {
-    _id: "1",
-    city: "Kolkata",
-    state: "West Bengal",
-    tagline: "Headquarters – Strategic Hub",
-    isHQ: true,
-    status: "Active",
-    icon: "building",
-    order: 0,
-    image: null,
-  },
-  {
-    _id: "2",
-    city: "West Bengal",
-    state: "West Bengal",
-    tagline: "All Regions Covered",
-    isHQ: false,
-    status: "Active",
-    icon: "pin",
-    order: 1,
-    image: null,
-  },
-  {
-    _id: "3",
-    city: "Assam",
-    state: "Assam",
-    tagline: "North-East Presence",
-    isHQ: false,
-    status: "Active",
-    icon: "pin",
-    order: 2,
-    image: null,
-  },
-  {
-    _id: "4",
-    city: "Bhubaneswar",
-    state: "Odisha",
-    tagline: "Odisha Operations",
-    isHQ: false,
-    status: "Active",
-    icon: "pin",
-    order: 3,
-    image: null,
-  },
-  {
-    _id: "5",
-    city: "Bihar",
-    state: "Bihar",
-    tagline: "Eastern Zone Coverage",
-    isHQ: false,
-    status: "Active",
-    icon: "pin",
-    order: 4,
-    image: null,
-  },
-  {
-    _id: "6",
-    city: "Uttar Pradesh",
-    state: "Uttar Pradesh",
-    tagline: "Northern Operations",
-    isHQ: false,
-    status: "Active",
-    icon: "pin",
-    order: 5,
-    image: null,
-  },
-  {
-    _id: "7",
-    city: "Delhi NCR",
-    state: "Delhi",
-    tagline: "Capital Region Hub",
-    isHQ: false,
-    status: "Active",
-    icon: "office",
-    order: 6,
-    image: null,
-  },
-  {
-    _id: "8",
-    city: "Mumbai",
-    state: "Maharashtra",
-    tagline: "Western Zone Presence",
-    isHQ: false,
-    status: "Coming Soon",
-    icon: "pin",
-    order: 7,
-    image: null,
-  },
-];
+
+function getAPI(path) {
+  try {
+    const base =
+      (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
+      (typeof process !== "undefined" && process.env?.REACT_APP_API_URL) ||
+      "";
+    return `${base}${path}`;
+  } catch {
+    return path;
+  }
+}
+const LOC_API = () => getAPI("/api/locations");
 
 const ICONS = {
   pin: (
@@ -97,7 +19,7 @@ const ICONS = {
       viewBox="0 0 40 48"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-full"
+      style={{ width: "100%", height: "100%" }}
     >
       <ellipse cx="20" cy="45" rx="8" ry="3" fill="rgba(229,57,53,0.2)" />
       <circle cx="20" cy="18" r="16" fill="#e53935" />
@@ -119,7 +41,7 @@ const ICONS = {
       viewBox="0 0 48 48"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-full"
+      style={{ width: "100%", height: "100%" }}
     >
       <rect
         x="8"
@@ -160,7 +82,7 @@ const ICONS = {
       viewBox="0 0 48 48"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-full"
+      style={{ width: "100%", height: "100%" }}
     >
       <rect
         x="6"
@@ -202,7 +124,7 @@ const ICONS = {
       viewBox="0 0 48 48"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-full"
+      style={{ width: "100%", height: "100%" }}
     >
       <path
         d="M18 8v16L9 36a5 5 0 004.5 7h21A5 5 0 0039 36L30 24V8"
@@ -248,7 +170,24 @@ const STATUS_STYLE = {
   },
 };
 
-const Ic = ({ d, size = 16, sw = 1.7, style, className = "" }) => (
+const ICON_OPTIONS = ["pin", "building", "office", "lab"];
+const STATUS_OPTIONS = ["Active", "Inactive", "Coming Soon"];
+
+const EMPTY = {
+  city: "",
+  state: "",
+  tagline: "",
+  isHQ: false,
+  status: "Active",
+  icon: "pin",
+  address: "",
+  phone: "",
+  email: "",
+  image: null,
+};
+
+// ── Icon helper ───────────────────────────────────────────────────────────
+const Ic = ({ d, size = 16, sw = 1.7, style }) => (
   <svg
     width={size}
     height={size}
@@ -259,7 +198,6 @@ const Ic = ({ d, size = 16, sw = 1.7, style, className = "" }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={style}
-    className={className}
   >
     {[].concat(d).map((p, i) => (
       <path key={i} d={p} />
@@ -267,7 +205,7 @@ const Ic = ({ d, size = 16, sw = 1.7, style, className = "" }) => (
   </svg>
 );
 
-/* ── Toast ── */
+// ── Toast ─────────────────────────────────────────────────────────────────
 function Toast({ items }) {
   return (
     <div
@@ -321,7 +259,7 @@ function Toast({ items }) {
   );
 }
 
-/* ── Confirm Modal ── */
+// ── Confirm Modal ─────────────────────────────────────────────────────────
 function ConfirmModal({ open, name, onConfirm, onClose }) {
   if (!open) return null;
   return (
@@ -432,22 +370,7 @@ function ConfirmModal({ open, name, onConfirm, onClose }) {
   );
 }
 
-/* ── Form Drawer ── */
-const EMPTY = {
-  city: "",
-  state: "",
-  tagline: "",
-  isHQ: false,
-  status: "Active",
-  icon: "pin",
-  address: "",
-  phone: "",
-  email: "",
-  image: null,
-};
-const ICON_OPTIONS = ["pin", "building", "office", "lab"];
-const STATUS_OPTIONS = ["Active", "Inactive", "Coming Soon"];
-
+// ── Drawer ────────────────────────────────────────────────────────────────
 function Drawer({ open, onClose, onSave, initial }) {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
@@ -503,7 +426,7 @@ function Drawer({ open, onClose, onSave, initial }) {
     }
   };
 
-  const inputStyle = (k) => ({
+  const inp = (k) => ({
     width: "100%",
     borderRadius: 12,
     padding: "10px 14px",
@@ -514,9 +437,10 @@ function Drawer({ open, onClose, onSave, initial }) {
     border: `1px solid ${errs[k] ? "rgba(248,113,113,0.5)" : "rgba(255,255,255,0.1)"}`,
     color: "#e2e8f0",
     fontFamily: "'DM Sans',sans-serif",
+    boxSizing: "border-box",
   });
 
-  const labelStyle = {
+  const lbl = {
     display: "block",
     fontSize: 11,
     fontWeight: 700,
@@ -528,7 +452,6 @@ function Drawer({ open, onClose, onSave, initial }) {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
         style={{
@@ -542,8 +465,6 @@ function Drawer({ open, onClose, onSave, initial }) {
           transition: "opacity .3s ease",
         }}
       />
-
-      {/* Panel */}
       <aside
         style={{
           position: "fixed",
@@ -630,7 +551,7 @@ function Drawer({ open, onClose, onSave, initial }) {
         >
           {/* Image Upload */}
           <div>
-            <label style={labelStyle}>Location Photo</label>
+            <label style={lbl}>Location Photo</label>
             {imgPreview ? (
               <div
                 style={{
@@ -773,7 +694,7 @@ function Drawer({ open, onClose, onSave, initial }) {
 
           {/* Icon Picker */}
           <div>
-            <label style={labelStyle}>Icon Style</label>
+            <label style={lbl}>Icon Style</label>
             <div
               style={{
                 display: "grid",
@@ -848,14 +769,14 @@ function Drawer({ open, onClose, onSave, initial }) {
               }}
             >
               <div>
-                <label style={labelStyle}>
+                <label style={lbl}>
                   City / Area <span style={{ color: "#f87171" }}>*</span>
                 </label>
                 <input
                   value={form.city}
                   onChange={(e) => set("city")(e.target.value)}
                   placeholder="e.g. Kolkata"
-                  style={inputStyle("city")}
+                  style={inp("city")}
                 />
                 {errs.city && (
                   <p style={{ color: "#f87171", fontSize: 11, marginTop: 4 }}>
@@ -864,14 +785,14 @@ function Drawer({ open, onClose, onSave, initial }) {
                 )}
               </div>
               <div>
-                <label style={labelStyle}>
+                <label style={lbl}>
                   State <span style={{ color: "#f87171" }}>*</span>
                 </label>
                 <input
                   value={form.state}
                   onChange={(e) => set("state")(e.target.value)}
                   placeholder="e.g. West Bengal"
-                  style={inputStyle("state")}
+                  style={inp("state")}
                 />
                 {errs.state && (
                   <p style={{ color: "#f87171", fontSize: 11, marginTop: 4 }}>
@@ -881,21 +802,21 @@ function Drawer({ open, onClose, onSave, initial }) {
               </div>
             </div>
             <div style={{ marginBottom: 10 }}>
-              <label style={labelStyle}>Tagline</label>
+              <label style={lbl}>Tagline</label>
               <input
                 value={form.tagline}
                 onChange={(e) => set("tagline")(e.target.value)}
                 placeholder="e.g. Headquarters – Strategic Hub"
-                style={inputStyle()}
+                style={inp()}
               />
             </div>
             <div>
-              <label style={labelStyle}>Full Address</label>
+              <label style={lbl}>Full Address</label>
               <input
                 value={form.address}
                 onChange={(e) => set("address")(e.target.value)}
                 placeholder="123, Park Street, Kolkata"
-                style={inputStyle()}
+                style={inp()}
               />
             </div>
           </div>
@@ -922,29 +843,29 @@ function Drawer({ open, onClose, onSave, initial }) {
               Contact (optional)
             </p>
             <div style={{ marginBottom: 10 }}>
-              <label style={labelStyle}>Phone</label>
+              <label style={lbl}>Phone</label>
               <input
                 value={form.phone}
                 onChange={(e) => set("phone")(e.target.value)}
                 placeholder="+91 00000 00000"
-                style={inputStyle()}
+                style={inp()}
               />
             </div>
             <div>
-              <label style={labelStyle}>Email</label>
+              <label style={lbl}>Email</label>
               <input
                 type="email"
                 value={form.email}
                 onChange={(e) => set("email")(e.target.value)}
                 placeholder="kolkata@accelia.com"
-                style={inputStyle()}
+                style={inp()}
               />
             </div>
           </div>
 
           {/* Status */}
           <div>
-            <label style={labelStyle}>Status</label>
+            <label style={lbl}>Status</label>
             <div style={{ display: "flex", gap: 8 }}>
               {STATUS_OPTIONS.map((s) => {
                 const sty = STATUS_STYLE[s];
@@ -1123,7 +1044,7 @@ function Drawer({ open, onClose, onSave, initial }) {
   );
 }
 
-/* ── Location Card ── */
+// ── Location Card ─────────────────────────────────────────────────────────
 function LocationCard({ loc, onEdit, onDelete, index }) {
   const [hovered, setHovered] = useState(false);
   const sty = STATUS_STYLE[loc.status] || STATUS_STYLE["Active"];
@@ -1147,7 +1068,7 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
             ? "1px solid rgba(255,255,255,0.15)"
             : "1px solid rgba(255,255,255,0.07)",
         boxShadow: hovered
-          ? "0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(13,148,136,0.1)"
+          ? "0 12px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(13,148,136,0.1)"
           : isHQ
             ? "0 4px 20px rgba(13,148,136,0.12)"
             : "none",
@@ -1157,7 +1078,6 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
         position: "relative",
       }}
     >
-      {/* Image or icon area */}
       {loc.image ? (
         <div style={{ height: 90, overflow: "hidden", position: "relative" }}>
           <img
@@ -1198,7 +1118,6 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
         </div>
       )}
 
-      {/* Badges */}
       <div
         style={{
           position: "absolute",
@@ -1254,7 +1173,6 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
         </span>
       </div>
 
-      {/* Content */}
       <div
         style={{
           padding: "10px 14px 14px",
@@ -1286,8 +1204,6 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
         >
           {loc.tagline || "No description"}
         </p>
-
-        {/* Actions */}
         <div style={{ display: "flex", gap: 6 }}>
           <button
             onClick={() => onEdit(loc)}
@@ -1308,8 +1224,7 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
               color: "#5eead4",
             }}
           >
-            <Ic d="M13 3l4 4-8 8H5v-4l8-8z" size={11} sw={2} />
-            Edit
+            <Ic d="M13 3l4 4-8 8H5v-4l8-8z" size={11} sw={2} /> Edit
           </button>
           <button
             onClick={() => onDelete(loc)}
@@ -1339,8 +1254,14 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
     </div>
   );
 }
+
+// ══════════════════════════════════════════════════════
+//  MAIN COMPONENT
+// ══════════════════════════════════════════════════════
 export default function Locations() {
-  const [locs, setLocs] = useState(INITIAL);
+  const token = localStorage.getItem("token") || "";
+  const [locs, setLocs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStat, setFilterStat] = useState("All");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -1355,44 +1276,89 @@ export default function Locations() {
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3000);
   };
 
+  // ── Fetch from API ──────────────────────────────────
+  const fetchLocs = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(LOC_API());
+      const d = await r.json();
+      setLocs(Array.isArray(d.locations) ? d.locations : []);
+    } catch (e) {
+      console.error("Locations fetch error:", e);
+      toast("Failed to load locations", "err");
+      setLocs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLocs();
+  }, []);
+
+  // ── Save (create or update) ─────────────────────────
+  const handleSave = async (payload) => {
+    const isEdit = !!editTarget?._id;
+    const url = isEdit ? `${LOC_API()}/${editTarget._id}` : LOC_API();
+    const method = isEdit ? "PUT" : "POST";
+
+    // If new and isHQ, unset other HQs optimistically
+    if (payload.isHQ && !isEdit) {
+      setLocs((l) => l.map((x) => ({ ...x, isHQ: false })));
+    }
+
+    const r = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const d = await r.json();
+
+    if (!r.ok) {
+      toast(d.message || "Save failed", "err");
+      return;
+    }
+
+    toast(isEdit ? "Location updated ✓" : "Location added ✓");
+    fetchLocs(); // re-fetch to stay in sync with DB
+  };
+
+  // ── Delete ──────────────────────────────────────────
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      const r = await fetch(`${LOC_API()}/${deleteTarget._id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!r.ok) {
+        toast("Delete failed", "err");
+        return;
+      }
+      toast(`${deleteTarget.city} removed`, "err");
+      fetchLocs();
+    } catch {
+      toast("Delete failed", "err");
+    } finally {
+      setDeleteTarget(null);
+    }
+  };
+
+  // ── Filter ──────────────────────────────────────────
   const filtered = locs.filter((l) => {
     const q = search.toLowerCase();
     const mQ =
       !q ||
-      l.city.toLowerCase().includes(q) ||
-      l.state.toLowerCase().includes(q) ||
+      l.city?.toLowerCase().includes(q) ||
+      l.state?.toLowerCase().includes(q) ||
       (l.tagline || "").toLowerCase().includes(q);
     const mS = filterStat === "All" || l.status === filterStat;
     return mQ && mS;
   });
-
-  const handleSave = async (payload) => {
-    if (editTarget?._id) {
-      let updated = locs.map((l) =>
-        l._id === editTarget._id ? { ...l, ...payload } : l,
-      );
-      if (payload.isHQ)
-        updated = updated.map((l) =>
-          l._id === editTarget._id ? l : { ...l, isHQ: false },
-        );
-      setLocs(updated);
-      toast("Location updated ✓");
-    } else {
-      let newList = [...locs];
-      if (payload.isHQ) newList = newList.map((l) => ({ ...l, isHQ: false }));
-      setLocs([
-        ...newList,
-        { ...payload, _id: String(++_id), order: locs.length },
-      ]);
-      toast("Location added ✓");
-    }
-  };
-
-  const handleDelete = () => {
-    setLocs((l) => l.filter((x) => x._id !== deleteTarget._id));
-    toast(`${deleteTarget.city} removed`, "err");
-    setDeleteTarget(null);
-  };
 
   const counts = {
     total: locs.length,
@@ -1406,12 +1372,12 @@ export default function Locations() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; background: #0f172a; }
         @keyframes cardUp       { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
         @keyframes fadeUp       { from{opacity:0;transform:translateY(8px)}  to{opacity:1;transform:none} }
         @keyframes slideInRight { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:none} }
         @keyframes popIn        { from{opacity:0;transform:scale(.92)}       to{opacity:1;transform:none} }
         @keyframes spin         { to{transform:rotate(360deg)} }
+        @keyframes shimmer      { to{background-position:-200% 0} }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
         input::placeholder { color: #334155 !important; }
@@ -1423,6 +1389,7 @@ export default function Locations() {
         @media(min-width: 1024px) { .loc-grid { grid-template-columns: repeat(5, 1fr); } }
         .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         @media(min-width: 640px)  { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+        .skeleton { background: linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 16px; }
       `}</style>
 
       <div
@@ -1432,7 +1399,7 @@ export default function Locations() {
           fontFamily: "'DM Sans',sans-serif",
         }}
       >
-        {/* ══ TOP BAR ══ */}
+        {/* TOP BAR */}
         <div
           style={{
             position: "sticky",
@@ -1448,31 +1415,17 @@ export default function Locations() {
             animation: "fadeUp .4s ease both",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div>
-              <p
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: "#334155",
-                  margin: 0,
-                }}
-              ></p>
-              <p
-                style={{
-                  fontSize: 25,
-                  fontWeight: 700,
-                  color: "#e2e8f0",
-                  margin: 0,
-                  fontFamily: "'Playfair Display',serif",
-                }}
-              >
-                Locations Manager
-              </p>
-            </div>
-          </div>
+          <p
+            style={{
+              fontSize: 22,
+              fontWeight: 700,
+              color: "#e2e8f0",
+              margin: 0,
+              fontFamily: "'Playfair Display',serif",
+            }}
+          >
+            Locations Manager
+          </p>
           <button
             onClick={() => {
               setEditTarget(null);
@@ -1491,7 +1444,6 @@ export default function Locations() {
               border: "none",
               background: "linear-gradient(135deg,#0d9488,#0891b2)",
               boxShadow: "0 4px 16px rgba(13,148,136,0.35)",
-              transition: "transform .15s,box-shadow .15s",
             }}
           >
             <span style={{ fontSize: 18, lineHeight: 1, fontWeight: 300 }}>
@@ -1508,7 +1460,7 @@ export default function Locations() {
             padding: "24px 16px 40px",
           }}
         >
-          {/* ══ PAGE HEADER ══ */}
+          {/* PAGE HEADER */}
           <div style={{ marginBottom: 28, animation: "fadeUp .4s ease both" }}>
             <div
               style={{
@@ -1555,7 +1507,7 @@ export default function Locations() {
             </p>
           </div>
 
-          {/* ══ STAT CARDS ══ */}
+          {/* STAT CARDS */}
           <div
             className="stat-grid"
             style={{
@@ -1606,7 +1558,7 @@ export default function Locations() {
             ))}
           </div>
 
-          {/* ══ FILTERS ══ */}
+          {/* FILTERS */}
           <div
             style={{
               display: "flex",
@@ -1616,7 +1568,6 @@ export default function Locations() {
               animation: "fadeUp .45s ease .12s both",
             }}
           >
-            {/* Search */}
             <div style={{ position: "relative", maxWidth: 320 }}>
               <span
                 style={{
@@ -1651,11 +1602,10 @@ export default function Locations() {
                   border: "1px solid rgba(255,255,255,0.09)",
                   color: "#e2e8f0",
                   fontFamily: "'DM Sans',sans-serif",
+                  boxSizing: "border-box",
                 }}
               />
             </div>
-
-            {/* Status filter pills */}
             <div className="filter-scroll" style={{ display: "flex", gap: 8 }}>
               {["All", "Active", "Coming Soon", "Inactive"].map((s) => {
                 const active = filterStat === s;
@@ -1713,7 +1663,7 @@ export default function Locations() {
             </div>
           </div>
 
-          {/* ══ RESULTS COUNT ══ */}
+          {/* RESULTS COUNT */}
           <p
             style={{
               fontSize: 12,
@@ -1728,8 +1678,14 @@ export default function Locations() {
             locations
           </p>
 
-          {/* ══ CARD GRID ══ */}
-          {filtered.length === 0 ? (
+          {/* LOADING */}
+          {loading ? (
+            <div className="loc-grid">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="skeleton" style={{ height: 180 }} />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
             <div
               style={{
                 display: "flex",
@@ -1791,8 +1747,6 @@ export default function Locations() {
                   onDelete={(l) => setDeleteTarget(l)}
                 />
               ))}
-
-              {/* Ghost add card */}
               <button
                 onClick={() => {
                   setEditTarget(null);
@@ -1811,7 +1765,7 @@ export default function Locations() {
                   border: "1px dashed rgba(255,255,255,0.1)",
                   color: "#334155",
                   transition: "all .25s",
-                  animation: `cardUp .5s ease both`,
+                  animation: "cardUp .5s ease both",
                   animationDelay: `${filtered.length * 50}ms`,
                 }}
               >
