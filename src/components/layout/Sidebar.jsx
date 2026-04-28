@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const navSections = [
   {
@@ -268,7 +269,33 @@ const CSS_VARS = `
     --sb-border2: rgba(79,156,249,0.18);
     --sb-active-bg: rgba(79,156,249,0.10);
     --sb-hover-bg: rgba(255,255,255,0.04);
+    --sb-danger: #f25c5c;
+    --sb-danger-bg: rgba(242,92,92,0.09);
+    --sb-danger-border: rgba(242,92,92,0.22);
   }
+`;
+
+const GLOBAL_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+  ${CSS_VARS}
+  nav::-webkit-scrollbar { display: none; }
+
+  @keyframes logoFloat    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
+  @keyframes iconPop      { 0%{transform:scale(1)} 40%{transform:scale(1.25)} 70%{transform:scale(0.92)} 100%{transform:scale(1)} }
+  @keyframes settingsSpin { from{transform:rotate(0deg)} to{transform:rotate(90deg)} }
+  @keyframes onlinePulse  { 0%,100%{box-shadow:0 0 0 0 rgba(34,211,160,0.45)} 50%{box-shadow:0 0 0 4px rgba(34,211,160,0)} }
+  @keyframes logoutArrow  { 0%{transform:translateX(0);opacity:1} 45%{transform:translateX(6px);opacity:0} 46%{transform:translateX(-5px);opacity:0} 100%{transform:translateX(0);opacity:1} }
+  @keyframes logoutPulse  { 0%{transform:scale(1)} 35%{transform:scale(0.95)} 100%{transform:scale(1)} }
+
+  .sb-item { transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.15s !important; }
+  .sb-item:hover { transform: translateX(2px); }
+  .sb-item:hover .sb-icon { animation: iconPop 0.32s ease both; }
+  .sb-item[data-id="settings"]:hover .sb-icon { animation: settingsSpin 0.4s ease both !important; }
+
+  .sb-logout { transition: background 0.22s, border-color 0.22s, color 0.22s, box-shadow 0.22s, transform 0.15s !important; }
+  .sb-logout:hover { transform: translateX(2px); box-shadow: 0 2px 18px rgba(242,92,92,0.13) !important; }
+  .sb-logout:hover .la { animation: logoutArrow 0.48s ease both; }
+  .sb-logout:active { animation: logoutPulse 0.3s ease both; }
 `;
 
 function useIsMobile() {
@@ -277,14 +304,13 @@ function useIsMobile() {
   );
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
-    const handler = (e) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    const h = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
   }, []);
   return isMobile;
 }
 
-// ── Modern Logo ───────────────────────────────────────────────────────────────
 function LogoIcon({ size = 36 }) {
   return (
     <div
@@ -293,7 +319,7 @@ function LogoIcon({ size = 36 }) {
         height: size,
         borderRadius: 11,
         flexShrink: 0,
-        background: "linear-gradient(135deg, #4f9cf9 0%, #7c6af7 100%)",
+        background: "linear-gradient(135deg,#4f9cf9,#7c6af7)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -302,16 +328,14 @@ function LogoIcon({ size = 36 }) {
         boxShadow: "0 4px 14px rgba(79,156,249,0.35)",
       }}
     >
-      {/* gloss */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           background:
-            "linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 55%)",
+            "linear-gradient(135deg,rgba(255,255,255,0.22) 0%,transparent 55%)",
         }}
       />
-      {/* DNA / cross icon — clinical feel */}
       <svg
         viewBox="0 0 24 24"
         fill="none"
@@ -322,7 +346,6 @@ function LogoIcon({ size = 36 }) {
           zIndex: 1,
         }}
       >
-        {/* cross */}
         <rect
           x="10"
           y="3"
@@ -341,19 +364,55 @@ function LogoIcon({ size = 36 }) {
           fill="white"
           opacity="0.95"
         />
-        {/* small accent circles */}
         <circle cx="12" cy="12" r="2.5" fill="rgba(255,255,255,0.3)" />
       </svg>
     </div>
   );
 }
 
+function LogoutIcon({ size = 16 }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ width: size, height: size, flexShrink: 0 }}
+    >
+      <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+      <polyline points="16 17 21 12 16 7" className="la" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  );
+}
+
+function OnlineDot({ border = "var(--sb-bg)" }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 0,
+        right: 0,
+        width: 9,
+        height: 9,
+        borderRadius: "50%",
+        background: "#22d3a0",
+        border: `2px solid ${border}`,
+        animation: "onlinePulse 2.5s ease-in-out infinite",
+      }}
+    />
+  );
+}
+
 // ── Desktop Sidebar ───────────────────────────────────────────────────────────
-function DesktopSidebar({ activePage, setActivePage }) {
+function DesktopSidebar({ activePage, setActivePage, onLogout }) {
   const [collapsed, setCollapsed] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [searchVal, setSearchVal] = useState("");
   const [tooltipStyle, setTooltipStyle] = useState({ top: 0, left: 0 });
+  const [logoutHov, setLogoutHov] = useState(false);
 
   const W = collapsed ? 68 : 256;
   const allItems = navSections.flatMap((s) => s.items);
@@ -376,14 +435,7 @@ function DesktopSidebar({ activePage, setActivePage }) {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
-        ${CSS_VARS}
-        nav::-webkit-scrollbar { display: none; }
-        @keyframes logoFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
-      `}</style>
-
-      {/* Floating tooltip */}
+      <style>{GLOBAL_STYLES}</style>
       {collapsed && hoveredItem && (
         <div
           style={{
@@ -400,7 +452,7 @@ function DesktopSidebar({ activePage, setActivePage }) {
             whiteSpace: "nowrap",
             pointerEvents: "none",
             zIndex: 9999,
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "'DM Sans',sans-serif",
           }}
         >
           {allItems.find((i) => i.id === hoveredItem)?.label}
@@ -417,10 +469,10 @@ function DesktopSidebar({ activePage, setActivePage }) {
           display: "flex",
           flexDirection: "column",
           transition:
-            "width 0.35s cubic-bezier(0.4,0,0.2,1), min-width 0.35s cubic-bezier(0.4,0,0.2,1)",
+            "width 0.35s cubic-bezier(0.4,0,0.2,1),min-width 0.35s cubic-bezier(0.4,0,0.2,1)",
           position: "relative",
           flexShrink: 0,
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'DM Sans',sans-serif",
           overflow: "hidden",
         }}
       >
@@ -445,7 +497,6 @@ function DesktopSidebar({ activePage, setActivePage }) {
           >
             <LogoIcon size={36} />
           </div>
-
           <div
             style={{
               overflow: "hidden",
@@ -453,8 +504,8 @@ function DesktopSidebar({ activePage, setActivePage }) {
               opacity: collapsed ? 0 : 1,
               width: collapsed ? 0 : "auto",
               transition: collapsed
-                ? "opacity 0.1s ease, width 0.35s cubic-bezier(0.4,0,0.2,1)"
-                : "opacity 0.2s ease 0.1s, width 0.35s cubic-bezier(0.4,0,0.2,1)",
+                ? "opacity 0.1s,width 0.35s cubic-bezier(0.4,0,0.2,1)"
+                : "opacity 0.2s ease 0.1s,width 0.35s cubic-bezier(0.4,0,0.2,1)",
             }}
           >
             <div
@@ -462,7 +513,7 @@ function DesktopSidebar({ activePage, setActivePage }) {
                 fontSize: 14,
                 fontWeight: 700,
                 color: "var(--sb-text1)",
-                fontFamily: "'Syne', sans-serif",
+                fontFamily: "'Syne',sans-serif",
                 letterSpacing: "0.02em",
               }}
             >
@@ -479,8 +530,6 @@ function DesktopSidebar({ activePage, setActivePage }) {
               Management Portal
             </div>
           </div>
-
-          {/* Collapse button */}
           <button
             onClick={() => setCollapsed(!collapsed)}
             style={{
@@ -501,7 +550,7 @@ function DesktopSidebar({ activePage, setActivePage }) {
               cursor: "pointer",
               color: "var(--sb-text2)",
               transition:
-                "background 0.2s, color 0.2s, right 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1)",
+                "background 0.2s,color 0.2s,right 0.35s cubic-bezier(0.4,0,0.2,1),transform 0.35s cubic-bezier(0.4,0,0.2,1)",
               padding: 0,
             }}
             onMouseEnter={(e) => {
@@ -533,7 +582,7 @@ function DesktopSidebar({ activePage, setActivePage }) {
             overflow: "hidden",
             opacity: collapsed ? 0 : 1,
             maxHeight: collapsed ? 0 : 52,
-            transition: "opacity 0.2s, max-height 0.3s, padding 0.3s",
+            transition: "opacity 0.2s,max-height 0.3s,padding 0.3s",
           }}
         >
           <div
@@ -569,7 +618,7 @@ function DesktopSidebar({ activePage, setActivePage }) {
                 outline: "none",
                 color: "var(--sb-text1)",
                 fontSize: 12.5,
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'DM Sans',sans-serif",
                 flex: 1,
               }}
             />
@@ -622,7 +671,7 @@ function DesktopSidebar({ activePage, setActivePage }) {
                   overflow: "hidden",
                   opacity: collapsed ? 0 : 1,
                   maxHeight: collapsed ? 0 : 30,
-                  transition: "opacity 0.15s, max-height 0.3s, padding 0.3s",
+                  transition: "opacity 0.15s,max-height 0.3s,padding 0.3s",
                 }}
               >
                 {section.label}
@@ -634,6 +683,8 @@ function DesktopSidebar({ activePage, setActivePage }) {
                 return (
                   <div
                     key={item.id}
+                    data-id={item.id}
+                    className="sb-item"
                     onClick={() => setActivePage(item.id)}
                     onMouseEnter={(e) => {
                       setHoveredItem(item.id);
@@ -651,8 +702,6 @@ function DesktopSidebar({ activePage, setActivePage }) {
                       marginBottom: 2,
                       position: "relative",
                       overflow: "hidden",
-                      transition:
-                        "background 0.18s, color 0.18s, border-color 0.18s",
                       color: isActive
                         ? "var(--sb-accent)"
                         : isHov
@@ -683,6 +732,7 @@ function DesktopSidebar({ activePage, setActivePage }) {
                       />
                     )}
                     <span
+                      className="sb-icon"
                       style={{
                         flexShrink: 0,
                         display: "flex",
@@ -701,7 +751,7 @@ function DesktopSidebar({ activePage, setActivePage }) {
                         width: collapsed ? 0 : "auto",
                         overflow: "hidden",
                         transition: collapsed
-                          ? "opacity 0.1s ease"
+                          ? "opacity 0.1s"
                           : "opacity 0.15s ease 0.05s",
                       }}
                     >
@@ -725,75 +775,117 @@ function DesktopSidebar({ activePage, setActivePage }) {
           )}
         </nav>
 
-        {/* User footer */}
+        {/* Footer */}
         <div
           style={{
-            padding: collapsed ? "12px 10px" : "12px 12px",
+            padding: collapsed ? "10px 8px" : "10px 12px",
             borderTop: "1px solid var(--sb-border)",
             flexShrink: 0,
             display: "flex",
-            alignItems: "center",
-            gap: 10,
+            flexDirection: "column",
+            gap: 8,
             overflow: "hidden",
           }}
         >
-          <div
+          {/* User */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg,#4f9cf9,#7c6af7)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                fontWeight: 700,
+                color: "#fff",
+                flexShrink: 0,
+                position: "relative",
+                fontFamily: "'Syne',sans-serif",
+              }}
+            >
+              AD
+              <OnlineDot border="var(--sb-bg)" />
+            </div>
+            <div
+              style={{
+                flex: 1,
+                overflow: "hidden",
+                opacity: collapsed ? 0 : 1,
+                width: collapsed ? 0 : "auto",
+                transition: "opacity 0.15s",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12.5,
+                  fontWeight: 500,
+                  color: "var(--sb-text1)",
+                  fontFamily: "'Syne',sans-serif",
+                }}
+              >
+                Admin User
+              </div>
+              <div
+                style={{
+                  fontSize: 10.5,
+                  color: "var(--sb-text2)",
+                  marginTop: 1,
+                }}
+              >
+                Admin
+              </div>
+            </div>
+          </div>
+
+          {/* Logout */}
+          <button
+            className="sb-logout"
+            onClick={onLogout}
+            onMouseEnter={() => setLogoutHov(true)}
+            onMouseLeave={() => setLogoutHov(false)}
+            title={collapsed ? "Sign Out" : undefined}
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #4f9cf9, #7c6af7)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              fontSize: 11,
-              fontWeight: 700,
-              color: "#fff",
-              flexShrink: 0,
-              position: "relative",
-              fontFamily: "'Syne', sans-serif",
+              justifyContent: collapsed ? "center" : "flex-start",
+              gap: collapsed ? 0 : 9,
+              width: "100%",
+              padding: collapsed ? "9px 0" : "9px 12px",
+              borderRadius: 9,
+              background: logoutHov
+                ? "var(--sb-danger-bg)"
+                : "rgba(255,255,255,0.03)",
+              border: `1px solid ${logoutHov ? "var(--sb-danger-border)" : "var(--sb-border)"}`,
+              color: logoutHov ? "var(--sb-danger)" : "var(--sb-text2)",
+              cursor: "pointer",
+              fontFamily: "'DM Sans',sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
             }}
           >
-            AD
-            <div
+            <span
+              style={{ display: "flex", alignItems: "center", flexShrink: 0 }}
+            >
+              <LogoutIcon size={16} />
+            </span>
+            <span
               style={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: "#22d3a0",
-                border: "2px solid var(--sb-bg)",
-              }}
-            />
-          </div>
-          <div
-            style={{
-              flex: 1,
-              overflow: "hidden",
-              opacity: collapsed ? 0 : 1,
-              width: collapsed ? 0 : "auto",
-              transition: "opacity 0.15s",
-              whiteSpace: "nowrap",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12.5,
-                fontWeight: 500,
-                color: "var(--sb-text1)",
-                fontFamily: "'Syne', sans-serif",
+                opacity: collapsed ? 0 : 1,
+                width: collapsed ? 0 : "auto",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                transition: collapsed
+                  ? "opacity 0.1s"
+                  : "opacity 0.15s ease 0.05s",
               }}
             >
-              Admin User
-            </div>
-            <div
-              style={{ fontSize: 10.5, color: "var(--sb-text2)", marginTop: 1 }}
-            >
-              Super Admin
-            </div>
-          </div>
+              Sign Out
+            </span>
+          </button>
         </div>
       </aside>
     </>
@@ -801,8 +893,9 @@ function DesktopSidebar({ activePage, setActivePage }) {
 }
 
 // ── Mobile Drawer ─────────────────────────────────────────────────────────────
-function MobileDrawer({ activePage, setActivePage, open, onClose }) {
+function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
   const [searchVal, setSearchVal] = useState("");
+  const [logoutHov, setLogoutHov] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -824,6 +917,7 @@ function MobileDrawer({ activePage, setActivePage, open, onClose }) {
 
   return (
     <>
+      <style>{GLOBAL_STYLES}</style>
       <div
         onClick={onClose}
         style={{
@@ -833,7 +927,7 @@ function MobileDrawer({ activePage, setActivePage, open, onClose }) {
           background: "rgba(0,0,0,0.6)",
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
-          transition: "opacity 0.25s ease",
+          transition: "opacity 0.25s",
           backdropFilter: "blur(2px)",
         }}
       />
@@ -849,7 +943,7 @@ function MobileDrawer({ activePage, setActivePage, open, onClose }) {
           borderRight: "1px solid var(--sb-border)",
           display: "flex",
           flexDirection: "column",
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'DM Sans',sans-serif",
           transform: open ? "translateX(0)" : "translateX(-100%)",
           transition: "transform 0.28s cubic-bezier(0.4,0,0.2,1)",
           overflowY: "auto",
@@ -868,14 +962,16 @@ function MobileDrawer({ activePage, setActivePage, open, onClose }) {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <LogoIcon size={32} />
+            <div style={{ animation: "logoFloat 4s ease-in-out infinite" }}>
+              <LogoIcon size={32} />
+            </div>
             <div>
               <div
                 style={{
                   fontSize: 13,
                   fontWeight: 700,
                   color: "var(--sb-text1)",
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'Syne',sans-serif",
                 }}
               >
                 Accelia
@@ -954,7 +1050,7 @@ function MobileDrawer({ activePage, setActivePage, open, onClose }) {
                 outline: "none",
                 color: "var(--sb-text1)",
                 fontSize: 13,
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'DM Sans',sans-serif",
                 flex: 1,
               }}
             />
@@ -1011,6 +1107,8 @@ function MobileDrawer({ activePage, setActivePage, open, onClose }) {
                 return (
                   <div
                     key={item.id}
+                    data-id={item.id}
+                    className="sb-item"
                     onClick={() => {
                       setActivePage(item.id);
                       onClose();
@@ -1048,6 +1146,7 @@ function MobileDrawer({ activePage, setActivePage, open, onClose }) {
                       />
                     )}
                     <span
+                      className="sb-icon"
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -1083,65 +1182,89 @@ function MobileDrawer({ activePage, setActivePage, open, onClose }) {
           )}
         </nav>
 
-        {/* User footer */}
+        {/* Footer */}
         <div
           style={{
-            padding: "14px",
+            padding: "12px 14px 16px",
             borderTop: "1px solid var(--sb-border)",
             display: "flex",
-            alignItems: "center",
+            flexDirection: "column",
             gap: 10,
             flexShrink: 0,
           }}
         >
-          <div
+          {/* User */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg,#4f9cf9,#7c6af7)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#fff",
+                flexShrink: 0,
+                position: "relative",
+                fontFamily: "'Syne',sans-serif",
+              }}
+            >
+              AD
+              <OnlineDot border="var(--sb-bg)" />
+            </div>
+            <div style={{ flex: 1, overflow: "hidden" }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "var(--sb-text1)",
+                  fontFamily: "'Syne',sans-serif",
+                }}
+              >
+                Admin User
+              </div>
+              <div
+                style={{ fontSize: 11, color: "var(--sb-text2)", marginTop: 1 }}
+              >
+                Super Admin
+              </div>
+            </div>
+          </div>
+
+          {/* Logout */}
+          <button
+            className="sb-logout"
+            onClick={() => {
+              onClose();
+              setTimeout(onLogout, 200);
+            }}
+            onMouseEnter={() => setLogoutHov(true)}
+            onMouseLeave={() => setLogoutHov(false)}
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #4f9cf9, #7c6af7)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 12,
-              fontWeight: 700,
-              color: "#fff",
-              flexShrink: 0,
-              position: "relative",
-              fontFamily: "'Syne', sans-serif",
+              gap: 9,
+              width: "100%",
+              padding: "11px 14px",
+              borderRadius: 10,
+              background: logoutHov
+                ? "var(--sb-danger-bg)"
+                : "rgba(255,255,255,0.03)",
+              border: `1px solid ${logoutHov ? "var(--sb-danger-border)" : "var(--sb-border)"}`,
+              color: logoutHov ? "var(--sb-danger)" : "var(--sb-text2)",
+              cursor: "pointer",
+              fontFamily: "'DM Sans',sans-serif",
+              fontSize: 13,
+              fontWeight: 500,
             }}
           >
-            AD
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                width: 9,
-                height: 9,
-                borderRadius: "50%",
-                background: "#22d3a0",
-                border: "2px solid var(--sb-bg)",
-              }}
-            />
-          </div>
-          <div style={{ flex: 1, overflow: "hidden" }}>
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 500,
-                color: "var(--sb-text1)",
-                fontFamily: "'Syne', sans-serif",
-              }}
-            >
-              Admin User
-            </div>
-            <div
-              style={{ fontSize: 11, color: "var(--sb-text2)", marginTop: 1 }}
-            >
-              Super Admin
-            </div>
-          </div>
+            <LogoutIcon size={16} />
+            <span>Sign Out</span>
+          </button>
         </div>
       </div>
     </>
@@ -1163,7 +1286,7 @@ function MobileBottomNav({ activePage, setActivePage, onMenuOpen }) {
         zIndex: 30,
         display: "flex",
         alignItems: "stretch",
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'DM Sans',sans-serif",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
@@ -1188,7 +1311,7 @@ function MobileBottomNav({ activePage, setActivePage, onMenuOpen }) {
               position: "relative",
               minHeight: 44,
               padding: "6px 4px",
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'DM Sans',sans-serif",
             }}
           >
             {isActive && (
@@ -1225,7 +1348,7 @@ function MobileBottomNav({ activePage, setActivePage, onMenuOpen }) {
           color: "var(--sb-text2)",
           minHeight: 44,
           padding: "6px 4px",
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'DM Sans',sans-serif",
         }}
       >
         <svg
@@ -1247,16 +1370,23 @@ function MobileBottomNav({ activePage, setActivePage, onMenuOpen }) {
 export default function Sidebar({ activePage, setActivePage }) {
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
-        ${CSS_VARS}
-      `}</style>
+      <style>{CSS_VARS}</style>
 
       {!isMobile && (
-        <DesktopSidebar activePage={activePage} setActivePage={setActivePage} />
+        <DesktopSidebar
+          activePage={activePage}
+          setActivePage={setActivePage}
+          onLogout={handleLogout}
+        />
       )}
 
       {isMobile && (
@@ -1266,6 +1396,7 @@ export default function Sidebar({ activePage, setActivePage }) {
             setActivePage={setActivePage}
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
+            onLogout={handleLogout}
           />
           <MobileBottomNav
             activePage={activePage}

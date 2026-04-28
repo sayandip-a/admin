@@ -21,6 +21,7 @@ import Locations from "./pages/Locations";
 import Analytics from "./pages/Analytics";
 import Contacts from "./pages/Contacts";
 import AboutAdmin from "./pages/AboutAdmin";
+
 const PAGE_ROUTES = {
   dashboard: "/dashboard",
   trials: "/trails",
@@ -83,7 +84,31 @@ function ProtectedLayout() {
       }}
     >
       <Sidebar activePage={activePage} setActivePage={handleNavigate} />
-      <main style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+
+      {/*
+       * FIX 1: minWidth:0 — prevents this flex child from overflowing
+       *         the sidebar. Without it, content squishes to the right.
+       * FIX 2: display:flex + flexDirection:column — lets child pages
+       *         use height:100% / flex:1 to fill the remaining space.
+       * FIX 3: overflowX:hidden stays, but overflowY moves to "hidden"
+       *         here so each page controls its own scroll internally.
+       * FIX 4: paddingBottom on mobile reserves space for the fixed
+       *         60px bottom nav bar rendered by Sidebar.
+       */}
+      <main
+        style={{
+          flex: 1,
+          minWidth: 0,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        <style>{`
+          @media (max-width: 767px) {
+            main { padding-bottom: 60px; }
+          }
+        `}</style>
         <Outlet />
       </main>
     </div>
@@ -131,7 +156,7 @@ function ComingSoon({ title }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        height: "100vh",
+        height: "100%", // ← was 100vh, now fills the flex column correctly
         gap: 12,
         fontFamily: "'DM Sans', sans-serif",
         background: "#0b1220",
