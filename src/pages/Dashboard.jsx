@@ -1,11 +1,6 @@
 /**
- * Dashboard.jsx — Drop-in replacement for the main content area.
- * Does NOT include a sidebar. Designed to render inside your existing
- * layout shell that already provides the sidebar + router.
- *
- * Usage (in your layout/router):
- *   import Dashboard from "./Dashboard";
- *   // render it wherever your <Outlet /> or page content goes.
+ * Dashboard.jsx — Root component (no parent wrapper).
+ * Includes global html/body height reset so scroll works correctly.
  */
 
 import { useState, useEffect } from "react";
@@ -182,7 +177,7 @@ const STATUS_DOT = {
   Away: "#64748b",
 };
 
-/* ─── tiny helpers ─────────────────────────────────────────────── */
+/* ─── helpers ───────────────────────────────────────────────────── */
 
 function Icon({ d, size = 15 }) {
   return (
@@ -216,7 +211,7 @@ function useCountUp(target, go) {
   return n;
 }
 
-/* ─── StatCard ─────────────────────────────────────────────────── */
+/* ─── StatCard ──────────────────────────────────────────────────── */
 
 function StatCard({ s, idx, go }) {
   const [hov, setHov] = useState(false);
@@ -240,7 +235,6 @@ function StatCard({ s, idx, go }) {
         animation: `dashFadeUp 0.5s ease ${idx * 75}ms both`,
       }}
     >
-      {/* glow orb */}
       <div
         style={{
           position: "absolute",
@@ -255,8 +249,6 @@ function StatCard({ s, idx, go }) {
           pointerEvents: "none",
         }}
       />
-
-      {/* icon */}
       <div
         style={{
           width: 36,
@@ -272,8 +264,6 @@ function StatCard({ s, idx, go }) {
       >
         <Icon d={s.icon} size={17} />
       </div>
-
-      {/* number */}
       <div
         style={{
           fontFamily: "'Syne',sans-serif",
@@ -285,8 +275,6 @@ function StatCard({ s, idx, go }) {
       >
         {num.toLocaleString()}
       </div>
-
-      {/* label */}
       <div
         style={{
           fontSize: 11,
@@ -297,8 +285,6 @@ function StatCard({ s, idx, go }) {
       >
         {s.label}
       </div>
-
-      {/* change */}
       <div
         style={{
           fontSize: 11,
@@ -315,7 +301,7 @@ function StatCard({ s, idx, go }) {
   );
 }
 
-/* ─── AnalogClock ──────────────────────────────────────────────── */
+/* ─── AnalogClock ───────────────────────────────────────────────── */
 
 function AnalogClock({ t }) {
   const h = t.getHours(),
@@ -385,7 +371,7 @@ function AnalogClock({ t }) {
   );
 }
 
-/* ─── Dashboard ────────────────────────────────────────────────── */
+/* ─── Dashboard ─────────────────────────────────────────────────── */
 
 export default function Dashboard() {
   const { admin, logout } = useAuth();
@@ -431,399 +417,361 @@ export default function Dashboard() {
   const firstName = admin?.name?.split(" ")[0] || "Admin";
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        fontFamily: "'DM Sans',sans-serif",
-        background: "#080f1e",
-        color: "#f1f5f9",
-        minHeight: 0,
-      }}
-    >
+    <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap');
-        *{box-sizing:border-box}
-        ::-webkit-scrollbar{width:3px}
-        ::-webkit-scrollbar-track{background:transparent}
-        ::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.18);border-radius:4px}
-        @keyframes dashFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes pulseGreen{0%,100%{box-shadow:0 0 0 0 rgba(34,211,160,.5)}70%{box-shadow:0 0 0 6px rgba(34,211,160,0)}}
-        @keyframes pulseRed{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.5)}70%{box-shadow:0 0 0 5px rgba(244,63,94,0)}}
-        @keyframes logoutBounce{0%{transform:scale(1) rotate(0)}40%{transform:scale(.82) rotate(14deg)}100%{transform:scale(1) rotate(0)}}
-        .dash-bell:hover{color:#e2e8f0!important;border-color:rgba(56,189,248,.3)!important}
-        .dash-navbtn:hover{background:rgba(56,189,248,.07)!important}
-        @media(max-width:700px){
-          .dash-stats{grid-template-columns:repeat(2,1fr)!important}
-          .dash-panels{grid-template-columns:1fr!important}
-          .dash-clock-wrap{display:none!important}
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+        /*
+          ╔══════════════════════════════════════════════════╗
+          ║  ROOT FIX — THE ACTUAL CAUSE OF YOUR PROBLEM    ║
+          ║                                                  ║
+          ║  By default, html and body have height:auto.    ║
+          ║  That means height:"100%" on any child resolves ║
+          ║  to 0 or "as tall as content" — so flex:1 on   ║
+          ║  the scroll div has nothing to fill, and the    ║
+          ║  overflow:auto never triggers.                  ║
+          ║                                                  ║
+          ║  Setting html, body, #root to height:100% fixes ║
+          ║  the entire chain so the scroll container gets  ║
+          ║  a real bounded height and can actually scroll. ║
+          ╚══════════════════════════════════════════════════╝
+        */
+        html, body, #root {
+          margin: 0 !important;
+          padding: 0 !important;
+          height: 100% !important;
+          width: 100% !important;
+          overflow: hidden !important;
         }
-        @media(max-width:420px){
-          .dash-stats{grid-template-columns:1fr 1fr!important}
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(56,189,248,0.18); border-radius: 4px; }
+
+        @keyframes dashFadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseGreen {
+          0%,100% { box-shadow: 0 0 0 0 rgba(34,211,160,.5); }
+          70%     { box-shadow: 0 0 0 6px rgba(34,211,160,0); }
+        }
+        @keyframes pulseRed {
+          0%,100% { box-shadow: 0 0 0 0 rgba(244,63,94,.5); }
+          70%     { box-shadow: 0 0 0 5px rgba(244,63,94,0); }
+        }
+        @keyframes logoutBounce {
+          0%   { transform: scale(1) rotate(0); }
+          40%  { transform: scale(.82) rotate(14deg); }
+          100% { transform: scale(1) rotate(0); }
+        }
+
+        .dash-bell:hover { color: #e2e8f0 !important; border-color: rgba(56,189,248,.3) !important; }
+
+        @media (max-width: 700px) {
+          .dash-stats  { grid-template-columns: repeat(2, 1fr) !important; }
+          .dash-panels { grid-template-columns: 1fr !important; }
+          .dash-clock-wrap { display: none !important; }
+        }
+        @media (max-width: 420px) {
+          .dash-stats { grid-template-columns: 1fr 1fr !important; }
         }
       `}</style>
-
-      {/* ── TOP BAR ──────────────────────────────────────────── */}
       <div
         style={{
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 20px",
-          height: 58,
-          flexShrink: 0,
-          borderBottom: "1px solid rgba(56,189,248,0.08)",
-          background: "rgba(8,15,30,0.97)",
-          backdropFilter: "blur(14px)",
-          gap: 12,
-          zIndex: 10,
+          flexDirection: "column",
+          height: "100%",
+          width: "100%",
+          fontFamily: "'Sora', sans-serif",
+          background: "#080f1e",
+          color: "#f1f5f9",
+          overflow: "hidden",
         }}
       >
-        {/* Left: title + date */}
-        <div>
-          <div
-            style={{
-              fontFamily: "'Syne',sans-serif",
-              fontSize: 19,
-              fontWeight: 800,
-              color: "#f1f5f9",
-              lineHeight: 1,
-            }}
-          >
-            Dashboard
-          </div>
-          <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>
-            {dateStr}
-          </div>
-        </div>
-
-        {/* Centre: live clock */}
-        <div
-          className="dash-clock-wrap"
-          style={{ display: "flex", alignItems: "center", gap: 12 }}
-        >
-          <div style={{ textAlign: "right" }}>
-            <div
-              style={{
-                fontFamily: "'Syne',sans-serif",
-                fontSize: 17,
-                fontWeight: 800,
-                color: "#38bdf8",
-                letterSpacing: 0.5,
-                fontVariantNumeric: "tabular-nums",
-              }}
-            >
-              {timeStr}
-            </div>
-            <div style={{ fontSize: 10, color: "#475569", marginTop: 1 }}>
-              {dateStr}
-            </div>
-          </div>
-        </div>
-
-        {/* Right: bell + admin + logout */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {/* notification bell */}
-          <div
-            className="dash-bell"
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 9,
-              border: "1px solid rgba(255,255,255,0.07)",
-              background: "rgba(255,255,255,0.025)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              color: "#64748b",
-              position: "relative",
-              transition: "all 0.2s",
-            }}
-          >
-            <Icon d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
-            <div
-              style={{
-                position: "absolute",
-                top: 7,
-                right: 7,
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: "#f43f5e",
-                border: "1.5px solid #080f1e",
-                animation: "pulseRed 2s infinite",
-              }}
-            />
-          </div>
-
-          {/* admin pill */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "5px 11px",
-              borderRadius: 9,
-              border: "1px solid rgba(255,255,255,0.07)",
-              background: "rgba(255,255,255,0.025)",
-            }}
-          >
-            <div
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg,#0ea5e9,#6366f1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 9,
-                fontWeight: 800,
-                color: "#fff",
-              }}
-            >
-              {(admin?.name || "AD").slice(0, 2).toUpperCase()}
-            </div>
-            <span style={{ fontSize: 12, color: "#e2e8f0", fontWeight: 500 }}>
-              {admin?.name || "Admin"}
-            </span>
-          </div>
-
-          {/* logout */}
-          <button
-            onMouseEnter={() => setLogoutHov(true)}
-            onMouseLeave={() => setLogoutHov(false)}
-            onClick={handleLogout}
-            title="Logout"
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 9,
-              border: `1px solid ${logoutHov ? "rgba(244,63,94,0.4)" : "rgba(56,189,248,0.12)"}`,
-              background: logoutHov ? "rgba(244,63,94,0.08)" : "transparent",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              color: logoutHov ? "#f43f5e" : "#64748b",
-              transition: "all 0.28s cubic-bezier(.34,1.56,.64,1)",
-              transform: logoutHov ? "scale(1.12)" : "scale(1)",
-              animation: logoutAnim
-                ? "logoutBounce 0.65s ease forwards"
-                : "none",
-            }}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              style={{
-                width: 15,
-                height: 15,
-                transition: "transform 0.25s",
-                transform: logoutHov ? "translateX(2px)" : "none",
-              }}
-            >
-              <path
-                d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* ── SCROLLABLE CONTENT ───────────────────────────────── */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 22px" }}>
-        {/* Welcome banner */}
+        {/* ── TOP BAR ─────────────────────────────────────── */}
         <div
           style={{
-            marginBottom: 20,
-            padding: "16px 20px",
-            background:
-              "linear-gradient(135deg,rgba(56,189,248,0.07) 0%,rgba(99,102,241,0.07) 100%)",
-            border: "1px solid rgba(56,189,248,0.14)",
-            borderRadius: 16,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 10,
-            animation: mounted ? "dashFadeUp 0.5s ease both" : "none",
+            padding: "0 20px",
+            height: 58,
+            flexShrink: 0,
+            width: "100%",
+            borderBottom: "1px solid rgba(56,189,248,0.08)",
+            background: "rgba(8,15,30,0.97)",
+            backdropFilter: "blur(14px)",
+            gap: 12,
+            zIndex: 10,
           }}
         >
+          {/* Left */}
           <div>
             <div
               style={{
-                fontFamily: "'Syne',sans-serif",
-                fontSize: 15,
-                fontWeight: 700,
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 19,
+                fontWeight: 800,
                 color: "#f1f5f9",
+                lineHeight: 1,
               }}
             >
-              Welcome back, {firstName} 👋
+              Dashboard
             </div>
-            <div style={{ fontSize: 12, color: "#64748b", marginTop: 3 }}>
-              Here's what's happening across your clinical network today.
+            <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>
+              {dateStr}
             </div>
           </div>
+
+          {/* Centre clock */}
           <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "6px 14px",
-              borderRadius: 20,
-              background: "rgba(34,211,160,0.1)",
-              border: "1px solid rgba(34,211,160,0.2)",
-            }}
+            className="dash-clock-wrap"
+            style={{ display: "flex", alignItems: "center", gap: 12 }}
           >
+            <AnalogClock t={time} />
+            <div style={{ textAlign: "right" }}>
+              <div
+                style={{
+                  fontFamily: "'Syne',sans-serif",
+                  fontSize: 17,
+                  fontWeight: 800,
+                  color: "#38bdf8",
+                  letterSpacing: 0.5,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {timeStr}
+              </div>
+              <div style={{ fontSize: 10, color: "#475569", marginTop: 1 }}>
+                {dateStr}
+              </div>
+            </div>
+          </div>
+
+          {/* Right */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {/* bell */}
             <div
+              className="dash-bell"
               style={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: "#22d3a0",
-                animation: "pulseGreen 2s infinite",
+                width: 36,
+                height: 36,
+                borderRadius: 9,
+                border: "1px solid rgba(255,255,255,0.07)",
+                background: "rgba(255,255,255,0.025)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "#64748b",
+                position: "relative",
+                transition: "all 0.2s",
               }}
-            />
-            <span style={{ fontSize: 11, color: "#22d3a0", fontWeight: 600 }}>
-              All systems operational
-            </span>
-          </div>
-        </div>
+            >
+              <Icon d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+              <div
+                style={{
+                  position: "absolute",
+                  top: 7,
+                  right: 7,
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: "#f43f5e",
+                  border: "1.5px solid #080f1e",
+                  animation: "pulseRed 2s infinite",
+                }}
+              />
+            </div>
 
-        {/* Stats */}
-        <div
-          className="dash-stats"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit,minmax(148px,1fr))",
-            gap: 12,
-            marginBottom: 18,
-          }}
-        >
-          {STATS.map((s, i) => (
-            <StatCard key={s.label} s={s} idx={i} go={go} />
-          ))}
-        </div>
-
-        {/* Bottom panels */}
-        <div
-          className="dash-panels"
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
-        >
-          {/* Recent Trials */}
-          <div
-            style={{
-              background: "#0e1a2e",
-              border: "1px solid rgba(56,189,248,0.09)",
-              borderRadius: 16,
-              padding: 18,
-              animation: "dashFadeUp 0.5s ease 0.35s both",
-            }}
-          >
+            {/* admin pill */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: 14,
+                gap: 8,
+                padding: "5px 11px",
+                borderRadius: 9,
+                border: "1px solid rgba(255,255,255,0.07)",
+                background: "rgba(255,255,255,0.025)",
               }}
             >
               <div
                 style={{
-                  fontFamily: "'Syne',sans-serif",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: "#e2e8f0",
-                }}
-              >
-                Recent Trials
-              </div>
-              <span
-                style={{
-                  fontSize: 10,
-                  color: "#38bdf8",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                VIEW ALL →
-              </span>
-            </div>
-            {TRIALS.map((t, i) => (
-              <div
-                key={i}
-                style={{
+                  width: 26,
+                  height: 26,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg,#0ea5e9,#6366f1)",
                   display: "flex",
                   alignItems: "center",
-                  gap: 10,
-                  padding: "9px 0",
-                  borderBottom:
-                    i < TRIALS.length - 1
-                      ? "1px solid rgba(255,255,255,0.04)"
-                      : "none",
+                  justifyContent: "center",
+                  fontSize: 9,
+                  fontWeight: 800,
+                  color: "#fff",
                 }}
               >
-                <div
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    background: t.color,
-                    flexShrink: 0,
-                  }}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: "#e2e8f0",
-                      fontWeight: 600,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {t.name}
-                  </div>
-                  <div style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>
-                    {t.phase} · {t.pi} · {t.enrolled} enrolled
-                  </div>
-                </div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    padding: "2px 9px",
-                    borderRadius: 20,
-                    flexShrink: 0,
-                    color: t.color,
-                    background: t.color + "1a",
-                    border: `1px solid ${t.color}35`,
-                  }}
-                >
-                  {t.status}
-                </div>
+                {(admin?.name || "AD").slice(0, 2).toUpperCase()}
               </div>
+              <span style={{ fontSize: 12, color: "#e2e8f0", fontWeight: 500 }}>
+                {admin?.name || "Admin"}
+              </span>
+            </div>
+
+            {/* logout */}
+            <button
+              onMouseEnter={() => setLogoutHov(true)}
+              onMouseLeave={() => setLogoutHov(false)}
+              onClick={handleLogout}
+              title="Logout"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 9,
+                border: `1px solid ${logoutHov ? "rgba(244,63,94,0.4)" : "rgba(56,189,248,0.12)"}`,
+                background: logoutHov ? "rgba(244,63,94,0.08)" : "transparent",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: logoutHov ? "#f43f5e" : "#64748b",
+                transition: "all 0.28s cubic-bezier(.34,1.56,.64,1)",
+                transform: logoutHov ? "scale(1.12)" : "scale(1)",
+                animation: logoutAnim
+                  ? "logoutBounce 0.65s ease forwards"
+                  : "none",
+              }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                style={{
+                  width: 15,
+                  height: 15,
+                  transition: "transform 0.25s",
+                  transform: logoutHov ? "translateX(2px)" : "none",
+                }}
+              >
+                <path
+                  d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* ── SCROLLABLE BODY ──────────────────────────────── */}
+        <div
+          style={{
+            flex: 1 /* fills remaining height after the 58px topbar */,
+            minHeight: 0 /* CRITICAL: without this, flex child won't shrink
+                                 below its content size, killing scroll */,
+            overflowY: "auto" /* this div alone scrolls */,
+            overflowX: "hidden",
+            width: "100%",
+            padding: "20px 22px 32px",
+          }}
+        >
+          {/* Welcome banner */}
+          <div
+            style={{
+              marginBottom: 20,
+              padding: "16px 20px",
+              background:
+                "linear-gradient(135deg,rgba(56,189,248,0.07) 0%,rgba(99,102,241,0.07) 100%)",
+              border: "1px solid rgba(56,189,248,0.14)",
+              borderRadius: 16,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 10,
+              animation: mounted ? "dashFadeUp 0.5s ease both" : "none",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontFamily: "'Syne',sans-serif",
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: "#f1f5f9",
+                }}
+              >
+                Welcome back, {firstName} 👋
+              </div>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 3 }}>
+                Here's what's happening across your clinical network today.
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 14px",
+                borderRadius: 20,
+                background: "rgba(34,211,160,0.1)",
+                border: "1px solid rgba(34,211,160,0.2)",
+              }}
+            >
+              <div
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: "#22d3a0",
+                  animation: "pulseGreen 2s infinite",
+                }}
+              />
+              <span style={{ fontSize: 11, color: "#22d3a0", fontWeight: 600 }}>
+                All systems operational
+              </span>
+            </div>
+          </div>
+
+          {/* Stats grid */}
+          <div
+            className="dash-stats"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(148px, 1fr))",
+              gap: 12,
+              marginBottom: 18,
+              width: "100%",
+            }}
+          >
+            {STATS.map((s, i) => (
+              <StatCard key={s.label} s={s} idx={i} go={go} />
             ))}
           </div>
 
-          {/* Right column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {/* Team */}
+          {/* Bottom panels */}
+          <div
+            className="dash-panels"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 14,
+              width: "100%",
+              minWidth: 0,
+            }}
+          >
+            {/* Recent Trials */}
             <div
               style={{
                 background: "#0e1a2e",
                 border: "1px solid rgba(56,189,248,0.09)",
                 borderRadius: 16,
                 padding: 18,
-                animation: "dashFadeUp 0.5s ease 0.45s both",
+                minWidth: 0,
+                animation: "dashFadeUp 0.5s ease 0.35s both",
               }}
             >
               <div
@@ -831,7 +779,7 @@ export default function Dashboard() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  marginBottom: 12,
+                  marginBottom: 14,
                 }}
               >
                 <div
@@ -842,7 +790,7 @@ export default function Dashboard() {
                     color: "#e2e8f0",
                   }}
                 >
-                  Team Members
+                  Recent Trials
                 </div>
                 <span
                   style={{
@@ -855,43 +803,29 @@ export default function Dashboard() {
                   VIEW ALL →
                 </span>
               </div>
-              {TEAM.map((m, i) => (
+              {TRIALS.map((t, i) => (
                 <div
                   key={i}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 9,
-                    padding: "7px 0",
+                    gap: 10,
+                    padding: "9px 0",
                     borderBottom:
-                      i < TEAM.length - 1
+                      i < TRIALS.length - 1
                         ? "1px solid rgba(255,255,255,0.04)"
                         : "none",
                   }}
                 >
                   <div
                     style={{
-                      width: 30,
-                      height: 30,
+                      width: 7,
+                      height: 7,
                       borderRadius: "50%",
+                      background: t.color,
                       flexShrink: 0,
-                      background: m.color + "1a",
-                      border: `1px solid ${m.color}35`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 10,
-                      fontWeight: 700,
-                      color: m.color,
                     }}
-                  >
-                    {m.name
-                      .split(" ")
-                      .slice(1)
-                      .map((w) => w[0])
-                      .join("")
-                      .slice(0, 2)}
-                  </div>
+                  />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div
                       style={{
@@ -903,149 +837,274 @@ export default function Dashboard() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {m.name}
+                      {t.name}
                     </div>
-                    <div style={{ fontSize: 10, color: "#475569" }}>
-                      {m.dept}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                      flexShrink: 0,
-                    }}
-                  >
                     <div
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        background: STATUS_DOT[m.status] || "#64748b",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: 10,
-                        color: STATUS_DOT[m.status] || "#64748b",
-                      }}
+                      style={{ fontSize: 10, color: "#475569", marginTop: 2 }}
                     >
-                      {m.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Open Jobs */}
-            <div
-              style={{
-                background: "#0e1a2e",
-                border: "1px solid rgba(56,189,248,0.09)",
-                borderRadius: 16,
-                padding: 18,
-                animation: "dashFadeUp 0.5s ease 0.55s both",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: 12,
-                }}
-              >
-                <div
-                  style={{
-                    fontFamily: "'Syne',sans-serif",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: "#e2e8f0",
-                  }}
-                >
-                  Open Job Posts
-                </div>
-                <span
-                  style={{
-                    fontSize: 10,
-                    color: "#38bdf8",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  POST JOB →
-                </span>
-              </div>
-              {JOBS.map((j, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 9,
-                    padding: "7px 0",
-                    borderBottom:
-                      i < JOBS.length - 1
-                        ? "1px solid rgba(255,255,255,0.04)"
-                        : "none",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 8,
-                      flexShrink: 0,
-                      background: j.color + "18",
-                      border: `1px solid ${j.color}30`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: j.color,
-                    }}
-                  >
-                    <Icon
-                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"
-                      size={13}
-                    />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: 11,
-                        color: "#e2e8f0",
-                        fontWeight: 600,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {j.title}
-                    </div>
-                    <div style={{ fontSize: 10, color: "#475569" }}>
-                      {j.dept} · {j.type} · {j.posted}
+                      {t.phase} · {t.pi} · {t.enrolled} enrolled
                     </div>
                   </div>
                   <div
                     style={{
                       fontSize: 10,
-                      color: "#64748b",
+                      fontWeight: 700,
+                      padding: "2px 9px",
+                      borderRadius: 20,
                       flexShrink: 0,
-                      textAlign: "right",
+                      color: t.color,
+                      background: t.color + "1a",
+                      border: `1px solid ${t.color}35`,
                     }}
                   >
-                    <span style={{ color: j.color, fontWeight: 700 }}>
-                      {j.apps}
-                    </span>{" "}
-                    apps
+                    {t.status}
                   </div>
                 </div>
               ))}
             </div>
+
+            {/* Right column */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 14,
+                minWidth: 0,
+              }}
+            >
+              {/* Team */}
+              <div
+                style={{
+                  background: "#0e1a2e",
+                  border: "1px solid rgba(56,189,248,0.09)",
+                  borderRadius: 16,
+                  padding: 18,
+                  minWidth: 0,
+                  animation: "dashFadeUp 0.5s ease 0.45s both",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "'Syne',sans-serif",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "#e2e8f0",
+                    }}
+                  >
+                    Team Members
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "#38bdf8",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    VIEW ALL →
+                  </span>
+                </div>
+                {TEAM.map((m, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 9,
+                      padding: "7px 0",
+                      borderBottom:
+                        i < TEAM.length - 1
+                          ? "1px solid rgba(255,255,255,0.04)"
+                          : "none",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: "50%",
+                        flexShrink: 0,
+                        background: m.color + "1a",
+                        border: `1px solid ${m.color}35`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: m.color,
+                      }}
+                    >
+                      {m.name
+                        .split(" ")
+                        .slice(1)
+                        .map((w) => w[0])
+                        .join("")
+                        .slice(0, 2)}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "#e2e8f0",
+                          fontWeight: 600,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {m.name}
+                      </div>
+                      <div style={{ fontSize: 10, color: "#475569" }}>
+                        {m.dept}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          background: STATUS_DOT[m.status] || "#64748b",
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontSize: 10,
+                          color: STATUS_DOT[m.status] || "#64748b",
+                        }}
+                      >
+                        {m.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Open Jobs */}
+              <div
+                style={{
+                  background: "#0e1a2e",
+                  border: "1px solid rgba(56,189,248,0.09)",
+                  borderRadius: 16,
+                  padding: 18,
+                  minWidth: 0,
+                  animation: "dashFadeUp 0.5s ease 0.55s both",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "'Syne',sans-serif",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "#e2e8f0",
+                    }}
+                  >
+                    Open Job Posts
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "#38bdf8",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    POST JOB →
+                  </span>
+                </div>
+                {JOBS.map((j, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 9,
+                      padding: "7px 0",
+                      borderBottom:
+                        i < JOBS.length - 1
+                          ? "1px solid rgba(255,255,255,0.04)"
+                          : "none",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: 8,
+                        flexShrink: 0,
+                        background: j.color + "18",
+                        border: `1px solid ${j.color}30`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: j.color,
+                      }}
+                    >
+                      <Icon
+                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"
+                        size={13}
+                      />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "#e2e8f0",
+                          fontWeight: 600,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {j.title}
+                      </div>
+                      <div style={{ fontSize: 10, color: "#475569" }}>
+                        {j.dept} · {j.type} · {j.posted}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: "#64748b",
+                        flexShrink: 0,
+                        textAlign: "right",
+                      }}
+                    >
+                      <span style={{ color: j.color, fontWeight: 700 }}>
+                        {j.apps}
+                      </span>{" "}
+                      apps
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

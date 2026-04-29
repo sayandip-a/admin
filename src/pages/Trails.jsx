@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-/* ─── TOKENS ─────────────────────────────────────────────────────────────────── */
 const T = {
   bg: "#070d1a",
   bg2: "#0c1525",
@@ -1363,7 +1361,7 @@ export default function Trials() {
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; }
         ::placeholder { color: ${T.text3}; }
         select option { background: ${T.bg2}; color: ${T.text1}; }

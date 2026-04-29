@@ -1,13 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-
 const API = `${import.meta.env.VITE_API_URL}/api/contacts`;
 const getToken = () => localStorage.getItem("token") || "";
 const apiHeaders = () => ({
   "Content-Type": "application/json",
   Authorization: `Bearer ${getToken()}`,
 });
-
-/* ─── ICON ───────────────────────────────────────────────────────────────────── */
 const Ic = ({ d, size = 16, sw = 1.6, style: s, className: c }) => (
   <svg
     width={size}
@@ -26,32 +23,30 @@ const Ic = ({ d, size = 16, sw = 1.6, style: s, className: c }) => (
     ))}
   </svg>
 );
-
-/* ─── STATUS CONFIG ──────────────────────────────────────────────────────────── */
 const STATUS = {
   new: {
-    bg: "rgba(6,182,212,0.12)",
+    bg: "#0D1117",
     border: "rgba(6,182,212,0.3)",
     text: "#22d3ee",
     dot: "#06b6d4",
     label: "New",
   },
   read: {
-    bg: "rgba(148,163,184,0.1)",
+    bg: "#0D1117",
     border: "rgba(148,163,184,0.2)",
     text: "#94a3b8",
     dot: "#64748b",
     label: "Read",
   },
   replied: {
-    bg: "rgba(16,185,129,0.1)",
+    bg: "#0D1117",
     border: "rgba(16,185,129,0.25)",
     text: "#34d399",
     dot: "#10b981",
     label: "Replied",
   },
   archived: {
-    bg: "rgba(107,114,128,0.08)",
+    bg: "#0D1117",
     border: "rgba(107,114,128,0.2)",
     text: "#6b7280",
     dot: "#4b5563",
@@ -127,8 +122,6 @@ function Toast({ items }) {
     </div>
   );
 }
-
-/* ─── STATUS BADGE ───────────────────────────────────────────────────────────── */
 function StatusBadge({ status }) {
   const s = getSty(status);
   return (
@@ -201,8 +194,6 @@ function Avatar({ name, size = 38 }) {
     </div>
   );
 }
-
-/* ─── DETAIL DRAWER ──────────────────────────────────────────────────────────── */
 function DetailDrawer({
   contact,
   open,
@@ -243,7 +234,7 @@ function DetailDrawer({
           position: "fixed",
           inset: 0,
           zIndex: 40,
-          background: "rgba(0,0,0,0.65)",
+          background: "#0D1117",
           backdropFilter: "blur(6px)",
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
@@ -608,7 +599,7 @@ function DetailDrawer({
                         padding: "10px 14px",
                         fontSize: 13,
                         color: "rgba(255,255,255,0.85)",
-                        background: "rgba(255,255,255,0.04)",
+                        background: "#0D1117",
                         outline: "none",
                         resize: "vertical",
                         fontFamily: "inherit",
@@ -659,7 +650,7 @@ function DetailDrawer({
                     style={{
                       borderRadius: 10,
                       padding: "12px 16px",
-                      background: "rgba(255,255,255,0.03)",
+                      background: "#0D1117",
                       border: "1px solid rgba(255,255,255,0.06)",
                       minHeight: 48,
                     }}
@@ -716,7 +707,7 @@ function DetailDrawer({
                         fontSize: 12,
                         fontWeight: 700,
                         border: `2px solid ${isActive ? st.border : "rgba(255,255,255,0.07)"}`,
-                        background: isActive ? st.bg : "rgba(255,255,255,0.03)",
+                        background: isActive ? st.bg : "#0D1117",
                         color: isActive ? st.text : "#4b5563",
                         cursor: "pointer",
                         fontFamily: "inherit",
@@ -1359,7 +1350,7 @@ export default function ContactAdmin() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
         ::placeholder { color: #374151; }
         ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: #ffffff12; border-radius: 4px; }
@@ -1405,15 +1396,15 @@ export default function ContactAdmin() {
           <div>
             <p
               style={{
-                fontSize: 10,
+                fontSize: 11,
                 letterSpacing: "0.2em",
                 fontWeight: 600,
                 textTransform: "uppercase",
-                color: "rgba(6,182,212,0.6)",
+                color: "#6366f1",
                 margin: 0,
               }}
             >
-              Accelia Admin
+              Manage Your All
             </p>
             <h1
               style={{

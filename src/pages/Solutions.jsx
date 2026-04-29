@@ -5,23 +5,24 @@ const API = "https://accelia-backend.onrender.com/api/solutions";
 const getToken = () => localStorage.getItem("token");
 
 /* ─── FONTS ── */
-const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap');`;
+const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');`;
 
+// ── THEME: base #0D1117 (GitHub-dark-inspired deep navy) ──────────────────
 const T = {
-  bg: "#070d1a",
-  bg2: "#0c1525",
-  bg3: "#111d30",
-  bg4: "#162038",
-  accent: "#4f9cf9",
-  accent2: "#7c6af7",
+  bg: "#0d1117", // page base
+  bg2: "#111720", // card / panel surface
+  bg3: "#161e2d", // input / raised surface
+  bg4: "#1b2538", // hover / active surface
+  accent: "#4f9cf9", // blue accent (unchanged — good contrast on dark)
+  accent2: "#7c6af7", // purple accent
   green: "#22d3a0",
   amber: "#f59e0b",
   rose: "#f43f5e",
-  text1: "#e8edf5",
-  text2: "#6b7fa3",
-  text3: "#3a4a66",
-  border: "rgba(79,156,249,0.10)",
-  border2: "rgba(79,156,249,0.20)",
+  text1: "#e8edf5", // primary text
+  text2: "#8b99b5", // secondary / label text  (slightly lighter than before)
+  text3: "#3d4f6e", // muted / placeholder
+  border: "rgba(79,156,249,0.08)",
+  border2: "rgba(79,156,249,0.16)",
 };
 
 const STATUS_META = {
@@ -140,7 +141,7 @@ function Field({ label, children, required }) {
 const inputStyle = {
   width: "100%",
   padding: "9px 12px",
-  background: T.bg,
+  background: T.bg, // darkest — #0d1117
   border: `1px solid ${T.border2}`,
   borderRadius: 8,
   color: T.text1,
@@ -224,7 +225,7 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
             position: "fixed",
             inset: 0,
             zIndex: 100,
-            background: "rgba(0,0,0,0.72)",
+            background: "rgba(0,0,0,0.78)",
             backdropFilter: "blur(6px)",
             display: "flex",
             alignItems: "center",
@@ -239,7 +240,7 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
             exit={{ scale: 0.93, y: 20, opacity: 0 }}
             transition={{ type: "spring", damping: 24, stiffness: 280 }}
             style={{
-              background: T.bg2,
+              background: T.bg2, // #111720
               border: `1px solid ${T.border2}`,
               borderRadius: 16,
               width: "100%",
@@ -249,6 +250,7 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
               display: "flex",
               flexDirection: "column",
               fontFamily: "'DM Sans', sans-serif",
+              boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
             }}
           >
             {/* Header */}
@@ -260,6 +262,7 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
                 alignItems: "center",
                 justifyContent: "space-between",
                 flexShrink: 0,
+                background: T.bg2,
               }}
             >
               <div>
@@ -293,7 +296,10 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
                   cursor: "pointer",
                   color: T.text2,
                   padding: 0,
+                  transition: "background 0.15s",
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = T.bg4)}
+                onMouseLeave={(e) => (e.currentTarget.style.background = T.bg3)}
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -314,6 +320,7 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
                 overflowY: "auto",
                 flex: 1,
                 scrollbarWidth: "none",
+                background: T.bg2,
               }}
             >
               {/* Image upload */}
@@ -340,14 +347,16 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
                     justifyContent: "center",
                     overflow: "hidden",
                     position: "relative",
-                    transition: "border-color 0.2s",
+                    transition: "border-color 0.2s, background 0.2s",
                   }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.borderColor = T.accent)
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.borderColor = T.border2)
-                  }
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = T.accent;
+                    e.currentTarget.style.background = T.bg4;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = T.border2;
+                    e.currentTarget.style.background = T.bg3;
+                  }}
                 >
                   {imgPreview ? (
                     <img
@@ -540,7 +549,7 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
                       cursor: "pointer",
                       background: form.isActive
                         ? T.green
-                        : "rgba(255,255,255,0.1)",
+                        : "rgba(255,255,255,0.08)",
                       position: "relative",
                       transition: "background 0.25s",
                       flexShrink: 0,
@@ -559,7 +568,7 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
                         borderRadius: "50%",
                         background: "#fff",
                         transition: "left 0.22s",
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
                       }}
                     />
                   </button>
@@ -586,6 +595,7 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
                 justifyContent: "flex-end",
                 gap: 10,
                 flexShrink: 0,
+                background: T.bg2,
               }}
             >
               <button
@@ -600,6 +610,15 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
                   fontWeight: 500,
                   cursor: "pointer",
                   fontFamily: "'DM Sans', sans-serif",
+                  transition: "background 0.15s, color 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = T.bg4;
+                  e.currentTarget.style.color = T.text1;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = T.bg3;
+                  e.currentTarget.style.color = T.text2;
                 }}
               >
                 Cancel
@@ -622,6 +641,10 @@ function SolutionModal({ open, onClose, onSave, editData, saving }) {
                   display: "flex",
                   alignItems: "center",
                   gap: 7,
+                  boxShadow: saving
+                    ? "none"
+                    : "0 4px 16px rgba(79,156,249,0.3)",
+                  transition: "opacity 0.15s",
                 }}
               >
                 {saving
@@ -651,7 +674,7 @@ function DeleteConfirm({ open, onClose, onConfirm, title }) {
             position: "fixed",
             inset: 0,
             zIndex: 110,
-            background: "rgba(0,0,0,0.7)",
+            background: "rgba(0,0,0,0.75)",
             backdropFilter: "blur(4px)",
             display: "flex",
             alignItems: "center",
@@ -671,6 +694,8 @@ function DeleteConfirm({ open, onClose, onConfirm, title }) {
               padding: "28px 28px 22px",
               width: 340,
               fontFamily: "'DM Sans', sans-serif",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+              margin: "0 16px",
             }}
           >
             <div
@@ -678,8 +703,8 @@ function DeleteConfirm({ open, onClose, onConfirm, title }) {
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: "rgba(244,63,94,0.12)",
-                border: "1px solid rgba(244,63,94,0.22)",
+                background: "rgba(244,63,94,0.10)",
+                border: "1px solid rgba(244,63,94,0.20)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -735,7 +760,10 @@ function DeleteConfirm({ open, onClose, onConfirm, title }) {
                   fontWeight: 500,
                   cursor: "pointer",
                   fontFamily: "'DM Sans', sans-serif",
+                  transition: "background 0.15s",
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = T.bg4)}
+                onMouseLeave={(e) => (e.currentTarget.style.background = T.bg3)}
               >
                 Cancel
               </button>
@@ -745,14 +773,21 @@ function DeleteConfirm({ open, onClose, onConfirm, title }) {
                   flex: 1,
                   padding: "9px 0",
                   borderRadius: 8,
-                  background: "rgba(244,63,94,0.15)",
-                  border: "1px solid rgba(244,63,94,0.3)",
+                  background: "rgba(244,63,94,0.12)",
+                  border: "1px solid rgba(244,63,94,0.28)",
                   color: T.rose,
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: "pointer",
                   fontFamily: "'DM Sans', sans-serif",
+                  transition: "background 0.15s",
                 }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "rgba(244,63,94,0.22)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "rgba(244,63,94,0.12)")
+                }
               >
                 Delete
               </button>
@@ -789,7 +824,9 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
         flexDirection: "column",
         cursor: "default",
         transition: "border-color 0.2s, box-shadow 0.2s",
-        boxShadow: hovered ? "0 8px 32px rgba(0,0,0,0.35)" : "none",
+        boxShadow: hovered
+          ? "0 8px 40px rgba(0,0,0,0.5)"
+          : "0 2px 8px rgba(0,0,0,0.25)",
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
@@ -836,7 +873,7 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(to top, rgba(7,13,26,0.85) 0%, transparent 55%)",
+              "linear-gradient(to top, rgba(13,17,23,0.88) 0%, transparent 55%)",
           }}
         />
         {/* Badges */}
@@ -876,7 +913,7 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
               width: 30,
               height: 30,
               borderRadius: 8,
-              background: "rgba(15,23,42,0.8)",
+              background: "rgba(13,17,23,0.85)",
               border: `1px solid ${T.border2}`,
               display: "flex",
               alignItems: "center",
@@ -885,7 +922,12 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
               color: T.accent,
               padding: 0,
               backdropFilter: "blur(4px)",
+              transition: "background 0.15s",
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = T.bg4)}
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "rgba(13,17,23,0.85)")
+            }
           >
             <svg
               viewBox="0 0 24 24"
@@ -908,7 +950,7 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
               width: 30,
               height: 30,
               borderRadius: 8,
-              background: "rgba(15,23,42,0.8)",
+              background: "rgba(13,17,23,0.85)",
               border: "1px solid rgba(244,63,94,0.25)",
               display: "flex",
               alignItems: "center",
@@ -917,7 +959,14 @@ function SolutionCard({ sol, onEdit, onDelete, index }) {
               color: T.rose,
               padding: 0,
               backdropFilter: "blur(4px)",
+              transition: "background 0.15s",
             }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(244,63,94,0.15)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "rgba(13,17,23,0.85)")
+            }
           >
             <svg
               viewBox="0 0 24 24"
@@ -1007,7 +1056,7 @@ function Toast({ msg, type }) {
         fontSize: 13,
         fontWeight: 600,
         fontFamily: "'DM Sans', sans-serif",
-        boxShadow: `0 4px 20px rgba(0,0,0,0.4)`,
+        boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
         display: "flex",
         alignItems: "center",
         gap: 8,
@@ -1036,7 +1085,6 @@ export default function Solutions() {
     setTimeout(() => setToast({ msg: "", type: "success" }), 3000);
   };
 
-  /* Fetch all (admin=true to get inactive too) */
   const fetchSolutions = async () => {
     setLoading(true);
     try {
@@ -1065,7 +1113,6 @@ export default function Solutions() {
     setShowModal(true);
   };
 
-  /* Create or Update */
   const handleSave = async (form) => {
     setSaving(true);
     try {
@@ -1106,7 +1153,6 @@ export default function Solutions() {
     }
   };
 
-  /* Delete */
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     try {
@@ -1141,15 +1187,23 @@ export default function Solutions() {
     <div
       style={{
         minHeight: "100vh",
-        background: T.bg,
+        background: T.bg, // ← #0d1117 everywhere
         fontFamily: "'DM Sans', sans-serif",
         color: T.text1,
       }}
     >
-      <style>{`${FONT_IMPORT} * { box-sizing: border-box; } ::placeholder { color: ${T.text3}; } select option { background: ${T.bg2}; color: ${T.text1}; }`}</style>
+      <style>{`
+        ${FONT_IMPORT}
+        * { box-sizing: border-box; }
+        ::placeholder { color: ${T.text3}; }
+        select option { background: ${T.bg2}; color: ${T.text1}; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: ${T.bg}; }
+        ::-webkit-scrollbar-thumb { background: ${T.border2}; border-radius: 4px; }
+      `}</style>
 
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }}>
-        {/* Header */}
+        {/* ── Header ── */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1178,19 +1232,19 @@ export default function Solutions() {
                   height: 8,
                   borderRadius: "50%",
                   background: T.accent,
-                  boxShadow: `0 0 0 3px rgba(79,156,249,0.2)`,
+                  boxShadow: `0 0 0 3px rgba(79,156,249,0.18)`,
                 }}
               />
               <span
                 style={{
-                  fontSize: 11.5,
+                  fontSize: 11,
                   color: T.text2,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   fontWeight: 500,
                 }}
               >
-                Solutions Management
+                Manage Your Solutions
               </span>
             </div>
             <h1
@@ -1205,9 +1259,6 @@ export default function Solutions() {
             >
               Solutions
             </h1>
-            <p style={{ fontSize: 13, color: T.text2, marginTop: 6 }}>
-              Changes here reflect immediately on the frontend
-            </p>
           </div>
           <button
             onClick={openAdd}
@@ -1224,12 +1275,17 @@ export default function Solutions() {
               fontWeight: 600,
               cursor: "pointer",
               fontFamily: "'DM Sans', sans-serif",
-              boxShadow: `0 4px 18px rgba(79,156,249,0.25)`,
+              boxShadow: `0 4px 20px rgba(79,156,249,0.28)`,
+              transition: "transform 0.15s, box-shadow 0.15s",
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = "translateY(-1px)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "")}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = `0 6px 24px rgba(79,156,249,0.38)`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "";
+              e.currentTarget.style.boxShadow = `0 4px 20px rgba(79,156,249,0.28)`;
+            }}
           >
             <svg
               viewBox="0 0 24 24"
@@ -1244,7 +1300,7 @@ export default function Solutions() {
           </button>
         </motion.div>
 
-        {/* KPI Strip */}
+        {/* ── KPI Strip ── */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1276,6 +1332,15 @@ export default function Solutions() {
                 border: `1px solid ${T.border}`,
                 borderRadius: 10,
                 padding: "14px 16px",
+                transition: "border-color 0.2s, box-shadow 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = T.border2;
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = T.border;
+                e.currentTarget.style.boxShadow = "none";
               }}
             >
               <div
@@ -1303,7 +1368,7 @@ export default function Solutions() {
           ))}
         </motion.div>
 
-        {/* Filters */}
+        {/* ── Filters ── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1316,6 +1381,7 @@ export default function Solutions() {
             marginBottom: 24,
           }}
         >
+          {/* Search */}
           <div
             style={{
               display: "flex",
@@ -1366,6 +1432,8 @@ export default function Solutions() {
               </span>
             )}
           </div>
+
+          {/* Status filter */}
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -1379,12 +1447,19 @@ export default function Solutions() {
               cursor: "pointer",
               fontFamily: "'DM Sans', sans-serif",
               outline: "none",
+              transition: "border-color 0.2s",
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = T.accent)}
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.borderColor = T.border2)
+            }
           >
             <option value="All">All</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
+
+          {/* Count chip */}
           <div
             style={{
               marginLeft: "auto",
@@ -1403,7 +1478,7 @@ export default function Solutions() {
           </div>
         </motion.div>
 
-        {/* Grid */}
+        {/* ── Grid ── */}
         {loading ? (
           <div
             style={{

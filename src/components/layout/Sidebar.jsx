@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 const navSections = [
   {
     label: "Main Menu",
@@ -13,7 +12,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -31,7 +30,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
@@ -46,7 +45,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
@@ -66,7 +65,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
@@ -81,7 +80,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -96,7 +95,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -111,7 +110,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -126,7 +125,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -142,7 +141,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -162,7 +161,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -177,7 +176,7 @@ const navSections = [
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             style={{ width: 17, height: 17 }}
           >
             <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -188,85 +187,150 @@ const navSections = [
     ],
   },
 ];
-
-const mobileBottomItems = [
-  {
-    id: "dashboard",
-    label: "Home",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        style={{ width: 20, height: 20 }}
-      >
-        <rect x="3" y="3" width="7" height="7" rx="1" />
-        <rect x="14" y="3" width="7" height="7" rx="1" />
-        <rect x="3" y="14" width="7" height="7" rx="1" />
-        <rect x="14" y="14" width="7" height="7" rx="1" />
-      </svg>
-    ),
-  },
-  {
-    id: "trials",
-    label: "Trials",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        style={{ width: 20, height: 20 }}
-      >
-        <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18" />
-      </svg>
-    ),
-  },
-  {
-    id: "analytics",
-    label: "Stats",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        style={{ width: 20, height: 20 }}
-      >
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-      </svg>
-    ),
-  },
-  {
-    id: "news",
-    label: "News",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        style={{ width: 20, height: 20 }}
-      >
-        <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2" />
-      </svg>
-    ),
-  },
-];
+const MobileIcons = {
+  dashboard: ({ active }) => (
+    <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
+      <rect
+        x="3"
+        y="3"
+        width="8"
+        height="8"
+        rx="2.5"
+        fill={active ? "#4f9cf9" : "none"}
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.8"
+      />
+      <rect
+        x="13"
+        y="3"
+        width="8"
+        height="8"
+        rx="2.5"
+        fill={active ? "rgba(79,156,249,0.3)" : "none"}
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.8"
+      />
+      <rect
+        x="3"
+        y="13"
+        width="8"
+        height="8"
+        rx="2.5"
+        fill={active ? "rgba(79,156,249,0.3)" : "none"}
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.8"
+      />
+      <rect
+        x="13"
+        y="13"
+        width="8"
+        height="8"
+        rx="2.5"
+        fill={active ? "rgba(79,156,249,0.15)" : "none"}
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.8"
+      />
+    </svg>
+  ),
+  trials: ({ active }) => (
+    <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
+      <path
+        d="M9 3v8.5L5.5 17A3 3 0 008 21h8a3 3 0 002.5-4.5L15 11.5V3"
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="7"
+        y1="3"
+        x2="17"
+        y2="3"
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      {active && (
+        <ellipse cx="12" cy="17" rx="3.5" ry="2" fill="rgba(79,156,249,0.35)" />
+      )}
+    </svg>
+  ),
+  analytics: ({ active }) => (
+    <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
+      <path
+        d="M3 17l4-8 4 6 3-4 4 6"
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {active && (
+        <path
+          d="M3 17l4-8 4 6 3-4 4 6"
+          stroke="rgba(79,156,249,0.25)"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+      <circle cx="21" cy="17" r="0" />
+    </svg>
+  ),
+  news: ({ active }) => (
+    <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
+      <rect
+        x="3"
+        y="4"
+        width="18"
+        height="16"
+        rx="3"
+        fill={active ? "rgba(79,156,249,0.15)" : "none"}
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.8"
+      />
+      <line
+        x1="7"
+        y1="9"
+        x2="17"
+        y2="9"
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <line
+        x1="7"
+        y1="13"
+        x2="14"
+        y2="13"
+        stroke={active ? "#4f9cf9" : "#7d8590"}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <line
+        x1="7"
+        y1="17"
+        x2="11"
+        y2="17"
+        stroke={active ? "rgba(79,156,249,0.6)" : "#3d444d"}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+};
 
 const CSS_VARS = `
   :root {
-    --sb-bg: #070d1a;
-    --sb-bg2: #0c1525;
-    --sb-bg3: #111d30;
+    --sb-bg: #0D1117;
+    --sb-bg2: #161b22;
+    --sb-bg3: #1c2128;
     --sb-accent: #4f9cf9;
     --sb-accent2: #7c6af7;
-    --sb-text1: #e8edf5;
-    --sb-text2: #6b7fa3;
-    --sb-text3: #3a4a66;
-    --sb-border: rgba(79,156,249,0.10);
-    --sb-border2: rgba(79,156,249,0.18);
+    --sb-text1: #e6edf3;
+    --sb-text2: #7d8590;
+    --sb-text3: #3d444d;
+    --sb-border: rgba(48,54,61,0.8);
+    --sb-border2: rgba(79,156,249,0.25);
     --sb-active-bg: rgba(79,156,249,0.10);
     --sb-hover-bg: rgba(255,255,255,0.04);
     --sb-danger: #f25c5c;
@@ -276,7 +340,7 @@ const CSS_VARS = `
 `;
 
 const GLOBAL_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
   ${CSS_VARS}
   nav::-webkit-scrollbar { display: none; }
 
@@ -287,6 +351,20 @@ const GLOBAL_STYLES = `
   @keyframes logoutArrow  { 0%{transform:translateX(0);opacity:1} 45%{transform:translateX(6px);opacity:0} 46%{transform:translateX(-5px);opacity:0} 100%{transform:translateX(0);opacity:1} }
   @keyframes logoutPulse  { 0%{transform:scale(1)} 35%{transform:scale(0.95)} 100%{transform:scale(1)} }
 
+  /* Mobile nav animations */
+  @keyframes navTabPop    { 0%{transform:scale(1) translateY(0)} 30%{transform:scale(1.18) translateY(-3px)} 60%{transform:scale(0.94) translateY(0)} 100%{transform:scale(1) translateY(0)} }
+  @keyframes navDotGrow   { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.3);opacity:1} 100%{transform:scale(1);opacity:1} }
+  @keyframes navLabelSlide{ 0%{opacity:0;transform:translateY(4px)} 100%{opacity:1;transform:translateY(0)} }
+  @keyframes glowPulse    { 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+  /* Hamburger → X morph */
+  @keyframes bar1ToX  { from{transform:translateY(0) rotate(0)} to{transform:translateY(6px) rotate(45deg)} }
+  @keyframes bar2Fade { from{opacity:1;transform:scaleX(1)} to{opacity:0;transform:scaleX(0)} }
+  @keyframes bar3ToX  { from{transform:translateY(0) rotate(0)} to{transform:translateY(-6px) rotate(-45deg)} }
+  @keyframes bar1Back { from{transform:translateY(6px) rotate(45deg)} to{transform:translateY(0) rotate(0)} }
+  @keyframes bar2Show { from{opacity:0;transform:scaleX(0)} to{opacity:1;transform:scaleX(1)} }
+  @keyframes bar3Back { from{transform:translateY(-6px) rotate(-45deg)} to{transform:translateY(0) rotate(0)} }
+
   .sb-item { transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.15s !important; }
   .sb-item:hover { transform: translateX(2px); }
   .sb-item:hover .sb-icon { animation: iconPop 0.32s ease both; }
@@ -296,6 +374,20 @@ const GLOBAL_STYLES = `
   .sb-logout:hover { transform: translateX(2px); box-shadow: 0 2px 18px rgba(242,92,92,0.13) !important; }
   .sb-logout:hover .la { animation: logoutArrow 0.48s ease both; }
   .sb-logout:active { animation: logoutPulse 0.3s ease both; }
+
+  /* Mobile nav item pop on activate */
+  .mob-nav-btn.is-active .mob-icon-wrap { animation: navTabPop 0.38s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .mob-nav-btn.is-active .mob-dot { animation: navDotGrow 0.3s ease both; }
+  .mob-nav-btn.is-active .mob-label { animation: navLabelSlide 0.25s ease both; }
+
+  /* More button bars */
+  .hb-bar { transform-origin: center; transition: none; display: block; }
+  .hb-open .hb-bar1 { animation: bar1ToX 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
+  .hb-open .hb-bar2 { animation: bar2Fade 0.2s ease forwards; }
+  .hb-open .hb-bar3 { animation: bar3ToX 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
+  .hb-close .hb-bar1 { animation: bar1Back 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
+  .hb-close .hb-bar2 { animation: bar2Show 0.22s ease 0.04s forwards; }
+  .hb-close .hb-bar3 { animation: bar3Back 0.28s cubic-bezier(0.4,0,0.2,1) forwards; }
 `;
 
 function useIsMobile() {
@@ -405,8 +497,58 @@ function OnlineDot({ border = "var(--sb-bg)" }) {
     />
   );
 }
+function HamburgerIcon({ isOpen, size = 22 }) {
+  const [prevOpen, setPrevOpen] = useState(null);
+  useEffect(() => {
+    if (prevOpen !== null) return;
+    setPrevOpen(isOpen);
+  }, []);
+  useEffect(() => {
+    setPrevOpen(isOpen);
+  }, [isOpen]);
 
-// ── Desktop Sidebar ───────────────────────────────────────────────────────────
+  const cls = prevOpen === null ? "" : isOpen ? "hb-open" : "hb-close";
+
+  return (
+    <svg
+      viewBox="0 0 22 22"
+      width={size}
+      height={size}
+      style={{ display: "block", overflow: "visible" }}
+    >
+      <line
+        className={`hb-bar hb-bar1 ${cls}`}
+        x1="3"
+        y1="5"
+        x2="19"
+        y2="5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        className={`hb-bar hb-bar2 ${cls}`}
+        x1="3"
+        y1="11"
+        x2="19"
+        y2="11"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        className={`hb-bar hb-bar3 ${cls}`}
+        x1="3"
+        y1="17"
+        x2="19"
+        y2="17"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 function DesktopSidebar({ activePage, setActivePage, onLogout }) {
   const [collapsed, setCollapsed] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -476,7 +618,6 @@ function DesktopSidebar({ activePage, setActivePage, onLogout }) {
           overflow: "hidden",
         }}
       >
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -574,7 +715,6 @@ function DesktopSidebar({ activePage, setActivePage, onLogout }) {
           </button>
         </div>
 
-        {/* Search */}
         <div
           style={{
             padding: collapsed ? "0 12px" : "12px 12px 6px",
@@ -787,7 +927,6 @@ function DesktopSidebar({ activePage, setActivePage, onLogout }) {
             overflow: "hidden",
           }}
         >
-          {/* User */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div
               style={{
@@ -840,8 +979,6 @@ function DesktopSidebar({ activePage, setActivePage, onLogout }) {
               </div>
             </div>
           </div>
-
-          {/* Logout */}
           <button
             className="sb-logout"
             onClick={onLogout}
@@ -891,8 +1028,6 @@ function DesktopSidebar({ activePage, setActivePage, onLogout }) {
     </>
   );
 }
-
-// ── Mobile Drawer ─────────────────────────────────────────────────────────────
 function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
   const [searchVal, setSearchVal] = useState("");
   const [logoutHov, setLogoutHov] = useState(false);
@@ -924,11 +1059,11 @@ function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
           position: "fixed",
           inset: 0,
           zIndex: 40,
-          background: "rgba(0,0,0,0.6)",
+          background: "rgba(0,0,0,0.65)",
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
           transition: "opacity 0.25s",
-          backdropFilter: "blur(2px)",
+          backdropFilter: "blur(3px)",
         }}
       />
       <div
@@ -950,7 +1085,6 @@ function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
           overflowX: "hidden",
         }}
       >
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -990,9 +1124,9 @@ function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
           <button
             onClick={onClose}
             style={{
-              width: 30,
-              height: 30,
-              borderRadius: 8,
+              width: 32,
+              height: 32,
+              borderRadius: 9,
               background: "var(--sb-bg3)",
               border: "1px solid var(--sb-border)",
               display: "flex",
@@ -1014,8 +1148,6 @@ function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
             </svg>
           </button>
         </div>
-
-        {/* Search */}
         <div style={{ padding: "10px 12px 4px", flexShrink: 0 }}>
           <div
             style={{
@@ -1181,8 +1313,6 @@ function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
             </div>
           )}
         </nav>
-
-        {/* Footer */}
         <div
           style={{
             padding: "12px 14px 16px",
@@ -1193,7 +1323,6 @@ function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
             flexShrink: 0,
           }}
         >
-          {/* User */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div
               style={{
@@ -1233,8 +1362,6 @@ function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
               </div>
             </div>
           </div>
-
-          {/* Logout */}
           <button
             className="sb-logout"
             onClick={() => {
@@ -1270,9 +1397,19 @@ function MobileDrawer({ activePage, setActivePage, open, onClose, onLogout }) {
     </>
   );
 }
+function MobileBottomNav({
+  activePage,
+  setActivePage,
+  onMenuOpen,
+  drawerOpen,
+}) {
+  const mobileItems = [
+    { id: "dashboard", label: "Home", IconComp: MobileIcons.dashboard },
+    { id: "trials", label: "Trials", IconComp: MobileIcons.trials },
+    { id: "analytics", label: "Stats", IconComp: MobileIcons.analytics },
+    { id: "news", label: "News", IconComp: MobileIcons.news },
+  ];
 
-// ── Mobile Bottom Nav ─────────────────────────────────────────────────────────
-function MobileBottomNav({ activePage, setActivePage, onMenuOpen }) {
   return (
     <div
       style={{
@@ -1280,55 +1417,80 @@ function MobileBottomNav({ activePage, setActivePage, onMenuOpen }) {
         bottom: 0,
         left: 0,
         right: 0,
-        height: 60,
-        background: "var(--sb-bg)",
-        borderTop: "1px solid var(--sb-border)",
+        height: 64,
+        background: "rgba(13,17,23,0.97)",
+        borderTop: "1px solid rgba(48,54,61,0.8)",
         zIndex: 30,
         display: "flex",
         alignItems: "stretch",
         fontFamily: "'DM Sans',sans-serif",
         paddingBottom: "env(safe-area-inset-bottom)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
       }}
     >
-      {mobileBottomItems.map((item) => {
-        const isActive = activePage === item.id;
+      {mobileItems.map(({ id, label, IconComp }) => {
+        const isActive = activePage === id;
         return (
           <button
-            key={item.id}
-            onClick={() => setActivePage(item.id)}
+            key={id}
+            className={`mob-nav-btn${isActive ? " is-active" : ""}`}
+            onClick={() => setActivePage(id)}
             style={{
               flex: 1,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              gap: 3,
+              gap: 4,
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: isActive ? "var(--sb-accent)" : "var(--sb-text2)",
-              transition: "color 0.18s",
               position: "relative",
               minHeight: 44,
-              padding: "6px 4px",
+              padding: "6px 2px",
               fontFamily: "'DM Sans',sans-serif",
+              outline: "none",
             }}
           >
             {isActive && (
               <div
                 style={{
                   position: "absolute",
-                  top: 7,
-                  width: 4,
-                  height: 4,
+                  top: 6,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: 36,
+                  height: 36,
                   borderRadius: "50%",
-                  background: "var(--sb-accent)",
+                  background:
+                    "radial-gradient(circle, rgba(79,156,249,0.18) 0%, transparent 70%)",
+                  animation: "glowPulse 2s ease infinite",
+                  pointerEvents: "none",
                 }}
               />
             )}
-            {item.icon}
-            <span style={{ fontSize: 10, fontWeight: isActive ? 600 : 400 }}>
-              {item.label}
+            <div
+              className="mob-icon-wrap"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <IconComp active={isActive} />
+            </div>
+            <span
+              className="mob-label"
+              style={{
+                fontSize: 10,
+                fontWeight: isActive ? 600 : 400,
+                color: isActive ? "var(--sb-accent)" : "var(--sb-text2)",
+                letterSpacing: isActive ? "0.01em" : "0",
+                transition: "color 0.2s",
+              }}
+            >
+              {label}
             </span>
           </button>
         );
@@ -1341,32 +1503,43 @@ function MobileBottomNav({ activePage, setActivePage, onMenuOpen }) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 3,
+          gap: 4,
           background: "none",
           border: "none",
           cursor: "pointer",
-          color: "var(--sb-text2)",
           minHeight: 44,
-          padding: "6px 4px",
+          padding: "6px 2px",
           fontFamily: "'DM Sans',sans-serif",
+          color: drawerOpen ? "var(--sb-accent)" : "var(--sb-text2)",
+          transition: "color 0.2s",
+          outline: "none",
         }}
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          style={{ width: 20, height: 20 }}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 28,
+            height: 28,
+          }}
         >
-          <path d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-        <span style={{ fontSize: 10 }}>More</span>
+          <HamburgerIcon isOpen={drawerOpen} size={22} />
+        </div>
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 400,
+            color: "inherit",
+            transition: "color 0.2s",
+          }}
+        >
+          {drawerOpen ? "Close" : "More"}
+        </span>
       </button>
     </div>
   );
 }
-
-// ── Main Export ───────────────────────────────────────────────────────────────
 export default function Sidebar({ activePage, setActivePage }) {
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -1401,7 +1574,8 @@ export default function Sidebar({ activePage, setActivePage }) {
           <MobileBottomNav
             activePage={activePage}
             setActivePage={setActivePage}
-            onMenuOpen={() => setDrawerOpen(true)}
+            onMenuOpen={() => setDrawerOpen((v) => !v)}
+            drawerOpen={drawerOpen}
           />
         </>
       )}

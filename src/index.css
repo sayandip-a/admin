@@ -14,6 +14,17 @@ body {
   background: #030712;
 }
 
+/* ✅ ADD THESE 4 LINES */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* rest of your file stays exactly the same... */
+
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;

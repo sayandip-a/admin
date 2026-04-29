@@ -79,7 +79,7 @@ function ProtectedLayout() {
       style={{
         display: "flex",
         height: "100vh",
-        overflow: "hidden",
+        overflow: "auto",
         background: "#080f1e",
       }}
     >
@@ -101,7 +101,7 @@ function ProtectedLayout() {
           minWidth: 0,
           display: "flex",
           flexDirection: "column",
-          overflow: "hidden",
+          overflow: "auto",
         }}
       >
         <style>{`
