@@ -1,4 +1,4 @@
-// src/admin/Team.jsx  — Admin panel wired to Express + MongoDB API
+// src/admin/Team.jsx — Admin panel, light clinical theme (Accelia style)
 import { useState, useEffect, useRef } from "react";
 import {
   fetchAdminTeam,
@@ -8,14 +8,14 @@ import {
   updateMemberStatus,
 } from "../services/teamApi";
 
-/* ─── Palettes ────────────────────────────────────────────── */
+/* ─── Config ──────────────────────────────────────────────── */
 const AVATAR_PALETTES = [
-  { bg: "from-violet-500 to-indigo-600", ring: "#7c3aed" },
-  { bg: "from-cyan-400 to-teal-600", ring: "#0891b2" },
-  { bg: "from-rose-400 to-pink-600", ring: "#e11d48" },
-  { bg: "from-amber-400 to-orange-500", ring: "#d97706" },
-  { bg: "from-emerald-400 to-green-600", ring: "#059669" },
-  { bg: "from-sky-400 to-blue-600", ring: "#0284c7" },
+  { bg: "linear-gradient(135deg,#6366f1,#818cf8)", ring: "#6366f1" },
+  { bg: "linear-gradient(135deg,#3b82f6,#60a5fa)", ring: "#3b82f6" },
+  { bg: "linear-gradient(135deg,#8b5cf6,#a78bfa)", ring: "#8b5cf6" },
+  { bg: "linear-gradient(135deg,#06b6d4,#67e8f9)", ring: "#06b6d4" },
+  { bg: "linear-gradient(135deg,#10b981,#6ee7b7)", ring: "#10b981" },
+  { bg: "linear-gradient(135deg,#f59e0b,#fcd34d)", ring: "#f59e0b" },
 ];
 
 const DEPARTMENTS = [
@@ -41,6 +41,27 @@ const EMPTY_FORM = {
   order: 0,
 };
 
+const STATUS_META = {
+  Active: {
+    bg: "#dcfce7",
+    color: "#15803d",
+    dot: "#22c55e",
+    border: "#bbf7d0",
+  },
+  "On Leave": {
+    bg: "#fef9c3",
+    color: "#a16207",
+    dot: "#eab308",
+    border: "#fef08a",
+  },
+  Inactive: {
+    bg: "#f1f5f9",
+    color: "#64748b",
+    dot: "#94a3b8",
+    border: "#e2e8f0",
+  },
+};
+
 function getInitials(name = "") {
   return (
     name
@@ -51,9 +72,29 @@ function getInitials(name = "") {
       .slice(0, 2) || "?"
   );
 }
-function getPalette(index) {
-  return AVATAR_PALETTES[index % AVATAR_PALETTES.length];
+function getPalette(i) {
+  return AVATAR_PALETTES[i % AVATAR_PALETTES.length];
 }
+
+/* ─── Inline Styles ───────────────────────────────────────── */
+const GLOBAL_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  *{font-family:'DM Sans',sans-serif;box-sizing:border-box;}
+  @keyframes fadeUp   {from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeIn   {from{opacity:0}to{opacity:1}}
+  @keyframes modalPop {from{opacity:0;transform:scale(0.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  @keyframes slideRight{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes spin     {to{transform:rotate(360deg)}}
+  @keyframes pulse2   {0%,100%{opacity:1}50%{opacity:.45}}
+  @keyframes shimmer  {0%{background-position:-200% 0}100%{background-position:200% 0}}
+  .animate-spin{animation:spin 0.85s linear infinite}
+  .card-hover{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+  .card-hover:hover{transform:translateY(-4px);box-shadow:0 16px 40px -12px rgba(99,102,241,.18);border-color:#c7d2fe!important}
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:8px}
+  .shimmer{background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);background-size:200% 100%;animation:shimmer 1.4s infinite}
+`;
 
 /* ─── Toast ───────────────────────────────────────────────── */
 function Toast({ message, type, onDone }) {
@@ -61,18 +102,87 @@ function Toast({ message, type, onDone }) {
     const t = setTimeout(onDone, 3000);
     return () => clearTimeout(t);
   }, [onDone]);
+  const isErr = type === "error";
   return (
     <div
-      className="fixed bottom-6 right-6 z-[100] px-5 py-3 rounded-2xl text-sm font-medium shadow-2xl"
       style={{
-        background: type === "error" ? "#e118361a" : "#05966918",
-        color: type === "error" ? "#fb7185" : "#34d399",
-        border: `1px solid ${type === "error" ? "#e1183630" : "#05966930"}`,
-        backdropFilter: "blur(12px)",
-        animation: "fadeSlide 0.3s ease both",
+        position: "fixed",
+        bottom: 28,
+        right: 28,
+        zIndex: 200,
+        padding: "12px 20px",
+        borderRadius: 14,
+        fontSize: 13,
+        fontWeight: 500,
+        background: isErr ? "#fef2f2" : "#f0fdf4",
+        color: isErr ? "#dc2626" : "#15803d",
+        border: `1px solid ${isErr ? "#fecaca" : "#bbf7d0"}`,
+        boxShadow: "0 8px 24px -4px rgba(0,0,0,.12)",
+        animation: "slideRight .3s ease both",
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        maxWidth: 320,
       }}
     >
+      <span style={{ fontSize: 16 }}>{isErr ? "⚠️" : "✓"}</span>
       {message}
+    </div>
+  );
+}
+
+/* ─── Skeleton Card ───────────────────────────────────────── */
+function SkeletonCard() {
+  return (
+    <div
+      style={{
+        background: "#fff",
+        border: "1px solid #e2e8f0",
+        borderRadius: 20,
+        padding: 20,
+        animation: "fadeUp .5s ease both",
+      }}
+    >
+      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+        <div
+          className="shimmer"
+          style={{ width: 52, height: 52, borderRadius: 14, flexShrink: 0 }}
+        />
+        <div style={{ flex: 1 }}>
+          <div
+            className="shimmer"
+            style={{
+              height: 13,
+              borderRadius: 8,
+              width: "70%",
+              marginBottom: 8,
+            }}
+          />
+          <div
+            className="shimmer"
+            style={{ height: 11, borderRadius: 8, width: "50%" }}
+          />
+        </div>
+      </div>
+      <div className="shimmer" style={{ height: 1, marginBottom: 14 }} />
+      <div
+        className="shimmer"
+        style={{ height: 11, borderRadius: 8, width: "80%", marginBottom: 8 }}
+      />
+      <div
+        className="shimmer"
+        style={{ height: 11, borderRadius: 8, width: "55%", marginBottom: 16 }}
+      />
+      <div style={{ display: "flex", gap: 8 }}>
+        <div
+          className="shimmer"
+          style={{ flex: 1, height: 32, borderRadius: 10 }}
+        />
+        <div
+          className="shimmer"
+          style={{ flex: 1, height: 32, borderRadius: 10 }}
+        />
+      </div>
     </div>
   );
 }
@@ -80,20 +190,31 @@ function Toast({ message, type, onDone }) {
 /* ─── Avatar ──────────────────────────────────────────────── */
 function Avatar({ member, paletteIndex = 0, size = "lg", onImageChange }) {
   const ref = useRef();
-  const palette = getPalette(paletteIndex);
-  const sz = size === "lg" ? "w-16 h-16 text-xl" : "w-10 h-10 text-sm";
-
+  const pal = getPalette(paletteIndex);
+  const sz = size === "lg" ? 52 : 38;
   return (
-    <div className={`relative ${sz} flex-shrink-0`}>
+    <div style={{ position: "relative", width: sz, height: sz, flexShrink: 0 }}>
       <div
-        className={`${sz} rounded-2xl bg-gradient-to-br ${palette.bg} flex items-center justify-center font-bold text-white shadow-lg overflow-hidden`}
-        style={{ boxShadow: `0 0 0 2px ${palette.ring}44` }}
+        style={{
+          width: sz,
+          height: sz,
+          borderRadius: 14,
+          background: pal.bg,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontWeight: 700,
+          fontSize: size === "lg" ? 17 : 13,
+          color: "#fff",
+          boxShadow: `0 0 0 3px ${pal.ring}22,0 4px 12px ${pal.ring}33`,
+          overflow: "hidden",
+        }}
       >
         {member.avatar ? (
           <img
             src={member.avatar}
             alt={member.name}
-            className="w-full h-full object-cover"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         ) : (
           <span>{getInitials(member.name)}</span>
@@ -104,16 +225,30 @@ function Avatar({ member, paletteIndex = 0, size = "lg", onImageChange }) {
           <button
             type="button"
             onClick={() => ref.current.click()}
-            className="absolute -bottom-1 -right-1 w-5 h-5 bg-cyan-500 hover:bg-cyan-400 rounded-full flex items-center justify-center text-white shadow-md transition-colors"
-            title="Upload photo"
+            style={{
+              position: "absolute",
+              bottom: -4,
+              right: -4,
+              width: 20,
+              height: 20,
+              borderRadius: "50%",
+              background: "#6366f1",
+              border: "2px solid #fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "#fff",
+              boxShadow: "0 2px 6px #6366f144",
+            }}
           >
             <svg
-              width="10"
-              height="10"
+              width="9"
+              height="9"
               viewBox="0 0 12 12"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.2"
               strokeLinecap="round"
             >
               <path d="M6 1v10M1 6h10" />
@@ -123,18 +258,46 @@ function Avatar({ member, paletteIndex = 0, size = "lg", onImageChange }) {
             ref={ref}
             type="file"
             accept="image/*"
-            className="hidden"
+            style={{ display: "none" }}
             onChange={(e) => {
-              const file = e.target.files[0];
-              if (!file) return;
-              const reader = new FileReader();
-              reader.onload = (ev) => onImageChange(ev.target.result);
-              reader.readAsDataURL(file);
+              const f = e.target.files[0];
+              if (!f) return;
+              const r = new FileReader();
+              r.onload = (ev) => onImageChange(ev.target.result);
+              r.readAsDataURL(f);
             }}
           />
         </>
       )}
     </div>
+  );
+}
+
+/* ─── Department Badge ────────────────────────────────────── */
+function DeptBadge({ dept }) {
+  const colors = {
+    "Oncology Research": ["#ede9fe", "#7c3aed"],
+    Cardiovascular: ["#fee2e2", "#dc2626"],
+    Neurology: ["#dbeafe", "#2563eb"],
+    "Medical Affairs": ["#d1fae5", "#059669"],
+    "Data Science": ["#e0f2fe", "#0284c7"],
+    "Regulatory Affairs": ["#fef9c3", "#a16207"],
+  }[dept] || ["#f1f5f9", "#64748b"];
+  return (
+    <span
+      style={{
+        fontSize: 10,
+        padding: "3px 9px",
+        borderRadius: 20,
+        fontWeight: 600,
+        background: colors[0],
+        color: colors[1],
+        letterSpacing: 0.3,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {dept}
+    </span>
   );
 }
 
@@ -148,185 +311,239 @@ function MemberCard({
   index,
   loading,
 }) {
-  const [hovered, setHovered] = useState(false);
-  const palette = getPalette(paletteIndex);
-
-  const statusColor =
-    {
-      Active: {
-        bg: "#05966918",
-        color: "#34d399",
-        border: "#05966930",
-        dot: "#34d399",
-      },
-      "On Leave": {
-        bg: "#d9770618",
-        color: "#fbbf24",
-        border: "#d9770630",
-        dot: "#fbbf24",
-      },
-      Inactive: {
-        bg: "#ffffff08",
-        color: "#6b7280",
-        border: "#ffffff15",
-        dot: "#6b7280",
-      },
-    }[member.status] || {};
-
+  const st = STATUS_META[member.status] || STATUS_META.Inactive;
   return (
     <div
-      className="member-card relative bg-[#0f1623] border border-white/[0.06] rounded-2xl p-5 overflow-hidden"
+      className="card-hover"
       style={{
-        animation: `cardIn 0.5s ease both`,
-        animationDelay: `${index * 55}ms`,
-        transition:
-          "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
-        opacity: loading ? 0.5 : 1,
+        background: "#fff",
+        border: "1.5px solid #e2e8f0",
+        borderRadius: 20,
+        padding: 20,
+        position: "relative",
+        overflow: "hidden",
+        animation: `fadeUp .5s ease both`,
+        animationDelay: `${index * 60}ms`,
+        opacity: loading ? 0.7 : 1,
         pointerEvents: loading ? "none" : "auto",
-        ...(hovered
-          ? {
-              transform: "translateY(-3px)",
-              boxShadow: `0 12px 32px -8px ${palette.ring}22`,
-              borderColor: `${palette.ring}33`,
-            }
-          : {}),
+        transition: "opacity .2s",
       }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
-      {/* Order badge */}
-      <div className="absolute top-3 right-3 text-[10px] text-gray-600 font-mono">
-        #{member.order ?? 0}
+      {/* Top accent line */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: getPalette(paletteIndex).bg,
+          borderRadius: "20px 20px 0 0",
+        }}
+      />
+
+      {/* Order */}
+      <div
+        style={{
+          position: "absolute",
+          top: 12,
+          right: 14,
+          fontSize: 10,
+          color: "#cbd5e1",
+          fontFamily: "'Syne',sans-serif",
+          fontWeight: 600,
+        }}
+      >
+        #{String(member.order ?? 0).padStart(2, "0")}
       </div>
 
-      {/* Top row */}
-      <div className="flex items-start gap-3 mb-4">
+      {/* Header */}
+      <div style={{ display: "flex", gap: 12, marginBottom: 14, marginTop: 6 }}>
         <Avatar member={member} paletteIndex={paletteIndex} size="lg" />
-        <div className="flex-1 min-w-0 pr-6">
-          <p className="text-white font-semibold text-sm truncate leading-tight">
+        <div style={{ flex: 1, minWidth: 0, paddingRight: 20 }}>
+          <p
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: "#0f172a",
+              margin: 0,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
             {member.name}
           </p>
-          <p className="text-gray-400 text-xs mt-0.5 truncate">{member.role}</p>
-          <div className="mt-2">
-            {/* Status quick-change dropdown */}
-            <select
-              value={member.status}
-              onChange={(e) => onStatusChange(member._id, e.target.value)}
-              className="text-xs px-2 py-0.5 rounded-full font-medium border bg-transparent cursor-pointer outline-none"
-              style={{
-                color: statusColor.color,
-                borderColor: statusColor.border,
-                background: statusColor.bg,
-              }}
-            >
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s} className="bg-[#0f1623] text-white">
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
+          <p
+            style={{
+              fontSize: 12,
+              color: "#64748b",
+              margin: "2px 0 6px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {member.role}
+          </p>
+          {/* Status select */}
+          <select
+            value={member.status}
+            onChange={(e) => onStatusChange(member._id, e.target.value)}
+            style={{
+              fontSize: 11,
+              padding: "2px 8px",
+              borderRadius: 20,
+              fontWeight: 600,
+              border: `1px solid ${st.border}`,
+              background: st.bg,
+              color: st.color,
+              cursor: "pointer",
+              outline: "none",
+            }}
+          >
+            {STATUS_OPTIONS.map((s) => (
+              <option
+                key={s}
+                value={s}
+                style={{ background: "#fff", color: "#0f172a" }}
+              >
+                {s}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      <div className="h-px bg-white/[0.05] mb-3" />
+      <div style={{ height: 1, background: "#f1f5f9", marginBottom: 12 }} />
 
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] px-2 py-1 rounded-lg bg-white/[0.05] text-gray-400 border border-white/[0.04] truncate max-w-[60%]">
-          {member.department}
-        </span>
-        <span className="text-[11px] text-gray-500">
-          {member.projects} projects
+      {/* Meta */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 10,
+        }}
+      >
+        <DeptBadge dept={member.department} />
+        <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>
+          {member.projects} proj.
         </span>
       </div>
 
-      <p className="text-[11px] text-gray-500 flex items-center gap-1.5 truncate mb-1">
+      <p
+        style={{
+          fontSize: 11,
+          color: "#64748b",
+          display: "flex",
+          alignItems: "center",
+          gap: 5,
+          margin: "0 0 3px",
+          overflow: "hidden",
+        }}
+      >
         <svg
           width="11"
           height="11"
           viewBox="0 0 14 14"
           fill="none"
-          stroke="currentColor"
+          stroke="#94a3b8"
           strokeWidth="1.4"
-          className="flex-shrink-0"
         >
           <rect x="1" y="3" width="12" height="9" rx="1.5" />
           <path d="M1 5l6 4 6-4" strokeLinecap="round" />
         </svg>
-        {member.email}
+        <span
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {member.email}
+        </span>
       </p>
-      <p className="text-[11px] text-gray-600 mb-4">Joined {member.joined}</p>
+      <p style={{ fontSize: 11, color: "#cbd5e1", margin: "0 0 14px" }}>
+        Joined {member.joined}
+      </p>
 
       {/* Actions */}
-      <div className="flex gap-2">
-        <button
+      <div style={{ display: "flex", gap: 8 }}>
+        <ActionBtn
           onClick={() => onEdit(member)}
-          className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-medium transition-all"
-          style={{
-            background: "#ffffff08",
-            color: "#94a3b8",
-            border: "1px solid #ffffff0d",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#0891b215";
-            e.currentTarget.style.color = "#67e8f9";
-            e.currentTarget.style.borderColor = "#0891b230";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "#ffffff08";
-            e.currentTarget.style.color = "#94a3b8";
-            e.currentTarget.style.borderColor = "#ffffff0d";
-          }}
+          hoverColor="#6366f1"
+          hoverBg="#eef2ff"
+          icon={
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+            >
+              <path d="M9.5 2.5l2 2-7 7H2.5v-2l7-7z" strokeLinejoin="round" />
+            </svg>
+          }
         >
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 14 14"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-          >
-            <path d="M9.5 2.5l2 2-7 7H2.5v-2l7-7z" strokeLinejoin="round" />
-          </svg>
           Edit
-        </button>
-        <button
+        </ActionBtn>
+        <ActionBtn
           onClick={() => onDelete(member._id, member.name)}
-          className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-medium transition-all"
-          style={{
-            background: "#ffffff08",
-            color: "#94a3b8",
-            border: "1px solid #ffffff0d",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#e1183615";
-            e.currentTarget.style.color = "#fb7185";
-            e.currentTarget.style.borderColor = "#e1183630";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "#ffffff08";
-            e.currentTarget.style.color = "#94a3b8";
-            e.currentTarget.style.borderColor = "#ffffff0d";
-          }}
+          hoverColor="#dc2626"
+          hoverBg="#fef2f2"
+          icon={
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+            >
+              <path
+                d="M2 3.5h10M5 3.5V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1M11.5 3.5l-.8 8.5H3.3l-.8-8.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          }
         >
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 14 14"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-          >
-            <path
-              d="M2 3.5h10M5 3.5V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1M11.5 3.5l-.8 8.5H3.3l-.8-8.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
           Delete
-        </button>
+        </ActionBtn>
       </div>
     </div>
+  );
+}
+
+function ActionBtn({ children, onClick, icon, hoverColor, hoverBg }) {
+  const [h, setH] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setH(true)}
+      onMouseLeave={() => setH(false)}
+      style={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 5,
+        padding: "7px 0",
+        borderRadius: 10,
+        fontSize: 11,
+        fontWeight: 600,
+        cursor: "pointer",
+        transition: "all .2s",
+        background: h ? hoverBg : "#f8fafc",
+        color: h ? hoverColor : "#64748b",
+        border: `1px solid ${h ? hoverColor + "33" : "#e2e8f0"}`,
+      }}
+    >
+      {icon}
+      {children}
+    </button>
   );
 }
 
@@ -343,140 +560,253 @@ function Modal({
   error,
 }) {
   if (!show) return null;
-
-  const inputCls =
-    "w-full bg-[#0b1019] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30 transition-all";
-
+  const inp = {
+    width: "100%",
+    background: "#f8fafc",
+    border: "1.5px solid #e2e8f0",
+    borderRadius: 12,
+    padding: "10px 14px",
+    fontSize: 13,
+    color: "#0f172a",
+    outline: "none",
+    transition: "border-color .2s",
+    fontFamily: "'DM Sans',sans-serif",
+  };
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+        background: "rgba(15,23,42,.45)",
+        backdropFilter: "blur(10px)",
+      }}
     >
       <div
-        className="relative bg-[#0f1623] border border-white/[0.08] rounded-3xl p-7 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]"
         style={{
-          animation: "modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both",
+          background: "#fff",
+          borderRadius: 24,
+          padding: 28,
+          width: "100%",
+          maxWidth: 440,
+          boxShadow: "0 24px 64px -16px rgba(0,0,0,.25)",
+          animation: "modalPop .3s cubic-bezier(.34,1.56,.64,1) both",
+          overflowY: "auto",
+          maxHeight: "92vh",
         }}
       >
-        <div className="flex items-center justify-between mb-6">
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            marginBottom: 22,
+          }}
+        >
           <div>
-            <h2 className="text-white text-lg font-semibold tracking-tight">
-              {isEdit ? "Edit Member" : "Add Team Member"}
+            <h2
+              style={{
+                margin: 0,
+                fontSize: 18,
+                fontWeight: 700,
+                color: "#0f172a",
+                fontFamily: "'Syne',sans-serif",
+              }}
+            >
+              {isEdit ? "Edit Member" : "Add Member"}
             </h2>
-            <p className="text-gray-500 text-xs mt-0.5">
+            <p style={{ margin: "3px 0 0", fontSize: 12, color: "#94a3b8" }}>
               {isEdit
-                ? "Update member details below"
-                : "Fill in the details to add a new member"}
+                ? "Update member details"
+                : "Fill in details to add a new member"}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-white/[0.06] hover:bg-white/10 text-gray-400 flex items-center justify-center transition-colors"
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 10,
+              background: "#f1f5f9",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#64748b",
+              fontSize: 16,
+              transition: "background .2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#e2e8f0")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#f1f5f9")}
           >
             ✕
           </button>
         </div>
 
         {/* Avatar */}
-        <div className="flex justify-center mb-6">
-          <div className="relative group">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 20,
+          }}
+        >
+          <div style={{ position: "relative" }}>
             <div
-              className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold overflow-hidden shadow-lg"
-              style={{ boxShadow: "0 0 0 3px #0891b255" }}
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: 18,
+                background: "linear-gradient(135deg,#6366f1,#818cf8)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 700,
+                fontSize: 22,
+                color: "#fff",
+                overflow: "hidden",
+                boxShadow: "0 0 0 4px #e0e7ff",
+              }}
             >
               {form.avatar ? (
                 <img
                   src={form.avatar}
                   alt="preview"
-                  className="w-full h-full object-cover"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
                 <span>{getInitials(form.name)}</span>
               )}
             </div>
-            <label className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs cursor-pointer transition-opacity">
+            <label
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: 18,
+                background: "rgba(0,0,0,.45)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                opacity: 0,
+                transition: "opacity .2s",
+                color: "#fff",
+                fontSize: 10,
+                fontWeight: 600,
+                gap: 3,
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+            >
               <input
                 type="file"
                 accept="image/*"
-                className="hidden"
+                style={{ display: "none" }}
                 onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (!file) return;
-                  const reader = new FileReader();
-                  reader.onload = (ev) => onAvatarChange(ev.target.result);
-                  reader.readAsDataURL(file);
+                  const f = e.target.files[0];
+                  if (!f) return;
+                  const r = new FileReader();
+                  r.onload = (ev) => onAvatarChange(ev.target.result);
+                  r.readAsDataURL(f);
                 }}
               />
-              <span className="flex flex-col items-center gap-0.5">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <path d="M4 16s0-4 6-4 6 4 6 4" strokeLinecap="round" />
-                  <circle cx="10" cy="8" r="3" />
-                </svg>
-                Photo
-              </span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M4 16s0-4 6-4 6 4 6 4" strokeLinecap="round" />
+                <circle cx="10" cy="8" r="3" />
+              </svg>
+              Photo
             </label>
           </div>
         </div>
 
-        {/* Error */}
         {error && (
-          <div className="mb-4 px-4 py-2.5 rounded-xl text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20">
+          <div
+            style={{
+              marginBottom: 14,
+              padding: "10px 14px",
+              borderRadius: 10,
+              fontSize: 12,
+              color: "#dc2626",
+              background: "#fef2f2",
+              border: "1px solid #fecaca",
+            }}
+          >
             {error}
           </div>
         )}
 
-        {/* Fields */}
-        <div className="space-y-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <input
-            className={inputCls}
+            style={inp}
             placeholder="Full Name *"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
+            onFocus={(e) => (e.target.style.borderColor = "#6366f1")}
+            onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
           />
-
-          <div className="grid grid-cols-2 gap-3">
+          <div
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}
+          >
             <input
-              className={inputCls}
+              style={inp}
               placeholder="Role / Title"
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
+              onFocus={(e) => (e.target.style.borderColor = "#6366f1")}
+              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
             />
             <input
-              className={inputCls}
+              style={inp}
               placeholder="Email *"
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
+              onFocus={(e) => (e.target.style.borderColor = "#6366f1")}
+              onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
             />
           </div>
-
           <select
             value={form.department}
             onChange={(e) => setForm({ ...form, department: e.target.value })}
-            className={inputCls}
-            style={{ color: "white" }}
+            style={{ ...inp, color: "#0f172a" }}
           >
             {DEPARTMENTS.slice(1).map((d) => (
-              <option key={d} value={d} className="bg-[#0b1019]">
+              <option key={d} value={d}>
                 {d}
               </option>
             ))}
           </select>
-
-          <div className="grid grid-cols-2 gap-3">
+          <div
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}
+          >
             <div>
-              <label className="text-[11px] text-gray-500 mb-1 block">
+              <label
+                style={{
+                  fontSize: 11,
+                  color: "#94a3b8",
+                  fontWeight: 600,
+                  display: "block",
+                  marginBottom: 4,
+                }}
+              >
                 Projects
               </label>
               <input
-                className={inputCls}
+                style={inp}
                 placeholder="0"
                 type="number"
                 min="0"
@@ -484,14 +814,24 @@ function Modal({
                 onChange={(e) =>
                   setForm({ ...form, projects: Number(e.target.value) })
                 }
+                onFocus={(e) => (e.target.style.borderColor = "#6366f1")}
+                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
               />
             </div>
             <div>
-              <label className="text-[11px] text-gray-500 mb-1 block">
+              <label
+                style={{
+                  fontSize: 11,
+                  color: "#94a3b8",
+                  fontWeight: 600,
+                  display: "block",
+                  marginBottom: 4,
+                }}
+              >
                 Display Order
               </label>
               <input
-                className={inputCls}
+                style={inp}
                 placeholder="0"
                 type="number"
                 min="0"
@@ -499,68 +839,82 @@ function Modal({
                 onChange={(e) =>
                   setForm({ ...form, order: Number(e.target.value) })
                 }
+                onFocus={(e) => (e.target.style.borderColor = "#6366f1")}
+                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
               />
             </div>
           </div>
-
           {/* Status */}
-          <div className="flex gap-2">
-            {STATUS_OPTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setForm({ ...form, status: s })}
-                className="flex-1 py-2 rounded-xl text-xs font-medium transition-all border"
-                style={{
-                  background:
-                    form.status === s
-                      ? s === "Active"
-                        ? "#05966920"
-                        : s === "On Leave"
-                          ? "#d9770620"
-                          : "#ffffff10"
-                      : "transparent",
-                  color:
-                    form.status === s
-                      ? s === "Active"
-                        ? "#34d399"
-                        : s === "On Leave"
-                          ? "#fbbf24"
-                          : "#9ca3af"
-                      : "#6b7280",
-                  borderColor:
-                    form.status === s
-                      ? s === "Active"
-                        ? "#05966960"
-                        : s === "On Leave"
-                          ? "#d9770660"
-                          : "#ffffff30"
-                      : "#ffffff10",
-                }}
-              >
-                {s}
-              </button>
-            ))}
+          <div style={{ display: "flex", gap: 8 }}>
+            {STATUS_OPTIONS.map((s) => {
+              const active = form.status === s;
+              const m = STATUS_META[s];
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setForm({ ...form, status: s })}
+                  style={{
+                    flex: 1,
+                    padding: "8px 0",
+                    borderRadius: 10,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "all .2s",
+                    background: active ? m.bg : "#f8fafc",
+                    color: active ? m.color : "#94a3b8",
+                    border: `1.5px solid ${active ? m.border : "#e2e8f0"}`,
+                  }}
+                >
+                  {s}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex gap-3 mt-6">
+        <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
           <button
             onClick={onClose}
             disabled={saving}
-            className="flex-1 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/10 text-gray-400 text-sm font-medium transition-colors disabled:opacity-50"
+            style={{
+              flex: 1,
+              padding: "11px 0",
+              borderRadius: 12,
+              background: "#f1f5f9",
+              border: "1.5px solid #e2e8f0",
+              color: "#64748b",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "background .2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#e2e8f0")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#f1f5f9")}
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={saving}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-70"
             style={{
-              background: "linear-gradient(135deg, #0891b2, #6366f1)",
-              color: "white",
-              boxShadow: "0 4px 14px #0891b222",
+              flex: 1,
+              padding: "11px 0",
+              borderRadius: 12,
+              background: "linear-gradient(135deg,#6366f1,#818cf8)",
+              border: "none",
+              color: "#fff",
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+              boxShadow: "0 4px 14px #6366f133",
+              opacity: saving ? 0.7 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              transition: "opacity .2s",
             }}
           >
             {saving && (
@@ -587,26 +941,52 @@ function Modal({
   );
 }
 
-/* ─── Delete Confirm Dialog ───────────────────────────────── */
+/* ─── Delete Dialog ───────────────────────────────────────── */
 function DeleteDialog({ name, onConfirm, onCancel, loading }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+        background: "rgba(15,23,42,.45)",
+        backdropFilter: "blur(10px)",
+      }}
     >
       <div
-        className="bg-[#0f1623] border border-white/[0.08] rounded-2xl p-6 w-full max-w-sm shadow-2xl"
         style={{
-          animation: "modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both",
+          background: "#fff",
+          borderRadius: 20,
+          padding: 24,
+          width: "100%",
+          maxWidth: 340,
+          boxShadow: "0 24px 64px -16px rgba(0,0,0,.25)",
+          animation: "modalPop .25s cubic-bezier(.34,1.56,.64,1) both",
         }}
       >
-        <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-4">
+        <div
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            background: "#fef2f2",
+            border: "1.5px solid #fecaca",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 14,
+          }}
+        >
           <svg
-            width="18"
-            height="18"
+            width="20"
+            height="20"
             viewBox="0 0 14 14"
             fill="none"
-            stroke="#fb7185"
+            stroke="#dc2626"
             strokeWidth="1.6"
           >
             <path
@@ -616,31 +996,72 @@ function DeleteDialog({ name, onConfirm, onCancel, loading }) {
             />
           </svg>
         </div>
-        <h3 className="text-white font-semibold mb-1">Remove Member</h3>
-        <p className="text-gray-400 text-sm mb-5">
+        <h3
+          style={{
+            margin: "0 0 6px",
+            fontSize: 16,
+            fontWeight: 700,
+            color: "#0f172a",
+            fontFamily: "'Syne',sans-serif",
+          }}
+        >
+          Remove Member
+        </h3>
+        <p
+          style={{
+            margin: "0 0 20px",
+            fontSize: 13,
+            color: "#64748b",
+            lineHeight: 1.5,
+          }}
+        >
           Are you sure you want to remove{" "}
-          <span className="text-white font-medium">{name}</span>? This cannot be
+          <strong style={{ color: "#0f172a" }}>{name}</strong>? This cannot be
           undone.
         </p>
-        <div className="flex gap-3">
+        <div style={{ display: "flex", gap: 10 }}>
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/10 text-gray-400 text-sm font-medium transition-colors"
+            style={{
+              flex: 1,
+              padding: "10px 0",
+              borderRadius: 10,
+              background: "#f1f5f9",
+              border: "1.5px solid #e2e8f0",
+              color: "#64748b",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
-            style={{ background: "#e11836", color: "white" }}
+            style={{
+              flex: 1,
+              padding: "10px 0",
+              borderRadius: 10,
+              background: "#dc2626",
+              border: "none",
+              color: "#fff",
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+              opacity: loading ? 0.7 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+            }}
           >
             {loading && (
               <svg
                 className="animate-spin"
-                width="14"
-                height="14"
+                width="13"
+                height="13"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -660,34 +1081,83 @@ function DeleteDialog({ name, onConfirm, onCancel, loading }) {
   );
 }
 
-/* ─── Main Component ──────────────────────────────────────── */
+/* ─── Stat Pill ───────────────────────────────────────────── */
+function StatPill({ icon, value, label, accent }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "10px 16px",
+        background: "#fff",
+        borderRadius: 14,
+        border: "1.5px solid #e2e8f0",
+        boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+      }}
+    >
+      <div
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 10,
+          background: `${accent}15`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: accent,
+          fontSize: 16,
+        }}
+      >
+        {icon}
+      </div>
+      <div>
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: 800,
+            color: "#0f172a",
+            lineHeight: 1,
+            fontFamily: "'Syne',sans-serif",
+          }}
+        >
+          {value}
+        </div>
+        <div
+          style={{
+            fontSize: 11,
+            color: "#94a3b8",
+            fontWeight: 500,
+            marginTop: 1,
+          }}
+        >
+          {label}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Main ────────────────────────────────────────────────── */
 export default function Team() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
-
-  // Modal state
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState("");
-
-  // Delete dialog
-  const [deleteTarget, setDeleteTarget] = useState(null); // { id, name }
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
-
-  // Card-level loading (status change)
   const [cardLoading, setCardLoading] = useState({});
-
-  // Toast
   const [toast, setToast] = useState(null);
+  const [viewMode, setViewMode] = useState("grid"); // grid | list
 
   const showToast = (message, type = "success") => setToast({ message, type });
 
-  /* ── Load all members ── */
   useEffect(() => {
     (async () => {
       try {
@@ -701,16 +1171,16 @@ export default function Team() {
     })();
   }, []);
 
-  /* ── Filtered view ── */
   const filtered = members.filter((m) => {
     const matchDept = filter === "All" || m.department === filter;
+    const q = search.toLowerCase();
     const matchSearch =
-      m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.role.toLowerCase().includes(search.toLowerCase());
+      m.name.toLowerCase().includes(q) ||
+      m.role.toLowerCase().includes(q) ||
+      m.email.toLowerCase().includes(q);
     return matchDept && matchSearch;
   });
 
-  /* ── Add / Edit submit ── */
   const handleConfirm = async () => {
     if (!form.name.trim()) return setModalError("Name is required.");
     if (!form.email.trim()) return setModalError("Email is required.");
@@ -742,7 +1212,6 @@ export default function Team() {
     }
   };
 
-  /* ── Edit open ── */
   const handleEdit = (member) => {
     setIsEdit(true);
     setCurrentId(member._id);
@@ -760,7 +1229,6 @@ export default function Team() {
     setShowModal(true);
   };
 
-  /* ── Delete ── */
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
@@ -776,7 +1244,6 @@ export default function Team() {
     }
   };
 
-  /* ── Quick status change ── */
   const handleStatusChange = async (id, status) => {
     setCardLoading((prev) => ({ ...prev, [id]: true }));
     try {
@@ -799,183 +1266,378 @@ export default function Team() {
   };
 
   const activeCount = members.filter((m) => m.status === "Active").length;
+  const onLeaveCount = members.filter((m) => m.status === "On Leave").length;
+  const deptCount = new Set(members.map((m) => m.department)).size;
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
-        * { font-family: 'DM Sans', sans-serif; box-sizing: border-box; }
-        @keyframes cardIn  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes modalIn { from { opacity:0; transform:scale(0.88) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
-        @keyframes fadeSlide { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:translateX(0); } }
-        @keyframes pulse-soft { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .animate-spin { animation: spin 0.8s linear infinite; }
-        .member-card { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #ffffff15; border-radius: 8px; }
-      `}</style>
-
+      <style>{GLOBAL_CSS}</style>
       <div
-        className="min-h-screen text-white"
-        style={{ background: "#080c14" }}
+        style={{
+          minHeight: "100vh",
+          background: "#f0f2f8",
+          fontFamily: "'DM Sans',sans-serif",
+        }}
       >
-        <div className="max-w-7xl mx-auto px-6 py-10">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "clamp(16px,4vw,40px) clamp(12px,3vw,32px)",
+          }}
+        >
+          {/* ── Header ── */}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: 16,
+              marginBottom: 28,
+              animation: "fadeUp .5s ease both",
+            }}
+          >
             <div>
-              <p className="text-[11px] tracking-[0.2em] text-cyan-500/70 mb-2 uppercase font-medium">
-                Clinix Admin Panel
-              </p>
+              <p
+                style={{
+                  margin: "0 0 4px",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: ".18em",
+                  color: "#6366f1",
+                  textTransform: "uppercase",
+                }}
+              ></p>
               <h1
-                className="text-4xl font-bold tracking-tight text-white"
-                style={{ fontFamily: "'Syne', sans-serif" }}
+                style={{
+                  margin: "0 0 12px",
+                  fontSize: "clamp(24px,4vw,32px)",
+                  fontWeight: 800,
+                  color: "#0f172a",
+                  fontFamily: "'Syne',sans-serif",
+                  letterSpacing: "-0.5px",
+                }}
               >
-                Team
+                Manage Your Team❤️
               </h1>
-              <div className="flex items-center gap-5 mt-3">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="text-2xl font-bold text-white"
-                    style={{ fontFamily: "'Syne', sans-serif" }}
-                  >
-                    {members.length}
-                  </span>
-                  <span className="text-xs text-gray-500">Total</span>
-                </div>
-                <div className="w-px h-5 bg-white/10" />
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-2 h-2 rounded-full bg-emerald-400"
-                    style={{ animation: "pulse-soft 2s infinite" }}
+              {/* Stat pills */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <StatPill
+                  icon="👥"
+                  value={members.length}
+                  label="Total Members"
+                  accent="#6366f1"
+                />
+                <StatPill
+                  icon={
+                    <span
+                      style={{ display: "flex", alignItems: "center", gap: 0 }}
+                    >
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: "#22c55e",
+                          display: "inline-block",
+                          animation: "pulse2 2s infinite",
+                        }}
+                      />
+                    </span>
+                  }
+                  value={activeCount}
+                  label="Active"
+                  accent="#10b981"
+                />
+                <StatPill
+                  icon="🏥"
+                  value={deptCount}
+                  label="Departments"
+                  accent="#3b82f6"
+                />
+                {onLeaveCount > 0 && (
+                  <StatPill
+                    icon="☕"
+                    value={onLeaveCount}
+                    label="On Leave"
+                    accent="#f59e0b"
                   />
-                  <span className="text-sm text-gray-400">
-                    {activeCount} Active
-                  </span>
-                </div>
-                <div className="w-px h-5 bg-white/10" />
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400">
-                    {DEPARTMENTS.length - 1} Depts
-                  </span>
-                </div>
+                )}
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                setShowModal(true);
-                setIsEdit(false);
-                setForm(EMPTY_FORM);
-                setModalError("");
-              }}
-              className="group flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              {/* View toggle */}
+              <div
+                style={{
+                  display: "flex",
+                  background: "#fff",
+                  border: "1.5px solid #e2e8f0",
+                  borderRadius: 12,
+                  padding: 4,
+                  gap: 2,
+                }}
+              >
+                {[
+                  ["grid", "⊞"],
+                  ["list", "☰"],
+                ].map(([mode, icon]) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 8,
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: 14,
+                      transition: "all .2s",
+                      background: viewMode === mode ? "#6366f1" : "transparent",
+                      color: viewMode === mode ? "#fff" : "#94a3b8",
+                    }}
+                  >
+                    {icon}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => {
+                  setShowModal(true);
+                  setIsEdit(false);
+                  setForm(EMPTY_FORM);
+                  setModalError("");
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 18px",
+                  borderRadius: 12,
+                  background: "linear-gradient(135deg,#6366f1,#818cf8)",
+                  border: "none",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px #6366f133",
+                  transition: "opacity .2s, transform .2s",
+                  fontFamily: "'DM Sans',sans-serif",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                  e.currentTarget.style.boxShadow = "0 8px 20px #6366f144";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 14px #6366f133";
+                }}
+              >
+                <span
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: 6,
+                    background: "rgba(255,255,255,.25)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 16,
+                    lineHeight: 1,
+                  }}
+                >
+                  +
+                </span>
+                Add Member
+              </button>
+            </div>
+          </div>
+
+          {/* ── Filters ── */}
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 16,
+              padding: "14px 16px",
+              marginBottom: 20,
+              border: "1.5px solid #e2e8f0",
+              boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+              animation: "fadeUp .5s .1s ease both",
+            }}
+          >
+            <div
               style={{
-                background: "linear-gradient(135deg, #0891b2, #6366f1)",
-                boxShadow: "0 4px 14px #0891b222",
+                display: "flex",
+                gap: 16,
+                flexWrap: "wrap",
+                alignItems: "center",
               }}
             >
-              <span className="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center text-base leading-none transition-transform group-hover:rotate-90 duration-300">
-                +
-              </span>
-              Add Member
-            </button>
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-col gap-4 mb-8">
-            <div className="flex flex-wrap gap-2">
-              {DEPARTMENTS.map((dept) => (
-                <button
-                  key={dept}
-                  onClick={() => setFilter(dept)}
-                  className="text-xs px-3.5 py-1.5 rounded-xl transition-all font-medium border"
-                  style={
-                    filter === dept
-                      ? {
-                          background:
-                            "linear-gradient(135deg, #0891b220, #6366f120)",
-                          color: "#67e8f9",
-                          borderColor: "#0891b250",
-                        }
-                      : {
-                          background: "transparent",
-                          color: "#6b7280",
-                          borderColor: "#ffffff0f",
-                        }
-                  }
+              {/* Search */}
+              <div style={{ position: "relative", flex: "1", minWidth: 200 }}>
+                <svg
+                  style={{
+                    position: "absolute",
+                    left: 11,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#94a3b8",
+                  }}
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
                 >
-                  {dept}
-                </button>
-              ))}
-            </div>
-            <div className="relative max-w-sm">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600"
-                width="14"
-                height="14"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <circle cx="7" cy="7" r="5" />
-                <path d="M11 11l3 3" strokeLinecap="round" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search by name or role…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-white/[0.04] border border-white/[0.07] rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-cyan-500/40 transition-all"
-              />
+                  <circle cx="7" cy="7" r="5" />
+                  <path d="M11 11l3 3" strokeLinecap="round" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search name, role, email…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{
+                    width: "100%",
+                    background: "#f8fafc",
+                    border: "1.5px solid #e2e8f0",
+                    borderRadius: 10,
+                    padding: "8px 12px 8px 30px",
+                    fontSize: 13,
+                    color: "#0f172a",
+                    outline: "none",
+                    transition: "border-color .2s",
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = "#6366f1")}
+                  onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                />
+              </div>
+              {/* Dept filters */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {DEPARTMENTS.map((dept) => (
+                  <button
+                    key={dept}
+                    onClick={() => setFilter(dept)}
+                    style={{
+                      fontSize: 11,
+                      padding: "5px 12px",
+                      borderRadius: 20,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all .2s",
+                      background: filter === dept ? "#6366f1" : "transparent",
+                      color: filter === dept ? "#fff" : "#64748b",
+                      border: `1.5px solid ${filter === dept ? "#6366f1" : "#e2e8f0"}`,
+                    }}
+                  >
+                    {dept}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Grid */}
+          {/* ── Results count ── */}
+          {!loading && (
+            <p
+              style={{
+                fontSize: 12,
+                color: "#94a3b8",
+                fontWeight: 500,
+                marginBottom: 14,
+                animation: "fadeIn .4s ease both",
+              }}
+            >
+              Showing{" "}
+              <strong style={{ color: "#64748b" }}>{filtered.length}</strong> of{" "}
+              {members.length} members
+              {search && (
+                <>
+                  {" "}
+                  matching "
+                  <strong style={{ color: "#6366f1" }}>{search}</strong>"
+                </>
+              )}
+            </p>
+          )}
+
+          {/* ── Grid / List ── */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <svg
-                className="animate-spin text-cyan-500"
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path
-                  d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <p className="text-gray-500 text-sm">Loading team members…</p>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))",
+                gap: 14,
+              }}
+            >
+              {Array(8)
+                .fill(0)
+                .map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-gray-600">
-              <svg
-                width="40"
-                height="40"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.2"
-                className="mb-4 opacity-40"
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "80px 20px",
+                animation: "fadeUp .5s ease both",
+              }}
+            >
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 18,
+                  background: "#f1f5f9",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: 14,
+                  fontSize: 28,
+                }}
               >
-                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-              </svg>
-              <p className="text-sm">No members found</p>
+                👤
+              </div>
+              <p style={{ fontSize: 14, color: "#94a3b8", fontWeight: 500 }}>
+                No members found
+              </p>
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  style={{
+                    marginTop: 10,
+                    fontSize: 12,
+                    color: "#6366f1",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    textDecoration: "underline",
+                  }}
+                >
+                  Clear search
+                </button>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+          ) : viewMode === "grid" ? (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))",
+                gap: 14,
+              }}
+            >
               {filtered.map((member, i) => (
                 <MemberCard
                   key={member._id}
                   member={member}
-                  paletteIndex={i}
+                  paletteIndex={members.indexOf(member)}
                   onEdit={handleEdit}
                   onDelete={(id, name) => setDeleteTarget({ id, name })}
                   onStatusChange={handleStatusChange}
@@ -983,6 +1645,158 @@ export default function Team() {
                   loading={!!cardLoading[member._id]}
                 />
               ))}
+            </div>
+          ) : (
+            /* List view */
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                animation: "fadeUp .4s ease both",
+              }}
+            >
+              {filtered.map((member, i) => {
+                const pal = getPalette(members.indexOf(member));
+                const st = STATUS_META[member.status] || STATUS_META.Inactive;
+                return (
+                  <div
+                    key={member._id}
+                    className="card-hover"
+                    style={{
+                      background: "#fff",
+                      border: "1.5px solid #e2e8f0",
+                      borderRadius: 14,
+                      padding: "12px 16px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      animation: `fadeUp .4s ease both`,
+                      animationDelay: `${i * 40}ms`,
+                      opacity: cardLoading[member._id] ? 0.7 : 1,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 4,
+                        height: 40,
+                        borderRadius: 4,
+                        background: pal.bg,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Avatar
+                      member={member}
+                      paletteIndex={members.indexOf(member)}
+                      size="sm"
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: "#0f172a",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {member.name}
+                      </p>
+                      <p
+                        style={{
+                          margin: "1px 0 0",
+                          fontSize: 11,
+                          color: "#94a3b8",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {member.role}
+                      </p>
+                    </div>
+                    <div style={{ display: "none" }} />
+                    {/* spacer */}
+                    <DeptBadge dept={member.department} />
+                    <span
+                      style={{
+                        fontSize: 11,
+                        padding: "3px 10px",
+                        borderRadius: 20,
+                        fontWeight: 600,
+                        background: st.bg,
+                        color: st.color,
+                        border: `1px solid ${st.border}`,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {member.status}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "#94a3b8",
+                        whiteSpace: "nowrap",
+                        minWidth: 50,
+                        textAlign: "right",
+                      }}
+                    >
+                      {member.projects} proj.
+                    </span>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <ActionBtn
+                        onClick={() => handleEdit(member)}
+                        hoverColor="#6366f1"
+                        hoverBg="#eef2ff"
+                        icon={
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.7"
+                          >
+                            <path
+                              d="M9.5 2.5l2 2-7 7H2.5v-2l7-7z"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        }
+                      >
+                        Edit
+                      </ActionBtn>
+                      <ActionBtn
+                        onClick={() =>
+                          setDeleteTarget({ id: member._id, name: member.name })
+                        }
+                        hoverColor="#dc2626"
+                        hoverBg="#fef2f2"
+                        icon={
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.7"
+                          >
+                            <path
+                              d="M2 3.5h10M5 3.5V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1M11.5 3.5l-.8 8.5H3.3l-.8-8.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        }
+                      >
+                        Delete
+                      </ActionBtn>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

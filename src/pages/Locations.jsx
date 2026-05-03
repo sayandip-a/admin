@@ -13,6 +13,7 @@ function getAPI(path) {
 }
 const LOC_API = () => getAPI("/api/locations");
 
+/* ─── SVG Icons ──────────────────────────────────────────────────── */
 const ICONS = {
   pin: (
     <svg
@@ -21,16 +22,16 @@ const ICONS = {
       xmlns="http://www.w3.org/2000/svg"
       style={{ width: "100%", height: "100%" }}
     >
-      <ellipse cx="20" cy="45" rx="8" ry="3" fill="rgba(99,102,241,0.2)" />
-      <circle cx="20" cy="18" r="16" fill="#6366f1" />
-      <circle cx="20" cy="18" r="9" fill="white" fillOpacity=".12" />
+      <ellipse cx="20" cy="45" rx="8" ry="3" fill="rgba(91,94,244,0.15)" />
+      <circle cx="20" cy="18" r="16" fill="#5b5ef4" />
+      <circle cx="20" cy="18" r="9" fill="white" fillOpacity=".15" />
       <circle cx="20" cy="18" r="5" fill="white" fillOpacity=".9" />
       <line
         x1="20"
         y1="34"
         x2="20"
         y2="43"
-        stroke="#6366f1"
+        stroke="#5b5ef4"
         strokeWidth="3"
         strokeLinecap="round"
       />
@@ -49,8 +50,8 @@ const ICONS = {
         width="32"
         height="34"
         rx="3"
-        fill="#6366f1"
-        opacity=".2"
+        fill="#5b5ef4"
+        opacity=".15"
       />
       <rect
         x="10"
@@ -58,21 +59,21 @@ const ICONS = {
         width="28"
         height="30"
         rx="2"
-        fill="#6366f1"
-        opacity=".35"
+        fill="#5b5ef4"
+        opacity=".25"
       />
-      <rect x="14" y="16" width="6" height="6" rx="1" fill="#a5b4fc" />
-      <rect x="28" y="16" width="6" height="6" rx="1" fill="#a5b4fc" />
-      <rect x="14" y="26" width="6" height="6" rx="1" fill="#a5b4fc" />
-      <rect x="28" y="26" width="6" height="6" rx="1" fill="#a5b4fc" />
-      <rect x="19" y="34" width="10" height="8" rx="1" fill="#a5b4fc" />
+      <rect x="14" y="16" width="6" height="6" rx="1" fill="#818cf8" />
+      <rect x="28" y="16" width="6" height="6" rx="1" fill="#818cf8" />
+      <rect x="14" y="26" width="6" height="6" rx="1" fill="#818cf8" />
+      <rect x="28" y="26" width="6" height="6" rx="1" fill="#818cf8" />
+      <rect x="19" y="34" width="10" height="8" rx="1" fill="#818cf8" />
       <rect
         x="18"
         y="6"
         width="12"
         height="8"
         rx="2"
-        fill="#6366f1"
+        fill="#5b5ef4"
         opacity=".6"
       />
     </svg>
@@ -90,8 +91,8 @@ const ICONS = {
         width="36"
         height="26"
         rx="3"
-        fill="#6366f1"
-        opacity=".15"
+        fill="#5b5ef4"
+        opacity=".12"
       />
       <rect
         x="8"
@@ -99,23 +100,23 @@ const ICONS = {
         width="32"
         height="22"
         rx="2"
-        fill="#6366f1"
-        opacity=".25"
+        fill="#5b5ef4"
+        opacity=".2"
       />
-      <rect x="13" y="21" width="5" height="5" rx="1" fill="#a5b4fc" />
-      <rect x="22" y="21" width="5" height="5" rx="1" fill="#a5b4fc" />
-      <rect x="30" y="21" width="5" height="5" rx="1" fill="#a5b4fc" />
-      <rect x="13" y="30" width="5" height="5" rx="1" fill="#a5b4fc" />
-      <rect x="22" y="30" width="5" height="5" rx="1" fill="#a5b4fc" />
-      <rect x="30" y="30" width="5" height="5" rx="1" fill="#a5b4fc" />
+      <rect x="13" y="21" width="5" height="5" rx="1" fill="#818cf8" />
+      <rect x="22" y="21" width="5" height="5" rx="1" fill="#818cf8" />
+      <rect x="30" y="21" width="5" height="5" rx="1" fill="#818cf8" />
+      <rect x="13" y="30" width="5" height="5" rx="1" fill="#818cf8" />
+      <rect x="22" y="30" width="5" height="5" rx="1" fill="#818cf8" />
+      <rect x="30" y="30" width="5" height="5" rx="1" fill="#818cf8" />
       <rect
         x="12"
         y="10"
         width="24"
         height="8"
         rx="2"
-        fill="#6366f1"
-        opacity=".5"
+        fill="#5b5ef4"
+        opacity=".45"
       />
     </svg>
   ),
@@ -128,7 +129,7 @@ const ICONS = {
     >
       <path
         d="M18 8v16L9 36a5 5 0 004.5 7h21A5 5 0 0039 36L30 24V8"
-        stroke="#6366f1"
+        stroke="#5b5ef4"
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -138,44 +139,43 @@ const ICONS = {
         y1="8"
         x2="33"
         y2="8"
-        stroke="#6366f1"
+        stroke="#5b5ef4"
         strokeWidth="2.5"
         strokeLinecap="round"
       />
-      <circle cx="18" cy="34" r="2.5" fill="#a5b4fc" opacity=".8" />
-      <circle cx="26" cy="38" r="1.5" fill="#a5b4fc" opacity=".6" />
-      <circle cx="32" cy="34" r="2" fill="#a5b4fc" opacity=".7" />
+      <circle cx="18" cy="34" r="2.5" fill="#818cf8" opacity=".8" />
+      <circle cx="26" cy="38" r="1.5" fill="#818cf8" opacity=".6" />
+      <circle cx="32" cy="34" r="2" fill="#818cf8" opacity=".7" />
     </svg>
   ),
 };
 
 const STATUS_STYLE = {
   Active: {
-    bg: "rgba(34,197,94,0.12)",
-    border: "rgba(34,197,94,0.3)",
-    text: "#4ade80",
-    dot: "#22c55e",
-    chip: "rgba(34,197,94,0.15)",
+    bg: "#e8faf2",
+    border: "#a7f3d0",
+    text: "#059669",
+    dot: "#10b981",
+    chip: "#dcfce7",
   },
   Inactive: {
-    bg: "rgba(100,116,139,0.12)",
-    border: "rgba(100,116,139,0.3)",
-    text: "#94a3b8",
-    dot: "#64748b",
-    chip: "rgba(100,116,139,0.15)",
+    bg: "#f1f5f9",
+    border: "#cbd5e1",
+    text: "#64748b",
+    dot: "#94a3b8",
+    chip: "#f1f5f9",
   },
   "Coming Soon": {
-    bg: "rgba(251,191,36,0.12)",
-    border: "rgba(251,191,36,0.3)",
-    text: "#fbbf24",
+    bg: "#fef9ec",
+    border: "#fde68a",
+    text: "#d97706",
     dot: "#f59e0b",
-    chip: "rgba(251,191,36,0.15)",
+    chip: "#fef3c7",
   },
 };
 
 const ICON_OPTIONS = ["pin", "building", "office", "lab"];
 const STATUS_OPTIONS = ["Active", "Inactive", "Coming Soon"];
-
 const EMPTY = {
   city: "",
   state: "",
@@ -189,13 +189,14 @@ const EMPTY = {
   image: null,
 };
 
-const Ic = ({ d, size = 16, sw = 1.7, style }) => (
+/* ─── Tiny inline SVG icon helper ───────────────────────────────── */
+const Ic = ({ d, size = 16, sw = 1.7, style, color }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 20 20"
     fill="none"
-    stroke="currentColor"
+    stroke={color || "currentColor"}
     strokeWidth={sw}
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -206,6 +207,70 @@ const Ic = ({ d, size = 16, sw = 1.7, style }) => (
     ))}
   </svg>
 );
+
+/* ─── Stat Card ──────────────────────────────────────────────────── */
+function StatCard({ label, value, icon, accent, delay = 0 }) {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: 16,
+        padding: "18px 20px",
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)",
+        border: "1px solid #f0f2f8",
+        animation: `fadeUp .5s ease ${delay}ms both`,
+        transition: "transform .2s ease, box-shadow .2s ease",
+        cursor: "default",
+      }}
+      className="stat-card"
+    >
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          background: accent + "18",
+          border: `1px solid ${accent}28`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        {icon}
+      </div>
+      <div>
+        <p
+          style={{
+            fontSize: 22,
+            fontWeight: 800,
+            color: "#1e1f3b",
+            margin: 0,
+            fontFamily: "'Sora',sans-serif",
+            lineHeight: 1.1,
+          }}
+        >
+          {value}
+        </p>
+        <p
+          style={{
+            fontSize: 12,
+            fontWeight: 500,
+            color: "#94a3b8",
+            margin: "2px 0 0",
+          }}
+        >
+          {label}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Toast ──────────────────────────────────────────────────────── */
 function Toast({ items }) {
   return (
     <div
@@ -217,7 +282,6 @@ function Toast({ items }) {
         display: "flex",
         flexDirection: "column",
         gap: 8,
-        maxWidth: "calc(100vw - 2rem)",
         pointerEvents: "none",
       }}
     >
@@ -228,18 +292,14 @@ function Toast({ items }) {
             display: "flex",
             alignItems: "center",
             gap: 10,
-            padding: "10px 16px",
-            borderRadius: 10,
+            padding: "11px 16px",
+            borderRadius: 12,
             fontSize: 13,
             fontWeight: 600,
-            background:
-              t.type === "err"
-                ? "rgba(239,68,68,0.15)"
-                : "rgba(34,197,94,0.15)",
-            border: `1px solid ${t.type === "err" ? "rgba(239,68,68,0.35)" : "rgba(34,197,94,0.35)"}`,
-            color: t.type === "err" ? "#f87171" : "#4ade80",
-            backdropFilter: "blur(16px)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            background: t.type === "err" ? "#fef2f2" : "#f0fdf4",
+            border: `1px solid ${t.type === "err" ? "#fca5a5" : "#86efac"}`,
+            color: t.type === "err" ? "#dc2626" : "#16a34a",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
             animation: "slideInRight .35s cubic-bezier(.34,1.56,.64,1) both",
           }}
         >
@@ -258,6 +318,8 @@ function Toast({ items }) {
     </div>
   );
 }
+
+/* ─── Confirm Modal ──────────────────────────────────────────────── */
 function ConfirmModal({ open, name, onConfirm, onClose }) {
   if (!open) return null;
   return (
@@ -270,21 +332,21 @@ function ConfirmModal({ open, name, onConfirm, onClose }) {
         alignItems: "center",
         justifyContent: "center",
         padding: 16,
-        background: "rgba(0,0,0,0.75)",
+        background: "rgba(15,15,35,0.5)",
         backdropFilter: "blur(8px)",
       }}
     >
       <div
         style={{
-          background: "#161b27",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: 16,
+          background: "#fff",
+          border: "1px solid #f0f2f8",
+          borderRadius: 20,
           padding: 28,
           width: "100%",
           maxWidth: 360,
           textAlign: "center",
           animation: "popIn .3s cubic-bezier(.34,1.56,.64,1) both",
-          boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.16)",
         }}
       >
         <div
@@ -292,8 +354,8 @@ function ConfirmModal({ open, name, onConfirm, onClose }) {
             width: 52,
             height: 52,
             borderRadius: "50%",
-            background: "rgba(239,68,68,0.12)",
-            border: "1px solid rgba(239,68,68,0.25)",
+            background: "#fef2f2",
+            border: "1px solid #fca5a5",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -304,12 +366,12 @@ function ConfirmModal({ open, name, onConfirm, onClose }) {
             d={["M3 5h14", "M8 5V3h4v2", "M6 5l1 13h6l1-13"]}
             size={22}
             sw={1.8}
-            style={{ color: "#f87171" }}
+            color="#ef4444"
           />
         </div>
         <h3
           style={{
-            color: "#f1f5f9",
+            color: "#1e1f3b",
             fontSize: 17,
             fontWeight: 700,
             marginBottom: 6,
@@ -320,13 +382,13 @@ function ConfirmModal({ open, name, onConfirm, onClose }) {
         </h3>
         <p
           style={{
-            color: "#64748b",
+            color: "#94a3b8",
             fontSize: 13,
             marginBottom: 22,
             lineHeight: 1.6,
           }}
         >
-          <strong style={{ color: "#cbd5e1" }}>{name}</strong> will be
+          <strong style={{ color: "#374151" }}>{name}</strong> will be
           permanently removed.
         </p>
         <div style={{ display: "flex", gap: 10 }}>
@@ -334,13 +396,13 @@ function ConfirmModal({ open, name, onConfirm, onClose }) {
             onClick={onClose}
             style={{
               flex: 1,
-              padding: "10px 0",
+              padding: "11px 0",
               borderRadius: 10,
               fontSize: 13,
               fontWeight: 600,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "#94a3b8",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              color: "#64748b",
               cursor: "pointer",
             }}
           >
@@ -350,14 +412,15 @@ function ConfirmModal({ open, name, onConfirm, onClose }) {
             onClick={onConfirm}
             style={{
               flex: 1,
-              padding: "10px 0",
+              padding: "11px 0",
               borderRadius: 10,
               fontSize: 13,
               fontWeight: 700,
-              background: "rgba(239,68,68,0.7)",
-              border: "1px solid rgba(239,68,68,0.45)",
+              background: "#ef4444",
+              border: "none",
               color: "white",
               cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(239,68,68,0.3)",
             }}
           >
             Delete
@@ -367,6 +430,8 @@ function ConfirmModal({ open, name, onConfirm, onClose }) {
     </div>
   );
 }
+
+/* ─── Drawer ─────────────────────────────────────────────────────── */
 function Drawer({ open, onClose, onSave, initial }) {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
@@ -411,7 +476,7 @@ function Drawer({ open, onClose, onSave, initial }) {
   };
 
   const submit = async (ev) => {
-    ev.preventDefault();
+    ev?.preventDefault();
     if (!validate()) return;
     setSaving(true);
     try {
@@ -425,13 +490,13 @@ function Drawer({ open, onClose, onSave, initial }) {
   const inp = (k) => ({
     width: "100%",
     borderRadius: 10,
-    padding: "9px 13px",
+    padding: "10px 13px",
     fontSize: 13,
     outline: "none",
     transition: "border-color .2s, box-shadow .2s",
-    background: "rgba(255,255,255,0.04)",
-    border: `1px solid ${errs[k] ? "rgba(248,113,113,0.5)" : "rgba(255,255,255,0.09)"}`,
-    color: "#e2e8f0",
+    background: "#f8fafc",
+    border: `1.5px solid ${errs[k] ? "#fca5a5" : "#e2e8f0"}`,
+    color: "#1e1f3b",
     fontFamily: "'DM Sans',sans-serif",
     boxSizing: "border-box",
   });
@@ -443,7 +508,14 @@ function Drawer({ open, onClose, onSave, initial }) {
     letterSpacing: "0.08em",
     textTransform: "uppercase",
     marginBottom: 5,
-    color: "#475569",
+    color: "#94a3b8",
+  };
+
+  const sectionBox = {
+    borderRadius: 14,
+    padding: 16,
+    background: "#f8fafc",
+    border: "1px solid #f0f2f8",
   };
 
   return (
@@ -454,7 +526,7 @@ function Drawer({ open, onClose, onSave, initial }) {
           position: "fixed",
           inset: 0,
           zIndex: 998,
-          background: "rgba(0,0,0,0.65)",
+          background: "rgba(15,15,35,0.4)",
           backdropFilter: "blur(6px)",
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
@@ -469,13 +541,13 @@ function Drawer({ open, onClose, onSave, initial }) {
           height: "100%",
           zIndex: 999,
           width: "min(480px,100vw)",
-          background: "#0d1117",
-          borderLeft: "1px solid rgba(255,255,255,0.07)",
+          background: "#ffffff",
+          borderLeft: "1px solid #f0f2f8",
           display: "flex",
           flexDirection: "column",
           transform: open ? "translateX(0)" : "translateX(100%)",
           transition: "transform .38s cubic-bezier(.32,.72,0,1)",
-          boxShadow: "-20px 0 60px rgba(0,0,0,0.6)",
+          boxShadow: "-20px 0 60px rgba(0,0,0,0.1)",
         }}
       >
         {/* Header */}
@@ -484,9 +556,9 @@ function Drawer({ open, onClose, onSave, initial }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "16px 20px",
-            borderBottom: "1px solid rgba(255,255,255,0.07)",
-            background: "rgba(255,255,255,0.01)",
+            padding: "18px 22px",
+            borderBottom: "1px solid #f0f2f8",
+            background: "#fff",
           }}
         >
           <div>
@@ -496,7 +568,7 @@ function Drawer({ open, onClose, onSave, initial }) {
                 fontWeight: 700,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "#6366f1",
+                color: "#5b5ef4",
                 marginBottom: 3,
               }}
             >
@@ -505,8 +577,8 @@ function Drawer({ open, onClose, onSave, initial }) {
             <h2
               style={{
                 fontSize: 18,
-                fontWeight: 700,
-                color: "#f1f5f9",
+                fontWeight: 800,
+                color: "#1e1f3b",
                 fontFamily: "'Sora',sans-serif",
                 margin: 0,
               }}
@@ -517,32 +589,35 @@ function Drawer({ open, onClose, onSave, initial }) {
           <button
             onClick={onClose}
             style={{
-              width: 34,
-              height: 34,
-              borderRadius: 8,
-              border: "1px solid rgba(255,255,255,0.09)",
-              background: "rgba(255,255,255,0.04)",
-              color: "#64748b",
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              border: "1px solid #e2e8f0",
+              background: "#f8fafc",
+              color: "#94a3b8",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              transition: "all .2s",
             }}
           >
             <Ic d="M5 5l10 10M15 5L5 15" size={14} />
           </button>
         </div>
-        <form
-          onSubmit={submit}
+
+        {/* Form */}
+        <div
           style={{
             flex: 1,
             overflowY: "auto",
-            padding: "18px 20px",
+            padding: "20px 22px",
             display: "flex",
             flexDirection: "column",
             gap: 18,
           }}
         >
+          {/* Image */}
           <div>
             <label style={lbl}>Location Photo</label>
             {imgPreview ? (
@@ -563,7 +638,7 @@ function Drawer({ open, onClose, onSave, initial }) {
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: "rgba(0,0,0,0.55)",
+                    background: "rgba(0,0,0,0.45)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -580,14 +655,20 @@ function Drawer({ open, onClose, onSave, initial }) {
                       fontWeight: 700,
                       color: "white",
                       cursor: "pointer",
-                      background: "rgba(99,102,241,0.85)",
-                      border: "1px solid rgba(99,102,241,0.6)",
+                      background: "rgba(91,94,244,0.9)",
+                      border: "none",
                       display: "flex",
                       alignItems: "center",
                       gap: 5,
                     }}
                   >
-                    <Ic d="M13 3l4 4-8 8H5v-4l8-8z" size={10} sw={2} /> Change
+                    <Ic
+                      d="M13 3l4 4-8 8H5v-4l8-8z"
+                      size={10}
+                      sw={2}
+                      color="white"
+                    />{" "}
+                    Change
                   </button>
                   <button
                     type="button"
@@ -599,8 +680,8 @@ function Drawer({ open, onClose, onSave, initial }) {
                       fontWeight: 700,
                       color: "white",
                       cursor: "pointer",
-                      background: "rgba(239,68,68,0.85)",
-                      border: "1px solid rgba(239,68,68,0.6)",
+                      background: "rgba(239,68,68,0.9)",
+                      border: "none",
                       display: "flex",
                       alignItems: "center",
                       gap: 5,
@@ -610,6 +691,7 @@ function Drawer({ open, onClose, onSave, initial }) {
                       d={["M3 5h14", "M8 5V3h4v2", "M6 5l1 13h6l1-13"]}
                       size={10}
                       sw={2}
+                      color="white"
                     />{" "}
                     Remove
                   </button>
@@ -624,13 +706,13 @@ function Drawer({ open, onClose, onSave, initial }) {
                   borderRadius: 12,
                   padding: "24px 0",
                   cursor: "pointer",
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1.5px dashed rgba(255,255,255,0.09)",
+                  background: "#f8fafc",
+                  border: "1.5px dashed #e2e8f0",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   gap: 8,
-                  color: "#475569",
+                  color: "#94a3b8",
                   transition: "border-color .2s",
                 }}
               >
@@ -639,8 +721,8 @@ function Drawer({ open, onClose, onSave, initial }) {
                     width: 44,
                     height: 44,
                     borderRadius: 12,
-                    background: "rgba(99,102,241,0.12)",
-                    border: "1px solid rgba(99,102,241,0.25)",
+                    background: "#eff0fe",
+                    border: "1px solid #c7d2fe",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -650,13 +732,13 @@ function Drawer({ open, onClose, onSave, initial }) {
                     d={["M4 14l4-4 3 3 4-5 5 6H4z", "M3 3h14v14H3V3z"]}
                     size={20}
                     sw={1.5}
-                    style={{ color: "#6366f1" }}
+                    color="#5b5ef4"
                   />
                 </div>
                 <div style={{ textAlign: "center" }}>
                   <p
                     style={{
-                      color: "#94a3b8",
+                      color: "#374151",
                       fontSize: 13,
                       fontWeight: 600,
                       margin: 0,
@@ -666,7 +748,7 @@ function Drawer({ open, onClose, onSave, initial }) {
                   </p>
                   <p
                     style={{
-                      color: "#475569",
+                      color: "#94a3b8",
                       fontSize: 11,
                       margin: "2px 0 0",
                     }}
@@ -684,6 +766,8 @@ function Drawer({ open, onClose, onSave, initial }) {
               onChange={handleImage}
             />
           </div>
+
+          {/* Icon */}
           <div>
             <label style={lbl}>Icon Style</label>
             <div
@@ -707,20 +791,17 @@ function Drawer({ open, onClose, onSave, initial }) {
                     borderRadius: 10,
                     cursor: "pointer",
                     transition: "all .2s",
-                    background:
-                      form.icon === ic
-                        ? "rgba(99,102,241,0.18)"
-                        : "rgba(255,255,255,0.03)",
-                    border: `1px solid ${form.icon === ic ? "rgba(99,102,241,0.45)" : "rgba(255,255,255,0.07)"}`,
+                    background: form.icon === ic ? "#eff0fe" : "#f8fafc",
+                    border: `1.5px solid ${form.icon === ic ? "#818cf8" : "#e2e8f0"}`,
                   }}
                 >
-                  <div style={{ width: 30, height: 30 }}>{ICONS[ic]}</div>
+                  <div style={{ width: 28, height: 28 }}>{ICONS[ic]}</div>
                   <span
                     style={{
                       fontSize: 10,
                       fontWeight: 700,
                       textTransform: "capitalize",
-                      color: form.icon === ic ? "#a5b4fc" : "#475569",
+                      color: form.icon === ic ? "#5b5ef4" : "#94a3b8",
                     }}
                   >
                     {ic}
@@ -729,22 +810,17 @@ function Drawer({ open, onClose, onSave, initial }) {
               ))}
             </div>
           </div>
-          <div
-            style={{
-              borderRadius: 12,
-              padding: 14,
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
+
+          {/* Location Details */}
+          <div style={sectionBox}>
             <p
               style={{
                 fontSize: 11,
                 fontWeight: 700,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: "#6366f1",
-                marginBottom: 12,
+                color: "#5b5ef4",
+                marginBottom: 14,
               }}
             >
               Location Details
@@ -759,7 +835,7 @@ function Drawer({ open, onClose, onSave, initial }) {
             >
               <div>
                 <label style={lbl}>
-                  City / Area <span style={{ color: "#f87171" }}>*</span>
+                  City / Area <span style={{ color: "#ef4444" }}>*</span>
                 </label>
                 <input
                   value={form.city}
@@ -768,14 +844,14 @@ function Drawer({ open, onClose, onSave, initial }) {
                   style={inp("city")}
                 />
                 {errs.city && (
-                  <p style={{ color: "#f87171", fontSize: 11, marginTop: 4 }}>
+                  <p style={{ color: "#ef4444", fontSize: 11, marginTop: 4 }}>
                     {errs.city}
                   </p>
                 )}
               </div>
               <div>
                 <label style={lbl}>
-                  State <span style={{ color: "#f87171" }}>*</span>
+                  State <span style={{ color: "#ef4444" }}>*</span>
                 </label>
                 <input
                   value={form.state}
@@ -784,7 +860,7 @@ function Drawer({ open, onClose, onSave, initial }) {
                   style={inp("state")}
                 />
                 {errs.state && (
-                  <p style={{ color: "#f87171", fontSize: 11, marginTop: 4 }}>
+                  <p style={{ color: "#ef4444", fontSize: 11, marginTop: 4 }}>
                     {errs.state}
                   </p>
                 )}
@@ -811,22 +887,15 @@ function Drawer({ open, onClose, onSave, initial }) {
           </div>
 
           {/* Contact */}
-          <div
-            style={{
-              borderRadius: 12,
-              padding: 14,
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
-          >
+          <div style={sectionBox}>
             <p
               style={{
                 fontSize: 11,
                 fontWeight: 700,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                color: "#6366f1",
-                marginBottom: 12,
+                color: "#5b5ef4",
+                marginBottom: 14,
               }}
             >
               Contact (optional)
@@ -866,7 +935,7 @@ function Drawer({ open, onClose, onSave, initial }) {
                     onClick={() => set("status")(s)}
                     style={{
                       flex: 1,
-                      padding: "8px 0",
+                      padding: "9px 0",
                       borderRadius: 10,
                       fontSize: 11,
                       fontWeight: 700,
@@ -876,9 +945,9 @@ function Drawer({ open, onClose, onSave, initial }) {
                       alignItems: "center",
                       justifyContent: "center",
                       gap: 5,
-                      background: active ? sty.bg : "rgba(255,255,255,0.03)",
-                      border: `1px solid ${active ? sty.border : "rgba(255,255,255,0.07)"}`,
-                      color: active ? sty.text : "#475569",
+                      background: active ? sty.bg : "#f8fafc",
+                      border: `1.5px solid ${active ? sty.border : "#e2e8f0"}`,
+                      color: active ? sty.text : "#94a3b8",
                     }}
                   >
                     {active && (
@@ -898,21 +967,23 @@ function Drawer({ open, onClose, onSave, initial }) {
               })}
             </div>
           </div>
+
+          {/* HQ toggle */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               padding: 14,
-              borderRadius: 12,
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: 14,
+              background: "#f8fafc",
+              border: "1px solid #f0f2f8",
             }}
           >
             <div>
               <p
                 style={{
-                  color: "#e2e8f0",
+                  color: "#1e1f3b",
                   fontSize: 13,
                   fontWeight: 600,
                   margin: 0,
@@ -920,7 +991,7 @@ function Drawer({ open, onClose, onSave, initial }) {
               >
                 Mark as HQ
               </p>
-              <p style={{ color: "#475569", fontSize: 11, margin: "2px 0 0" }}>
+              <p style={{ color: "#94a3b8", fontSize: 11, margin: "2px 0 0" }}>
                 Highlights this as the headquarters
               </p>
             </div>
@@ -929,39 +1000,44 @@ function Drawer({ open, onClose, onSave, initial }) {
               onClick={() => set("isHQ")(!form.isHQ)}
               style={{
                 position: "relative",
-                width: 42,
-                height: 22,
-                borderRadius: 11,
+                width: 44,
+                height: 24,
+                borderRadius: 12,
                 flexShrink: 0,
                 cursor: "pointer",
-                background: form.isHQ ? "#6366f1" : "rgba(255,255,255,0.1)",
+                background: form.isHQ ? "#5b5ef4" : "#e2e8f0",
                 border: "none",
                 transition: "background .3s",
+                boxShadow: form.isHQ
+                  ? "0 2px 8px rgba(91,94,244,0.35)"
+                  : "none",
               }}
             >
               <span
                 style={{
                   position: "absolute",
-                  top: 2,
+                  top: 3,
                   width: 18,
                   height: 18,
                   borderRadius: "50%",
                   background: "white",
-                  boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                  left: form.isHQ ? "calc(100% - 20px)" : "2px",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                  left: form.isHQ ? "calc(100% - 21px)" : "3px",
                   transition: "left .3s cubic-bezier(.34,1.56,.64,1)",
                 }}
               />
             </button>
           </div>
-        </form>
+        </div>
+
+        {/* Footer */}
         <div
           style={{
             display: "flex",
             gap: 10,
-            padding: "14px 20px",
-            borderTop: "1px solid rgba(255,255,255,0.07)",
-            background: "rgba(255,255,255,0.01)",
+            padding: "16px 22px",
+            borderTop: "1px solid #f0f2f8",
+            background: "#fff",
           }}
         >
           <button
@@ -969,14 +1045,14 @@ function Drawer({ open, onClose, onSave, initial }) {
             onClick={onClose}
             style={{
               flex: 1,
-              padding: "11px 0",
+              padding: "12px 0",
               borderRadius: 10,
               fontSize: 13,
               fontWeight: 600,
               cursor: "pointer",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.09)",
-              color: "#94a3b8",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              color: "#64748b",
             }}
           >
             Cancel
@@ -986,15 +1062,15 @@ function Drawer({ open, onClose, onSave, initial }) {
             disabled={saving}
             style={{
               flex: 1,
-              padding: "11px 0",
+              padding: "12px 0",
               borderRadius: 10,
               fontSize: 13,
               fontWeight: 700,
               cursor: "pointer",
-              background: saving ? "rgba(99,102,241,0.5)" : "#6366f1",
+              background: saving ? "#a5b4fc" : "#5b5ef4",
               color: "white",
               border: "none",
-              boxShadow: saving ? "none" : "0 4px 20px rgba(99,102,241,0.35)",
+              boxShadow: saving ? "none" : "0 4px 16px rgba(91,94,244,0.35)",
               transition: "all .2s",
               display: "flex",
               alignItems: "center",
@@ -1028,6 +1104,8 @@ function Drawer({ open, onClose, onSave, initial }) {
     </>
   );
 }
+
+/* ─── Location Card ──────────────────────────────────────────────── */
 function LocationCard({ loc, onEdit, onDelete, index }) {
   const [hovered, setHovered] = useState(false);
   const sty = STATUS_STYLE[loc.status] || STATUS_STYLE["Active"];
@@ -1038,30 +1116,30 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        borderRadius: 14,
+        borderRadius: 16,
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        background: isHQ ? "rgba(99,102,241,0.06)" : "rgba(255,255,255,0.025)",
+        background: "#ffffff",
         border: isHQ
-          ? "1px solid rgba(99,102,241,0.35)"
+          ? "1.5px solid #818cf8"
           : hovered
-            ? "1px solid rgba(255,255,255,0.12)"
-            : "1px solid rgba(255,255,255,0.06)",
+            ? "1.5px solid #e0e2fc"
+            : "1.5px solid #f0f2f8",
         boxShadow: hovered
-          ? "0 8px 32px rgba(0,0,0,0.4)"
+          ? "0 8px 28px rgba(91,94,244,0.12), 0 2px 8px rgba(0,0,0,0.06)"
           : isHQ
-            ? "0 4px 20px rgba(99,102,241,0.1)"
-            : "none",
+            ? "0 4px 16px rgba(91,94,244,0.1)"
+            : "0 1px 4px rgba(0,0,0,0.05)",
         transition: "all .25s ease",
         animation: "cardUp .45s ease both",
         animationDelay: `${index * 55}ms`,
-        position: "relative",
-        transform: hovered ? "translateY(-2px)" : "translateY(0)",
+        transform: hovered ? "translateY(-3px)" : "translateY(0)",
       }}
     >
+      {/* Image / icon area */}
       {loc.image ? (
-        <div style={{ height: 88, overflow: "hidden", position: "relative" }}>
+        <div style={{ height: 90, overflow: "hidden", position: "relative" }}>
           <img
             src={loc.image}
             alt={loc.city}
@@ -1069,7 +1147,6 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              filter: "brightness(0.72) saturate(1.1)",
               transform: hovered ? "scale(1.06)" : "scale(1)",
               transition: "transform .35s ease",
             }}
@@ -1079,20 +1156,21 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
               position: "absolute",
               inset: 0,
               background:
-                "linear-gradient(to bottom,transparent 40%,rgba(13,17,23,0.75))",
+                "linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.3))",
             }}
           />
         </div>
       ) : (
         <div
           style={{
-            height: 88,
+            height: 90,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background:
-              "linear-gradient(135deg,rgba(99,102,241,0.07),rgba(168,85,247,0.04))",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
+            background: isHQ
+              ? "linear-gradient(135deg,#eff0fe,#e0e7ff)"
+              : "linear-gradient(135deg,#f8fafc,#f1f5f9)",
+            borderBottom: "1px solid #f0f2f8",
           }}
         >
           <div
@@ -1108,15 +1186,18 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
           </div>
         </div>
       )}
+
+      {/* Badges row */}
       <div
         style={{
           position: "absolute",
-          top: 9,
-          left: 9,
-          right: 9,
+          top: 8,
+          left: 8,
+          right: 8,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          pointerEvents: "none",
         }}
       >
         {isHQ ? (
@@ -1128,7 +1209,7 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
               textTransform: "uppercase",
               padding: "2px 7px",
               borderRadius: 5,
-              background: "#6366f1",
+              background: "#5b5ef4",
               color: "white",
             }}
           >
@@ -1163,17 +1244,19 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
         </span>
       </div>
 
+      {/* Content */}
       <div
         style={{
           padding: "10px 13px 13px",
           display: "flex",
           flexDirection: "column",
           flex: 1,
+          position: "relative",
         }}
       >
         <h3
           style={{
-            color: "#f1f5f9",
+            color: "#1e1f3b",
             fontWeight: 700,
             fontSize: 13,
             margin: "0 0 2px",
@@ -1185,7 +1268,7 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
         </h3>
         <p
           style={{
-            color: "#64748b",
+            color: "#94a3b8",
             fontSize: 11,
             margin: "0 0 11px",
             lineHeight: 1.5,
@@ -1209,9 +1292,9 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
               fontWeight: 700,
               cursor: "pointer",
               transition: "all .2s",
-              background: "rgba(99,102,241,0.12)",
-              border: "1px solid rgba(99,102,241,0.25)",
-              color: "#a5b4fc",
+              background: "#eff0fe",
+              border: "1px solid #c7d2fe",
+              color: "#5b5ef4",
             }}
           >
             <Ic d="M13 3l4 4-8 8H5v-4l8-8z" size={11} sw={2} /> Edit
@@ -1228,9 +1311,9 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
               cursor: "pointer",
               transition: "all .2s",
               flexShrink: 0,
-              background: "rgba(239,68,68,0.1)",
-              border: "1px solid rgba(239,68,68,0.2)",
-              color: "#f87171",
+              background: "#fef2f2",
+              border: "1px solid #fca5a5",
+              color: "#ef4444",
             }}
           >
             <Ic
@@ -1244,6 +1327,8 @@ function LocationCard({ loc, onEdit, onDelete, index }) {
     </div>
   );
 }
+
+/* ─── Main Page ──────────────────────────────────────────────────── */
 export default function Locations() {
   const token = localStorage.getItem("token") || "";
   const [locs, setLocs] = useState([]);
@@ -1285,11 +1370,8 @@ export default function Locations() {
     const isEdit = !!editTarget?._id;
     const url = isEdit ? `${LOC_API()}/${editTarget._id}` : LOC_API();
     const method = isEdit ? "PUT" : "POST";
-
-    if (payload.isHQ && !isEdit) {
+    if (payload.isHQ && !isEdit)
       setLocs((l) => l.map((x) => ({ ...x, isHQ: false })));
-    }
-
     const r = await fetch(url, {
       method,
       headers: {
@@ -1298,7 +1380,6 @@ export default function Locations() {
       },
       body: JSON.stringify(payload),
     });
-
     const d = await r.json();
     if (!r.ok) {
       toast(d.message || "Save failed", "err");
@@ -1351,53 +1432,55 @@ export default function Locations() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes cardUp       { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes fadeUp       { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+        @keyframes cardUp       { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeUp       { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
         @keyframes fadeIn       { from{opacity:0} to{opacity:1} }
         @keyframes slideInRight { from{opacity:0;transform:translateX(14px)} to{opacity:1;transform:none} }
-        @keyframes popIn        { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:none} }
+        @keyframes popIn        { from{opacity:0;transform:scale(.88)} to{opacity:1;transform:none} }
         @keyframes spin         { to{transform:rotate(360deg)} }
         @keyframes shimmer      { to{background-position:-200% 0} }
-        @keyframes pulse        { 0%,100%{opacity:1} 50%{opacity:.45} }
+        @keyframes pulse        { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 4px; }
-        input::placeholder { color: #2d3748 !important; }
+        ::-webkit-scrollbar       { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+        input::placeholder        { color: #cbd5e1 !important; }
+        input:focus               { border-color: #818cf8 !important; box-shadow: 0 0 0 3px rgba(91,94,244,0.12) !important; outline: none; }
 
-        .filter-scroll { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
-        .filter-scroll::-webkit-scrollbar { display: none; }
+        .filter-scroll  { overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+        .filter-scroll::-webkit-scrollbar { display:none; }
 
-        .loc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        @media(min-width: 480px)  { .loc-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media(min-width: 768px)  { .loc-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; } }
-        @media(min-width: 1100px) { .loc-grid { grid-template-columns: repeat(5, 1fr); } }
+        .loc-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+        @media(min-width:480px)  { .loc-grid { grid-template-columns:repeat(3,1fr); } }
+        @media(min-width:768px)  { .loc-grid { grid-template-columns:repeat(4,1fr); gap:14px; } }
+        @media(min-width:1100px) { .loc-grid { grid-template-columns:repeat(5,1fr); } }
 
-        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        @media(min-width: 600px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+        .stat-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:24px; }
+        @media(min-width:600px) { .stat-grid { grid-template-columns:repeat(4,1fr); } }
 
-        .skeleton { background: linear-gradient(90deg,rgba(255,255,255,0.03) 25%,rgba(255,255,255,0.07) 50%,rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 14px; }
+        .skeleton  { background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:16px; }
 
-        .add-btn:hover { background: rgba(99,102,241,0.12) !important; border-color: rgba(99,102,241,0.3) !important; color: #a5b4fc !important; }
-        .filter-tab:hover { border-color: rgba(255,255,255,0.12) !important; color: #94a3b8 !important; }
-        .stat-card { transition: transform .2s ease, box-shadow .2s ease; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+        .add-btn:hover  { background:#f5f5ff !important; border-color:#c7d2fe !important; color:#5b5ef4 !important; }
+        .filter-tab:hover { border-color:#c7d2fe !important; color:#5b5ef4 !important; background:#f5f5ff !important; }
+        .stat-card:hover { transform:translateY(-2px) !important; box-shadow:0 8px 24px rgba(0,0,0,0.1) !important; }
 
-        @media(max-width: 640px) {
-          .page-title { font-size: 26px !important; }
-          .top-bar { padding: 12px 14px !important; }
-          .page-pad { padding: 18px 14px 36px !important; }
+        @media(max-width:640px) {
+          .page-title { font-size:24px !important; }
+          .top-bar    { padding:12px 14px !important; }
+          .page-pad   { padding:18px 14px 36px !important; }
         }
       `}</style>
 
       <div
         style={{
           minHeight: "100vh",
-          background: "#0d1117",
+          background: "#f3f4f8",
           fontFamily: "'DM Sans',sans-serif",
         }}
       >
+        {/* ── Top Bar ── */}
         <div
           className="top-bar"
           style={{
@@ -1407,10 +1490,10 @@ export default function Locations() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "14px 20px",
-            background: "rgba(13,17,23,0.9)",
+            padding: "14px 24px",
+            background: "rgba(243,244,248,0.92)",
             backdropFilter: "blur(16px)",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            borderBottom: "1px solid #e8eaf4",
             animation: "fadeUp .4s ease both",
           }}
         >
@@ -1421,23 +1504,24 @@ export default function Locations() {
                 fontWeight: 700,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "#6366f1",
+                color: "#5b5ef4",
                 marginBottom: 2,
               }}
             >
               Manage your offices and
             </p>
             <h1
+              className="page-title"
               style={{
-                fontSize: 26,
+                fontSize: 28,
                 fontWeight: 800,
-                color: "#f1f5f9",
+                color: "#1e1f3b",
                 margin: 0,
                 fontFamily: "'Sora',sans-serif",
-                lineHeight: 1,
+                lineHeight: 1.1,
               }}
             >
-              Locations
+              Locations 📍
             </h1>
           </div>
 
@@ -1450,19 +1534,19 @@ export default function Locations() {
               display: "flex",
               alignItems: "center",
               gap: 6,
-              padding: "9px 18px",
-              borderRadius: 10,
+              padding: "10px 20px",
+              borderRadius: 12,
               fontSize: 13,
               fontWeight: 700,
               color: "white",
               cursor: "pointer",
               border: "none",
-              background: "#6366f1",
-              boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
+              background: "#5b5ef4",
+              boxShadow: "0 4px 16px rgba(91,94,244,0.35)",
               transition: "all .2s",
             }}
           >
-            <span style={{ fontSize: 17, fontWeight: 300, lineHeight: 1 }}>
+            <span style={{ fontSize: 16, fontWeight: 400, lineHeight: 1 }}>
               +
             </span>
             <span>Add Location</span>
@@ -1474,74 +1558,63 @@ export default function Locations() {
           style={{
             maxWidth: 1280,
             margin: "0 auto",
-            padding: "24px 20px 48px",
+            padding: "24px 24px 48px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "6px 20px",
-              marginBottom: 24,
-              animation: "fadeUp .4s ease .05s both",
-            }}
-          >
-            <span style={{ fontSize: 15, fontWeight: 700, color: "#e2e8f0" }}>
-              <strong style={{ fontFamily: "'Sora',sans-serif" }}>
-                {counts.total}
-              </strong>{" "}
-              <span style={{ color: "#64748b", fontWeight: 500 }}>Total</span>
-            </span>
-            <span style={{ color: "rgba(255,255,255,0.1)", fontSize: 18 }}>
-              |
-            </span>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-                fontSize: 14,
-                color: "#4ade80",
-              }}
-            >
-              <span
-                style={{
-                  width: 7,
-                  height: 7,
-                  borderRadius: "50%",
-                  background: "#22c55e",
-                  animation: "pulse 2s infinite",
-                }}
-              />
-              <strong style={{ fontFamily: "'Sora',sans-serif" }}>
-                {counts.active}
-              </strong>{" "}
-              <span style={{ color: "#64748b", fontWeight: 500 }}>Active</span>
-            </span>
-            <span style={{ color: "rgba(255,255,255,0.1)", fontSize: 18 }}>
-              |
-            </span>
-            <span style={{ fontSize: 14, color: "#fbbf24" }}>
-              <strong style={{ fontFamily: "'Sora',sans-serif" }}>
-                {counts.soon}
-              </strong>{" "}
-              <span style={{ color: "#64748b", fontWeight: 500 }}>
-                Coming Soon
-              </span>
-            </span>
-            <span style={{ color: "rgba(255,255,255,0.1)", fontSize: 18 }}>
-              |
-            </span>
-            <span style={{ fontSize: 14, color: "#94a3b8" }}>
-              <strong style={{ fontFamily: "'Sora',sans-serif" }}>
-                {counts.inactive}
-              </strong>{" "}
-              <span style={{ color: "#64748b", fontWeight: 500 }}>
-                Inactive
-              </span>
-            </span>
+          {/* ── Stat Cards ── */}
+          <div className="stat-grid">
+            <StatCard
+              label="Total Locations"
+              value={counts.total}
+              delay={0}
+              accent="#5b5ef4"
+              icon={
+                <Ic
+                  d={["M9 4a5 5 0 100 10A5 5 0 009 4z", "M15 15l4 4"]}
+                  size={20}
+                  sw={1.6}
+                  color="#5b5ef4"
+                />
+              }
+            />
+            <StatCard
+              label="Active"
+              value={counts.active}
+              delay={60}
+              accent="#10b981"
+              icon={<Ic d="M4 10l4 4 8-8" size={20} sw={2} color="#10b981" />}
+            />
+            <StatCard
+              label="Coming Soon"
+              value={counts.soon}
+              delay={120}
+              accent="#f59e0b"
+              icon={
+                <Ic
+                  d="M10 3v2M10 15v2M3 10H1M19 10h-2M5.64 5.64l-1.41-1.41M15.78 15.78l-1.42-1.42"
+                  size={20}
+                  sw={1.8}
+                  color="#f59e0b"
+                />
+              }
+            />
+            <StatCard
+              label="Inactive"
+              value={counts.inactive}
+              delay={180}
+              accent="#64748b"
+              icon={
+                <Ic
+                  d={["M10 10m-7 0a7 7 0 1014 0 7 7 0 00-14 0", "M7.5 7.5l5 5"]}
+                  size={20}
+                  sw={1.6}
+                  color="#64748b"
+                />
+              }
+            />
           </div>
+
+          {/* ── Filter & Search Row ── */}
           <div
             style={{
               display: "flex",
@@ -1561,18 +1634,19 @@ export default function Locations() {
                     onClick={() => setFilterStat(s)}
                     style={{
                       flexShrink: 0,
-                      padding: "6px 16px",
+                      padding: "7px 18px",
                       borderRadius: 20,
                       fontSize: 13,
                       fontWeight: 600,
                       cursor: "pointer",
                       whiteSpace: "nowrap",
                       transition: "all .2s",
-                      background: active
-                        ? "rgba(99,102,241,0.18)"
-                        : "transparent",
-                      border: `1px solid ${active ? "rgba(99,102,241,0.4)" : "rgba(255,255,255,0.08)"}`,
-                      color: active ? "#a5b4fc" : "#64748b",
+                      background: active ? "#5b5ef4" : "#ffffff",
+                      border: `1.5px solid ${active ? "#5b5ef4" : "#e2e8f0"}`,
+                      color: active ? "#ffffff" : "#64748b",
+                      boxShadow: active
+                        ? "0 2px 8px rgba(91,94,244,0.25)"
+                        : "none",
                     }}
                   >
                     {s}
@@ -1580,65 +1654,68 @@ export default function Locations() {
                 );
               })}
             </div>
-            <div style={{ position: "relative", maxWidth: 300 }}>
+            <div style={{ position: "relative", maxWidth: 320 }}>
               <span
                 style={{
                   position: "absolute",
-                  left: 11,
+                  left: 12,
                   top: "50%",
                   transform: "translateY(-50%)",
-                  color: "#334155",
+                  color: "#94a3b8",
                   display: "flex",
                 }}
               >
                 <Ic
                   d={["M9 4a5 5 0 100 10A5 5 0 009 4z", "M15 15l4 4"]}
-                  size={13}
+                  size={14}
                 />
               </span>
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by name or role..."
+                placeholder="Search locations…"
                 style={{
                   width: "100%",
-                  paddingLeft: 32,
+                  paddingLeft: 34,
                   paddingRight: 12,
                   paddingTop: 9,
                   paddingBottom: 9,
                   borderRadius: 10,
                   fontSize: 13,
                   outline: "none",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "#e2e8f0",
+                  background: "#ffffff",
+                  border: "1.5px solid #e2e8f0",
+                  color: "#1e1f3b",
                   fontFamily: "'DM Sans',sans-serif",
                   boxSizing: "border-box",
-                  transition: "border-color .2s",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                  transition: "border-color .2s, box-shadow .2s",
                 }}
               />
             </div>
           </div>
+
+          {/* ── Result count ── */}
           <p
             style={{
               fontSize: 12,
-              color: "#334155",
+              color: "#94a3b8",
               marginBottom: 14,
               fontWeight: 500,
               animation: "fadeIn .4s ease .15s both",
             }}
           >
             Showing{" "}
-            <strong style={{ color: "#4b5563" }}>{filtered.length}</strong> of{" "}
-            <strong style={{ color: "#4b5563" }}>{locs.length}</strong>{" "}
+            <strong style={{ color: "#374151" }}>{filtered.length}</strong> of{" "}
+            <strong style={{ color: "#374151" }}>{locs.length}</strong>{" "}
             locations
           </p>
 
-          {/* GRID */}
+          {/* ── Grid ── */}
           {loading ? (
             <div className="loc-grid">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="skeleton" style={{ height: 174 }} />
+                <div key={i} className="skeleton" style={{ height: 175 }} />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -1654,17 +1731,17 @@ export default function Locations() {
             >
               <div
                 style={{
-                  width: 44,
-                  height: 44,
+                  width: 48,
+                  height: 48,
                   marginBottom: 14,
-                  opacity: 0.2,
+                  opacity: 0.25,
                 }}
               >
                 {ICONS.pin}
               </div>
               <p
                 style={{
-                  color: "#4b5563",
+                  color: "#94a3b8",
                   fontSize: 14,
                   fontWeight: 600,
                   marginBottom: 8,
@@ -1678,9 +1755,9 @@ export default function Locations() {
                   setFilterStat("All");
                 }}
                 style={{
-                  color: "#6366f1",
+                  color: "#5b5ef4",
                   fontSize: 12,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   background: "none",
                   border: "none",
                   cursor: "pointer",
@@ -1703,6 +1780,8 @@ export default function Locations() {
                   onDelete={(l) => setDeleteTarget(l)}
                 />
               ))}
+
+              {/* Add placeholder card */}
               <button
                 className="add-btn"
                 onClick={() => {
@@ -1710,26 +1789,27 @@ export default function Locations() {
                   setDrawerOpen(true);
                 }}
                 style={{
-                  minHeight: 174,
-                  borderRadius: 14,
+                  minHeight: 175,
+                  borderRadius: 16,
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 9,
-                  background: "rgba(255,255,255,0.015)",
-                  border: "1.5px dashed rgba(255,255,255,0.08)",
-                  color: "#334155",
+                  gap: 10,
+                  background: "#ffffff",
+                  border: "1.5px dashed #e2e8f0",
+                  color: "#94a3b8",
                   transition: "all .25s",
                   animation: "cardUp .45s ease both",
                   animationDelay: `${filtered.length * 55}ms`,
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
                 }}
               >
                 <div
                   style={{
-                    width: 36,
-                    height: 36,
+                    width: 38,
+                    height: 38,
                     borderRadius: 10,
                     border: "1.5px dashed currentColor",
                     display: "flex",
@@ -1742,7 +1822,7 @@ export default function Locations() {
                 >
                   +
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 600 }}>
+                <span style={{ fontSize: 11, fontWeight: 700 }}>
                   Add Location
                 </span>
               </button>

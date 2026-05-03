@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
+// ── Constants ─────────────────────────────────────────────────────────────────
 const NEWS_CATS = [
   "Research",
   "Company News",
@@ -18,13 +19,13 @@ const EVENT_TYPES = [
 ];
 
 const CAT_COLOR = {
-  Research: "#8b5cf6",
-  "Company News": "#4f7cff",
-  Education: "#22c55e",
-  Partnership: "#f59e0b",
-  Regulatory: "#f43f5e",
-  "Clinical Trial": "#14b8a6",
-  General: "#64748b",
+  Research: { bg: "#ede9fe", text: "#7c3aed", dot: "#8b5cf6" },
+  "Company News": { bg: "#dbeafe", text: "#1d4ed8", dot: "#3b82f6" },
+  Education: { bg: "#dcfce7", text: "#15803d", dot: "#22c55e" },
+  Partnership: { bg: "#fef3c7", text: "#b45309", dot: "#f59e0b" },
+  Regulatory: { bg: "#fee2e2", text: "#b91c1c", dot: "#f43f5e" },
+  "Clinical Trial": { bg: "#ccfbf1", text: "#0f766e", dot: "#14b8a6" },
+  General: { bg: "#f1f5f9", text: "#475569", dot: "#94a3b8" },
 };
 
 const EMPTY_NEWS = {
@@ -49,6 +50,7 @@ const EMPTY_EVENT = {
   imagePreview: null,
 };
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function str(val) {
   if (val == null) return "";
   if (typeof val === "string") return val;
@@ -57,16 +59,13 @@ function str(val) {
     return val.name || val.title || val.label || val._id?.toString() || "";
   return String(val);
 }
-
 function getAPI(path) {
   try {
-    const base = import.meta.env.VITE_API_URL || "";
-    return `${base}${path}`;
+    return `${import.meta.env.VITE_API_URL || ""}${path}`;
   } catch {
     return path;
   }
 }
-
 function fmtDate(d) {
   if (!d) return "";
   try {
@@ -79,137 +78,352 @@ function fmtDate(d) {
     return "";
   }
 }
-
 function safeImageUrl(preview) {
   if (!preview) return "";
   if (typeof preview === "string" && preview.startsWith("data:")) return "";
   return preview;
 }
 
-// ── Theme tokens ──────────────────────────────────────────────────────────────
+// ── Design Tokens (Light Theme) ───────────────────────────────────────────────
 const T = {
-  bg: "#0D1117", // page & card background
-  bg2: "#010409", // input & tab-switcher background
-  bg3: "#0D1117", // panel background
-  border: "#21262d", // card / panel border
-  border2: "#30363d", // hover border
-  text1: "#e6edf3", // primary text
-  text2: "#8b949e", // secondary / muted text
-  text3: "#6e7681", // very muted (labels, sub)
-  head: "#f0f6fc", // headings
-  accent: "#4f7cff", // blue accent
+  pageBg: "#f4f4f8",
+  cardBg: "#ffffff",
+  panelBg: "#ffffff",
+  border: "#e8e8f0",
+  border2: "#d0d0e0",
+  inputBg: "#f8f8fc",
+  text1: "#1a1a2e",
+  text2: "#52526e",
+  text3: "#9494b0",
+  head: "#0f0f23",
+  accent: "#4f7cff",
+  accentHov: "#3a63e8",
+  green: "#22c55e",
+  amber: "#f59e0b",
+  red: "#f43f5e",
+  purple: "#8b5cf6",
+  shadow: "0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06)",
+  shadowHov: "0 4px 12px rgba(0,0,0,.08), 0 12px 32px rgba(0,0,0,.10)",
 };
 
+// ── Global CSS ────────────────────────────────────────────────────────────────
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  @keyframes fadeUp    { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:translateY(0) } }
+  @keyframes fadeUp    { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:translateY(0) } }
   @keyframes fadeIn    { from { opacity:0 } to { opacity:1 } }
-  @keyframes scaleIn   { from { opacity:0; transform:scale(.95) } to { opacity:1; transform:scale(1) } }
+  @keyframes scaleIn   { from { opacity:0; transform:scale(.96) translateY(8px) } to { opacity:1; transform:scale(1) translateY(0) } }
   @keyframes spin      { to { transform:rotate(360deg) } }
-  @keyframes slideDown { from { opacity:0; transform:translateY(-8px) } to { opacity:1; transform:translateY(0) } }
-  @keyframes pulse     { 0%,100% { opacity:1 } 50% { opacity:.4 } }
+  @keyframes slideDown { from { opacity:0; transform:translateY(-10px) } to { opacity:1; transform:translateY(0) } }
+  @keyframes shimmer   { 0%,100% { opacity:.5 } 50% { opacity:.9 } }
+  @keyframes toastIn   { from { opacity:0; transform:translateY(12px) scale(.96) } to { opacity:1; transform:translateY(0) scale(1) } }
 
-  .ne-page { width:100%; min-width:0; overflow-x:hidden; background:#0D1117; }
+  .n-page  { font-family: 'Instrument Sans', sans-serif; color: ${T.text1}; background: ${T.pageBg}; }
 
-  /* ── Cards ── */
-  .ne-card { transition: border-color .2s, transform .2s, box-shadow .2s; }
-  .ne-card:hover {
-    border-color: #30363d !important;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,.6) !important;
+  /* Cards */
+  .n-card {
+    background: ${T.cardBg};
+    border: 1.5px solid ${T.border};
+    border-radius: 16px;
+    box-shadow: ${T.shadow};
+    transition: border-color .22s, transform .22s, box-shadow .22s;
+  }
+  .n-card:hover {
+    border-color: #c8c8e0;
+    transform: translateY(-3px);
+    box-shadow: ${T.shadowHov};
   }
 
-  /* ── Buttons ── */
-  .ne-btn { transition: opacity .15s, transform .1s; }
-  .ne-btn:hover:not(:disabled) { opacity: .85; transform: translateY(-1px); }
-  .ne-btn:active:not(:disabled) { transform: translateY(0); }
-  .ne-btn:disabled { opacity: .5; cursor: not-allowed; }
+  /* Stat cards */
+  .n-stat-card {
+    background: #fff;
+    border: 1.5px solid ${T.border};
+    border-radius: 14px;
+    padding: 20px 18px 16px;
+    box-shadow: ${T.shadow};
+    transition: transform .2s, box-shadow .2s;
+    cursor: default;
+  }
+  .n-stat-card:hover { transform: translateY(-2px); box-shadow: ${T.shadowHov}; }
 
-  .ne-icon-btn { transition: background .15s, color .15s, border-color .15s; }
-  .ne-icon-btn:hover { background: rgba(79,124,255,.10) !important; border-color: #4f7cff !important; color: #4f7cff !important; }
-  .ne-del-btn:hover  { background: rgba(244,63,94,.10) !important;  border-color: #f43f5e !important; color: #f43f5e !important; }
+  /* Buttons */
+  .n-btn { transition: all .18s cubic-bezier(.4,0,.2,1); cursor: pointer; }
+  .n-btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .n-btn:active:not(:disabled) { transform: translateY(0) scale(.98); }
+  .n-btn:disabled { opacity: .55; cursor: not-allowed; }
 
-  .ne-tab-btn { transition: all .2s; }
-  .ne-tab-btn:hover { border-color: #30363d !important; color: #e6edf3 !important; }
+  .n-primary-btn {
+    background: ${T.accent};
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 2px 8px rgba(79,124,255,.28);
+    transition: all .18s;
+  }
+  .n-primary-btn:hover:not(:disabled) {
+    background: ${T.accentHov};
+    box-shadow: 0 4px 16px rgba(79,124,255,.38);
+    transform: translateY(-1px);
+  }
+  .n-primary-btn.green { background: ${T.green}; box-shadow: 0 2px 8px rgba(34,197,94,.28); }
+  .n-primary-btn.green:hover:not(:disabled) { background: #16a34a; box-shadow: 0 4px 16px rgba(34,197,94,.38); }
+  .n-primary-btn.purple { background: ${T.purple}; box-shadow: 0 2px 8px rgba(139,92,246,.28); }
+  .n-primary-btn.purple:hover:not(:disabled) { background: #7c3aed; box-shadow: 0 4px 16px rgba(139,92,246,.38); }
 
-  .ne-filter-btn { transition: all .2s; }
-  .ne-filter-btn:hover { border-color: #4f7cff !important; color: #4f7cff !important; }
+  .n-ghost-btn {
+    background: #fff;
+    color: ${T.text2};
+    border: 1.5px solid ${T.border};
+    border-radius: 10px;
+    padding: 9px 20px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all .18s;
+  }
+  .n-ghost-btn:hover { border-color: #b0b0cc; color: ${T.text1}; background: #fafafe; }
 
-  .ne-status-btn { transition: all .2s; }
+  .n-icon-btn {
+    background: #fff;
+    border: 1.5px solid ${T.border};
+    border-radius: 8px;
+    padding: 6px 13px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: ${T.text2};
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .n-icon-btn:hover { border-color: ${T.accent}; color: ${T.accent}; background: #f0f4ff; transform: translateY(-1px); }
+  .n-del-btn:hover  { border-color: ${T.red};    color: ${T.red};    background: #fff5f7; }
 
-  /* ── Inputs ── */
-  .ne-input:focus {
-    border-color: #4f7cff !important;
-    box-shadow: 0 0 0 3px rgba(79,124,255,.12) !important;
+  /* Tab */
+  .n-tab-switcher {
+    display: flex;
+    background: #eeeef6;
+    border-radius: 12px;
+    padding: 4px;
+    gap: 3px;
+  }
+  .n-tab-btn {
+    padding: 8px 20px;
+    border-radius: 9px;
+    border: none;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+    background: transparent;
+    color: ${T.text2};
+  }
+  .n-tab-btn.active { background: #fff; color: ${T.text1}; box-shadow: 0 1px 4px rgba(0,0,0,.10); }
+  .n-tab-btn:hover:not(.active) { color: ${T.text1}; }
+
+  /* Filter pills */
+  .n-filter-pill {
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1.5px solid ${T.border};
+    background: #fff;
+    color: ${T.text2};
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .n-filter-pill:hover { border-color: ${T.accent}; color: ${T.accent}; }
+  .n-filter-pill.active { border-color: ${T.accent}; color: ${T.accent}; background: #f0f4ff; }
+
+  /* Inputs */
+  .n-input {
+    background: ${T.inputBg};
+    border: 1.5px solid ${T.border};
+    border-radius: 10px;
+    color: ${T.text1};
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    width: 100%;
+    transition: border-color .2s, box-shadow .2s;
     outline: none;
   }
-  .ne-input::placeholder { color: #484f58; }
-  select.ne-input option { background: #0D1117; color: #e6edf3; }
-  input[type=date].ne-input::-webkit-calendar-picker-indicator,
-  input[type=time].ne-input::-webkit-calendar-picker-indicator { filter: invert(.4); cursor: pointer; }
+  .n-input:focus { border-color: ${T.accent}; box-shadow: 0 0 0 3px rgba(79,124,255,.12); }
+  .n-input::placeholder { color: #b0b0c8; }
+  select.n-input option { background: #fff; color: ${T.text1}; }
+  input[type=date].n-input::-webkit-calendar-picker-indicator,
+  input[type=time].n-input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .5; }
 
-  /* ── Misc ── */
-  .ne-skeleton  { animation: pulse 1.5s ease infinite; }
-  .ne-overlay   { animation: fadeIn .2s ease; }
-  .ne-modal     { animation: scaleIn .2s cubic-bezier(.34,1.4,.64,1); }
-  .ne-panel     { animation: slideDown .25s ease; }
-  .ne-img-zoom  { transition: transform .4s ease; }
-  .ne-img-zoom:hover { transform: scale(1.07); }
-  .ne-tag-badge { transition: background .15s; }
-  .ne-tag-badge:hover { background: rgba(79,124,255,.18) !important; }
-  .ne-read-more { transition: color .15s; }
-  .ne-read-more:hover { color: #7aa3ff !important; }
+  /* Status chips */
+  .n-status-chip {
+    padding: 7px 18px;
+    border-radius: 8px;
+    border: 1.5px solid ${T.border};
+    background: #fff;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .18s;
+    color: ${T.text2};
+  }
+
+  /* Skeleton */
+  .n-skeleton { animation: shimmer 1.6s ease infinite; background: linear-gradient(90deg, #f0f0f6 25%, #e8e8f2 50%, #f0f0f6 75%); }
+
+  /* Overlays */
+  .n-overlay  { animation: fadeIn .2s ease; }
+  .n-modal    { animation: scaleIn .25s cubic-bezier(.34,1.4,.64,1); }
+  .n-panel    { animation: slideDown .28s cubic-bezier(.4,0,.2,1); }
+  .n-toast    { animation: toastIn .3s cubic-bezier(.34,1.4,.64,1); }
+
+  /* Image zoom */
+  .n-img-zoom { transition: transform .4s ease; overflow: hidden; }
+  .n-img-zoom:hover img { transform: scale(1.06); }
+  .n-img-zoom img { transition: transform .4s ease; display: block; }
+
+  /* Read more */
+  .n-read-more { transition: color .15s; }
+  .n-read-more:hover { color: ${T.accentHov} !important; }
+
+  /* Tag badge */
+  .n-tag { transition: background .15s; cursor: default; }
+  .n-tag:hover { background: rgba(79,124,255,.14) !important; }
 
   /* ── Grids ── */
-  .ne-stats-grid-news   { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:28px; }
-  .ne-stats-grid-events { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px; }
-  .ne-cards-grid  { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
-  .ne-header-row  { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:32px; flex-wrap:wrap; }
-  .ne-toolbar     { display:flex; gap:10px; margin-bottom:14px; align-items:center; }
-  .ne-tab-row     { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  .ne-form-2col   { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .n-stats-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  .n-stats-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  .n-cards-grid   { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
+  .n-header-row   { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+  .n-toolbar      { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; }
+  .n-filter-row   { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+  .n-form-2col    { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .n-tab-area     { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-  /* ── Tablet ≤ 900px ── */
-  @media (max-width:900px) {
-    .ne-stats-grid-news   { grid-template-columns:repeat(2,1fr) !important; }
-    .ne-stats-grid-events { grid-template-columns:repeat(3,1fr) !important; }
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .n-stats-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+    .n-stats-grid-3 { grid-template-columns: repeat(3, 1fr) !important; }
   }
-
-  /* ── Mobile ≤ 640px ── */
-  @media (max-width:640px) {
-    .ne-page { padding:16px 14px 90px !important; }
-    .ne-stats-grid-news   { grid-template-columns:repeat(2,1fr) !important; gap:8px !important; margin-bottom:18px !important; }
-    .ne-stats-grid-events { grid-template-columns:repeat(3,1fr) !important; gap:8px !important; margin-bottom:18px !important; }
-    .ne-cards-grid  { grid-template-columns:1fr !important; }
-    .ne-form-2col   { grid-template-columns:1fr !important; }
-    .ne-header-row  { flex-direction:column !important; align-items:flex-start !important; gap:12px !important; margin-bottom:20px !important; }
-    .ne-tab-row { width:100% !important; }
-    .ne-tab-row > div:first-child { flex:1 !important; }
-    .ne-tab-row > div:first-child button { flex:1 !important; }
-    .ne-new-btn { width:100% !important; justify-content:center !important; }
-    .ne-toolbar { flex-direction:column !important; }
-    .ne-toolbar > * { width:100% !important; }
-    .ne-stat-card  { padding:14px 12px !important; }
-    .ne-stat-val   { font-size:24px !important; }
-    .ne-stat-label { font-size:9px !important; }
-    .ne-stat-sub   { font-size:10px !important; margin-top:4px !important; }
-    .ne-filter-row { overflow-x:auto; padding-bottom:4px; flex-wrap:nowrap !important; }
-    .ne-filter-row::-webkit-scrollbar { display:none; }
+  @media (max-width: 640px) {
+    .n-page          { padding: 18px 14px 80px !important; }
+    .n-stats-grid-4  { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; margin-bottom: 20px !important; }
+    .n-stats-grid-3  { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+    .n-cards-grid    { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .n-form-2col     { grid-template-columns: 1fr !important; }
+    .n-header-row    { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; margin-bottom: 22px !important; }
+    .n-tab-area      { width: 100% !important; }
+    .n-new-btn       { width: 100% !important; justify-content: center !important; }
+    .n-toolbar       { flex-direction: column !important; }
+    .n-toolbar > *   { width: 100% !important; }
+    .n-filter-row    { overflow-x: auto; padding-bottom: 4px; flex-wrap: nowrap !important; }
+    .n-filter-row::-webkit-scrollbar { display: none; }
+    .n-stat-card     { padding: 14px 12px !important; }
   }
-
-  /* ── Very small ≤ 360px ── */
-  @media (max-width:360px) {
-    .ne-stats-grid-events { grid-template-columns:repeat(2,1fr) !important; }
-    .ne-page { padding:12px 10px 90px !important; }
+  @media (max-width: 360px) {
+    .n-stats-grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+    .n-stats-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
   }
 `;
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function Badge({ label, color = "#4f7cff" }) {
+function CategoryBadge({ label }) {
+  const c = CAT_COLOR[label] || CAT_COLOR.General;
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        padding: "3px 10px",
+        borderRadius: 999,
+        fontSize: 11.5,
+        fontWeight: 700,
+        letterSpacing: ".01em",
+        background: c.bg,
+        color: c.text,
+        whiteSpace: "nowrap",
+        fontFamily: "'Instrument Sans', sans-serif",
+      }}
+    >
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          background: c.dot,
+          flexShrink: 0,
+        }}
+      />
+      {label}
+    </span>
+  );
+}
+
+function StatusBadge({ active }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        padding: "3px 10px",
+        borderRadius: 999,
+        fontSize: 11.5,
+        fontWeight: 700,
+        background: active ? "#dcfce7" : "#fef3c7",
+        color: active ? "#15803d" : "#b45309",
+        fontFamily: "'Instrument Sans', sans-serif",
+      }}
+    >
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          background: active ? "#22c55e" : "#f59e0b",
+          flexShrink: 0,
+        }}
+      />
+      {active ? "Published" : "Draft"}
+    </span>
+  );
+}
+
+function EventTypeBadge({ label }) {
+  const colors = {
+    Conference: { bg: "#dbeafe", text: "#1d4ed8" },
+    Webinar: { bg: "#ede9fe", text: "#7c3aed" },
+    Workshop: { bg: "#fce7f3", text: "#be185d" },
+    Symposium: { bg: "#ccfbf1", text: "#0f766e" },
+    Summit: { bg: "#ffedd5", text: "#c2410c" },
+    Training: { bg: "#f0fdf4", text: "#166534" },
+  };
+  const c = colors[label] || { bg: "#f1f5f9", text: "#475569" };
   return (
     <span
       style={{
@@ -217,28 +431,26 @@ function Badge({ label, color = "#4f7cff" }) {
         alignItems: "center",
         padding: "3px 10px",
         borderRadius: 999,
-        fontSize: 11,
+        fontSize: 11.5,
         fontWeight: 700,
-        letterSpacing: ".03em",
-        background: `${color}18`,
-        color,
-        border: `1px solid ${color}28`,
-        whiteSpace: "nowrap",
+        background: c.bg,
+        color: c.text,
+        fontFamily: "'Instrument Sans', sans-serif",
       }}
     >
-      {str(label)}
+      {label}
     </span>
   );
 }
 
-function Spinner({ size = 13 }) {
+function Spinner({ size = 14, dark = false }) {
   return (
     <span
       style={{
         width: size,
         height: size,
-        border: "2px solid rgba(255,255,255,.2)",
-        borderTopColor: "#fff",
+        border: `2px solid ${dark ? "rgba(0,0,0,.15)" : "rgba(255,255,255,.3)"}`,
+        borderTopColor: dark ? T.accent : "#fff",
         borderRadius: "50%",
         animation: "spin .65s linear infinite",
         display: "inline-block",
@@ -250,54 +462,63 @@ function Spinner({ size = 13 }) {
 
 function Toast({ data }) {
   if (!data) return null;
-  const c = data.type === "error" ? "#f43f5e" : "#22c55e";
+  const isErr = data.type === "error";
   return (
     <div
+      className="n-toast"
       style={{
         position: "fixed",
         bottom: 24,
         right: 20,
         zIndex: 9999,
-        background: "#161b22",
-        border: `1.5px solid ${c}40`,
-        borderRadius: 12,
+        background: "#fff",
+        border: `1.5px solid ${isErr ? "#fecdd3" : "#bbf7d0"}`,
+        borderRadius: 14,
         padding: "13px 20px",
         display: "flex",
         alignItems: "center",
         gap: 10,
         color: T.text1,
-        fontSize: 13,
-        fontWeight: 500,
-        boxShadow: "0 12px 40px rgba(0,0,0,.8)",
-        animation: "fadeUp .3s ease",
-        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 13.5,
+        fontWeight: 600,
+        boxShadow: "0 8px 32px rgba(0,0,0,.14)",
+        fontFamily: "'Instrument Sans', sans-serif",
         maxWidth: "calc(100vw - 40px)",
       }}
     >
       <span
         style={{
-          width: 8,
-          height: 8,
+          width: 28,
+          height: 28,
           borderRadius: "50%",
-          background: c,
+          background: isErr ? "#fee2e2" : "#dcfce7",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 14,
           flexShrink: 0,
         }}
-      />
-      {str(data.msg)}
+      >
+        {isErr ? "✕" : "✓"}
+      </span>
+      <span style={{ color: isErr ? "#b91c1c" : "#15803d" }}>
+        {str(data.msg)}
+      </span>
     </div>
   );
 }
 
-function ConfirmModal({ item, onConfirm, onCancel }) {
+function ConfirmModal({ item, label = "title", onConfirm, onCancel }) {
   if (!item) return null;
   return (
     <div
-      className="ne-overlay"
+      className="n-overlay"
       onClick={onCancel}
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,.80)",
+        background: "rgba(15,15,35,.45)",
+        backdropFilter: "blur(4px)",
         zIndex: 300,
         display: "flex",
         alignItems: "center",
@@ -306,48 +527,67 @@ function ConfirmModal({ item, onConfirm, onCancel }) {
       }}
     >
       <div
-        className="ne-modal"
+        className="n-modal"
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#161b22",
-          border: `1.5px solid ${T.border}`,
-          borderRadius: 16,
-          padding: 28,
-          maxWidth: 360,
+          background: "#fff",
+          borderRadius: 20,
+          padding: "32px 28px",
+          maxWidth: 380,
           width: "100%",
+          boxShadow: "0 24px 64px rgba(0,0,0,.18)",
         }}
       >
-        <div style={{ fontSize: 32, marginBottom: 14 }}>🗑️</div>
-        <h3
+        <div
           style={{
-            fontFamily: "'Sora',sans-serif",
-            fontSize: 17,
-            fontWeight: 700,
-            color: T.head,
-            marginBottom: 8,
+            width: 52,
+            height: 52,
+            borderRadius: 14,
+            background: "#fee2e2",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 22,
+            marginBottom: 18,
           }}
         >
-          Confirm Delete
+          🗑️
+        </div>
+        <h3
+          style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: 18,
+            fontWeight: 800,
+            color: T.head,
+            marginBottom: 10,
+          }}
+        >
+          Delete Permanently?
         </h3>
         <p
           style={{
-            fontSize: 13,
-            color: T.text3,
-            marginBottom: 24,
-            lineHeight: 1.6,
+            fontSize: 13.5,
+            color: T.text2,
+            lineHeight: 1.65,
+            marginBottom: 26,
           }}
         >
-          <strong style={{ color: T.text1 }}>{str(item.title)}</strong> will be
-          permanently removed. This cannot be undone.
+          <strong style={{ color: T.text1 }}>
+            {str(item[label] || item.title || item.name)}
+          </strong>{" "}
+          will be permanently removed and cannot be recovered.
         </p>
-        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-          <button onClick={onCancel} className="ne-btn" style={ghostBtn()}>
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+          <button onClick={onCancel} className="n-btn n-ghost-btn">
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="ne-btn"
-            style={solidBtn("#f43f5e")}
+            className="n-btn n-primary-btn"
+            style={{
+              background: T.red,
+              boxShadow: "0 2px 8px rgba(244,63,94,.28)",
+            }}
           >
             Delete
           </button>
@@ -380,16 +620,16 @@ function ImageUpload({ preview, onChange }) {
         handle(e.dataTransfer.files[0]);
       }}
       style={{
-        border: `2px dashed ${drag ? "#4f7cff" : preview ? "#22c55e40" : T.border}`,
-        borderRadius: 10,
+        border: `2px dashed ${drag ? T.accent : preview ? "#86efac" : T.border2}`,
+        borderRadius: 12,
         cursor: "pointer",
         overflow: "hidden",
-        background: drag ? "rgba(79,124,255,.04)" : T.bg2,
+        background: drag ? "#f0f4ff" : preview ? "#f0fdf4" : T.inputBg,
         minHeight: 120,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        transition: "border-color .2s, background .2s",
+        transition: "all .2s",
         position: "relative",
       }}
     >
@@ -417,9 +657,9 @@ function ImageUpload({ preview, onChange }) {
               position: "absolute",
               top: 8,
               right: 8,
-              background: "#22c55e",
+              background: T.green,
               borderRadius: 999,
-              padding: "2px 9px",
+              padding: "3px 10px",
               fontSize: 10,
               fontWeight: 700,
               color: "#fff",
@@ -433,7 +673,7 @@ function ImageUpload({ preview, onChange }) {
               bottom: 0,
               left: 0,
               right: 0,
-              background: "rgba(0,0,0,.65)",
+              background: "rgba(0,0,0,.55)",
               padding: "8px 12px",
               fontSize: 12,
               color: "#fff",
@@ -444,15 +684,15 @@ function ImageUpload({ preview, onChange }) {
           </div>
         </>
       ) : (
-        <div style={{ textAlign: "center", padding: 24 }}>
-          <div style={{ fontSize: 28, marginBottom: 8 }}>
+        <div style={{ textAlign: "center", padding: "28px 20px" }}>
+          <div style={{ fontSize: 30, marginBottom: 10 }}>
             {drag ? "📂" : "🖼️"}
           </div>
-          <p style={{ color: T.text3, fontSize: 13, margin: 0 }}>
+          <p style={{ color: T.text3, fontSize: 13, fontWeight: 500 }}>
             Drop image or{" "}
-            <span style={{ color: "#4f7cff", fontWeight: 600 }}>browse</span>
+            <span style={{ color: T.accent, fontWeight: 700 }}>browse</span>
           </p>
-          <p style={{ color: "#484f58", fontSize: 11, marginTop: 4 }}>
+          <p style={{ color: "#b0b0c8", fontSize: 11, marginTop: 4 }}>
             PNG, JPG, WebP
           </p>
         </div>
@@ -461,123 +701,90 @@ function ImageUpload({ preview, onChange }) {
   );
 }
 
-// ── Style helpers ─────────────────────────────────────────────────────────────
-function solidBtn(bg = "#4f7cff", extra = {}) {
-  return {
-    padding: "9px 20px",
-    borderRadius: 8,
-    border: "none",
-    background: bg,
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: "pointer",
-    fontFamily: "'DM Sans',sans-serif",
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 7,
-    ...extra,
-  };
-}
-
-function ghostBtn(extra = {}) {
-  return {
-    padding: "9px 20px",
-    borderRadius: 8,
-    border: `1.5px solid ${T.border}`,
-    background: "transparent",
-    color: T.text2,
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: "pointer",
-    fontFamily: "'DM Sans',sans-serif",
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 7,
-    transition: "border-color .2s, color .2s",
-    ...extra,
-  };
-}
-
-function inputStyle(extra = {}) {
-  return {
-    background: T.bg2,
-    border: `1.5px solid ${T.border}`,
-    borderRadius: 8,
-    color: T.text1,
-    fontFamily: "'DM Sans',sans-serif",
-    fontSize: 14,
-    padding: "10px 14px",
-    width: "100%",
-    transition: "border-color .2s, box-shadow .2s",
-    ...extra,
-  };
-}
-
-function labelStyle() {
-  return {
-    fontSize: 11,
-    fontWeight: 700,
-    letterSpacing: ".07em",
-    textTransform: "uppercase",
-    color: T.text3,
-    display: "block",
-    marginBottom: 6,
-  };
-}
-
 function FieldLabel({ label, required }) {
   return (
-    <label style={labelStyle()}>
+    <label
+      style={{
+        fontSize: 11.5,
+        fontWeight: 700,
+        letterSpacing: ".06em",
+        textTransform: "uppercase",
+        color: T.text3,
+        display: "block",
+        marginBottom: 7,
+        fontFamily: "'Instrument Sans', sans-serif",
+      }}
+    >
       {label}
-      {required && <span style={{ color: "#f43f5e", marginLeft: 3 }}>*</span>}
+      {required && <span style={{ color: T.red, marginLeft: 3 }}>*</span>}
     </label>
   );
 }
 
-function StatCard({ label, val, color, sub, delay = 0 }) {
+function StatCard({ icon, label, val, color, sub, delay = 0 }) {
   return (
     <div
-      className="ne-card ne-stat-card"
-      style={{
-        background: "#161b22",
-        border: `1.5px solid ${T.border}`,
-        borderRadius: 12,
-        padding: "18px 16px",
-        animation: `fadeUp .4s ease ${delay}ms both`,
-      }}
+      className="n-stat-card"
+      style={{ animation: `fadeUp .4s ease ${delay}ms both` }}
     >
       <div
-        className="ne-stat-label"
         style={{
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: ".1em",
-          textTransform: "uppercase",
-          color: T.text3,
-          marginBottom: 8,
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 14,
         }}
       >
-        {label}
+        <span
+          style={{
+            fontSize: 10.5,
+            fontWeight: 700,
+            letterSpacing: ".08em",
+            textTransform: "uppercase",
+            color: T.text3,
+            fontFamily: "'Instrument Sans', sans-serif",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {label}
+        </span>
+        <span
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 9,
+            background: `${color}18`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 15,
+            flexShrink: 0,
+          }}
+        >
+          {icon}
+        </span>
       </div>
       <div
-        className="ne-stat-val"
         style={{
-          fontFamily: "'Sora',sans-serif",
-          fontSize: 28,
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontSize: 30,
           fontWeight: 800,
           color,
           lineHeight: 1,
+          letterSpacing: "-.5px",
         }}
       >
         {val}
       </div>
       <div
-        className="ne-stat-sub"
-        style={{ fontSize: 11, color: "#484f58", marginTop: 6 }}
+        style={{
+          fontSize: 11.5,
+          color: T.text3,
+          marginTop: 7,
+          fontWeight: 500,
+        }}
       >
         {sub}
       </div>
@@ -585,14 +792,47 @@ function StatCard({ label, val, color, sub, delay = 0 }) {
   );
 }
 
-// ════════════════════════════════════════════════════════
+function SearchInput({ value, onChange, placeholder }) {
+  return (
+    <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
+      <svg
+        style={{
+          position: "absolute",
+          left: 14,
+          top: "50%",
+          transform: "translateY(-50%)",
+          color: T.text3,
+          pointerEvents: "none",
+        }}
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.35-4.35" />
+      </svg>
+      <input
+        className="n-input"
+        style={{ paddingLeft: 42 }}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════
 //  MAIN COMPONENT
-// ════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════
 export default function News() {
   const token = localStorage.getItem("token") || "";
   const [tab, setTab] = useState("news");
 
-  // News state
+  // ── News state ─────────────────────────────────────────────────────────
   const [posts, setPosts] = useState([]);
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsPanel, setNewsPanel] = useState(false);
@@ -604,7 +844,7 @@ export default function News() {
   const [newsSearch, setNewsSearch] = useState("");
   const [expandedId, setExpandedId] = useState(null);
 
-  // Events state
+  // ── Events state ───────────────────────────────────────────────────────
   const [events, setEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(false);
   const [eventPanel, setEventPanel] = useState(false);
@@ -619,9 +859,10 @@ export default function News() {
 
   function showToast(msg, type = "success") {
     setToast({ msg: str(msg), type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 3200);
   }
 
+  // ── Fetch ──────────────────────────────────────────────────────────────
   async function fetchNews() {
     setNewsLoading(true);
     try {
@@ -629,14 +870,15 @@ export default function News() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const d = await r.json();
-      const list = Array.isArray(d)
-        ? d
-        : Array.isArray(d.news)
-          ? d.news
-          : Array.isArray(d.data)
-            ? d.data
-            : [];
-      setPosts(list);
+      setPosts(
+        Array.isArray(d)
+          ? d
+          : Array.isArray(d.news)
+            ? d.news
+            : Array.isArray(d.data)
+              ? d.data
+              : [],
+      );
     } catch {
       setPosts([]);
     } finally {
@@ -651,14 +893,15 @@ export default function News() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const d = await r.json();
-      const list = Array.isArray(d)
-        ? d
-        : Array.isArray(d.events)
-          ? d.events
-          : Array.isArray(d.data)
-            ? d.data
-            : [];
-      setEvents(list);
+      setEvents(
+        Array.isArray(d)
+          ? d
+          : Array.isArray(d.events)
+            ? d.events
+            : Array.isArray(d.data)
+              ? d.data
+              : [],
+      );
     } catch {
       setEvents([]);
     } finally {
@@ -671,7 +914,7 @@ export default function News() {
     fetchEvents();
   }, []);
 
-  // ── News handlers ──────────────────────────────────────────────────────────
+  // ── News handlers ──────────────────────────────────────────────────────
   function openEditNews(post) {
     setNewsForm({
       title: str(post.title),
@@ -690,7 +933,7 @@ export default function News() {
     setTimeout(
       () =>
         document
-          .getElementById("ne-panel-top")
+          .getElementById("n-panel-top")
           ?.scrollIntoView({ behavior: "smooth" }),
       50,
     );
@@ -759,7 +1002,7 @@ export default function News() {
     }
   }
 
-  // ── Events handlers ────────────────────────────────────────────────────────
+  // ── Events handlers ────────────────────────────────────────────────────
   function openEditEvent(ev) {
     setEventForm({
       title: str(ev.title),
@@ -778,7 +1021,7 @@ export default function News() {
     setTimeout(
       () =>
         document
-          .getElementById("ne-event-panel-top")
+          .getElementById("n-event-panel-top")
           ?.scrollIntoView({ behavior: "smooth" }),
       50,
     );
@@ -853,7 +1096,7 @@ export default function News() {
     }
   }
 
-  // ── Filtered data ──────────────────────────────────────────────────────────
+  // ── Filtered data ──────────────────────────────────────────────────────
   const visibleNews = posts.filter((p) => {
     const q = newsSearch.toLowerCase();
     const matchQ =
@@ -892,126 +1135,93 @@ export default function News() {
     past: events.filter((e) => !e.isActive).length,
   };
 
-  // ── Shared card background (slightly lighter than page for contrast) ───────
-  const CARD_BG = "#161b22";
-  const PANEL_BG = "#161b22";
-
+  // ── Render ─────────────────────────────────────────────────────────────
   return (
     <>
       <style>{CSS}</style>
+
       <div
-        className="ne-page"
+        className="n-page"
         style={{
           width: "100%",
           minHeight: "100vh",
-          padding: "28px 24px 80px",
-          fontFamily: "'DM Sans', sans-serif",
-          color: T.text1,
-          background: T.bg,
+          padding: "30px 28px 88px",
+          background: T.pageBg,
           overflowX: "hidden",
-          overflowY: "visible",
         }}
       >
-        {/* ── Page header ── */}
+        {/* ── Page Header ── */}
         <div
-          className="ne-header-row"
+          className="n-header-row"
           style={{ animation: "fadeUp .4s ease both" }}
         >
           <div>
             <h1
               style={{
-                fontFamily: "'Sora', sans-serif",
-                fontSize: "clamp(20px,4vw,28px)",
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: "clamp(22px, 4vw, 30px)",
                 fontWeight: 800,
-                letterSpacing: "-.5px",
                 color: T.head,
-                margin: 0,
                 lineHeight: 1.2,
+                letterSpacing: "-.4px",
               }}
             >
               Manage News &amp; <span style={{ color: T.accent }}>Events</span>
             </h1>
             <p
               style={{
-                fontSize: 13,
+                fontSize: 13.5,
                 color: T.text3,
-                marginTop: 5,
-                marginBottom: 0,
+                marginTop: 6,
+                fontWeight: 500,
               }}
             >
               Manage publications, announcements and upcoming events
             </p>
           </div>
 
-          {/* Tab row + New button */}
           <div
-            className="ne-tab-row"
-            style={{ animation: "fadeUp .4s ease .05s both" }}
+            className="n-tab-area"
+            style={{ animation: "fadeUp .4s ease .06s both" }}
           >
-            <div
-              style={{
-                display: "flex",
-                background: T.bg2,
-                border: `1.5px solid ${T.border}`,
-                borderRadius: 10,
-                padding: 3,
-              }}
-            >
+            <div className="n-tab-switcher">
               {["news", "events"].map((t) => (
                 <button
                   key={t}
-                  className="ne-tab-btn"
+                  className={`n-tab-btn n-btn ${tab === t ? "active" : ""}`}
                   onClick={() => setTab(t)}
-                  style={{
-                    padding: "7px 18px",
-                    borderRadius: 7,
-                    border: "none",
-                    background: tab === t ? T.accent : "transparent",
-                    color: tab === t ? "#fff" : T.text2,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    fontFamily: "'DM Sans',sans-serif",
-                    transition: "all .2s",
-                    whiteSpace: "nowrap",
-                  }}
                 >
                   {t === "news" ? "📰 News" : "📅 Events"}
                 </button>
               ))}
             </div>
             <button
-              className="ne-btn ne-new-btn"
+              className={`n-btn n-primary-btn n-new-btn ${tab === "events" ? "green" : ""}`}
               onClick={() => {
                 if (tab === "news") {
-                  if (newsPanel && !editNewsId) {
-                    closeNewsPanel();
-                  } else {
+                  if (newsPanel && !editNewsId) closeNewsPanel();
+                  else {
                     setEditNewsId(null);
                     setNewsForm({ ...EMPTY_NEWS });
                     setNewsPanel(true);
                   }
                 } else {
-                  if (eventPanel && !editEventId) {
-                    closeEventPanel();
-                  } else {
+                  if (eventPanel && !editEventId) closeEventPanel();
+                  else {
                     setEditEventId(null);
                     setEventForm({ ...EMPTY_EVENT });
                     setEventPanel(true);
                   }
                 }
               }}
-              style={solidBtn(tab === "news" ? T.accent : "#22c55e", {
-                whiteSpace: "nowrap",
-              })}
             >
               {tab === "news"
                 ? newsPanel && !editNewsId
                   ? "✕ Close"
-                  : "+ Post a News"
+                  : "+ Post News"
                 : eventPanel && !editEventId
                   ? "✕ Close"
-                  : "+ Post an Event"}
+                  : "+ Post Event"}
             </button>
           </div>
         </div>
@@ -1020,8 +1230,9 @@ export default function News() {
         {tab === "news" && (
           <div style={{ animation: "fadeIn .25s ease" }}>
             {/* Stats */}
-            <div className="ne-stats-grid-news">
+            <div className="n-stats-grid-4">
               <StatCard
+                icon="📄"
                 label="Total Posts"
                 val={nStats.total}
                 color={T.accent}
@@ -1029,73 +1240,46 @@ export default function News() {
                 delay={0}
               />
               <StatCard
+                icon="🟢"
                 label="Published"
                 val={nStats.pub}
-                color="#22c55e"
+                color={T.green}
                 sub="Live now"
-                delay={50}
+                delay={60}
               />
               <StatCard
+                icon="✏️"
                 label="Drafts"
                 val={nStats.draft}
-                color="#f59e0b"
+                color={T.amber}
                 sub="Unpublished"
-                delay={100}
+                delay={120}
               />
               <StatCard
+                icon="🏷️"
                 label="Categories"
                 val={nStats.cats}
-                color="#8b5cf6"
+                color={T.purple}
                 sub="Topic areas"
-                delay={150}
+                delay={180}
               />
             </div>
 
-            {/* Search */}
+            {/* Search + Filter */}
             <div
-              className="ne-toolbar"
+              className="n-toolbar"
               style={{ animation: "fadeUp .4s ease .2s both" }}
             >
-              <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-                <svg
-                  style={{
-                    position: "absolute",
-                    left: 13,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: T.text3,
-                    pointerEvents: "none",
-                  }}
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.35-4.35" />
-                </svg>
-                <input
-                  className="ne-input"
-                  style={inputStyle({ paddingLeft: 38 })}
-                  placeholder="Search posts…"
-                  value={newsSearch}
-                  onChange={(e) => setNewsSearch(e.target.value)}
-                />
-              </div>
+              <SearchInput
+                value={newsSearch}
+                onChange={setNewsSearch}
+                placeholder="Search by title or author…"
+              />
             </div>
 
-            {/* Filters */}
             <div
-              className="ne-filter-row"
-              style={{
-                display: "flex",
-                gap: 8,
-                marginBottom: 22,
-                flexWrap: "wrap",
-                animation: "fadeUp .4s ease .25s both",
-              }}
+              className="n-filter-row"
+              style={{ animation: "fadeUp .4s ease .25s both" }}
             >
               {[
                 { k: "All", l: "All", c: posts.length },
@@ -1104,35 +1288,18 @@ export default function News() {
               ].map((f) => (
                 <button
                   key={f.k}
-                  className="ne-filter-btn"
+                  className={`n-btn n-filter-pill ${newsFilter === f.k ? "active" : ""}`}
                   onClick={() => setNewsFilter(f.k)}
-                  style={{
-                    padding: "6px 16px",
-                    borderRadius: 8,
-                    border: `1.5px solid ${newsFilter === f.k ? T.accent : T.border}`,
-                    background:
-                      newsFilter === f.k
-                        ? "rgba(79,124,255,.10)"
-                        : "transparent",
-                    color: newsFilter === f.k ? T.accent : T.text2,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    fontFamily: "'DM Sans',sans-serif",
-                    transition: "all .2s",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    flexShrink: 0,
-                  }}
                 >
                   {f.l}
                   <span
                     style={{
-                      background: T.border,
+                      background: newsFilter === f.k ? "#dbeafe" : "#f0f0f6",
+                      color: newsFilter === f.k ? T.accent : T.text3,
                       borderRadius: 999,
-                      padding: "1px 7px",
-                      fontSize: 10,
+                      padding: "1px 8px",
+                      fontSize: 11,
+                      fontWeight: 700,
                     }}
                   >
                     {f.c}
@@ -1141,63 +1308,89 @@ export default function News() {
               ))}
             </div>
 
-            {/* News form panel */}
+            {/* News Form Panel */}
             {newsPanel && (
               <div
-                id="ne-panel-top"
-                className="ne-panel"
+                id="n-panel-top"
+                className="n-panel"
                 style={{
-                  background: PANEL_BG,
+                  background: T.panelBg,
                   border: `1.5px solid ${T.border}`,
-                  borderRadius: 14,
-                  padding: "24px 20px 28px",
+                  borderRadius: 18,
+                  padding: "26px 24px 30px",
                   marginBottom: 28,
+                  boxShadow: "0 4px 20px rgba(0,0,0,.07)",
                 }}
               >
+                {/* Panel header */}
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    marginBottom: 22,
+                    marginBottom: 24,
                     flexWrap: "wrap",
                     gap: 10,
                   }}
                 >
-                  <h2
-                    style={{
-                      fontFamily: "'Sora',sans-serif",
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: T.head,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      margin: 0,
-                    }}
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 10 }}
                   >
-                    {editNewsId ? "✏️ Edit Post" : "📝 New Post"}
-                    <Badge
-                      label={editNewsId ? "Editing" : "New"}
-                      color={editNewsId ? "#8b5cf6" : T.accent}
-                    />
-                  </h2>
+                    <div
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        background: editNewsId ? "#ede9fe" : "#dbeafe",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 18,
+                      }}
+                    >
+                      {editNewsId ? "✏️" : "📝"}
+                    </div>
+                    <div>
+                      <h2
+                        style={{
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          fontSize: 16,
+                          fontWeight: 800,
+                          color: T.head,
+                          margin: 0,
+                        }}
+                      >
+                        {editNewsId ? "Edit Post" : "New Post"}
+                      </h2>
+                      <span
+                        style={{
+                          fontSize: 11.5,
+                          color: editNewsId ? T.purple : T.accent,
+                          fontWeight: 600,
+                          background: editNewsId ? "#ede9fe" : "#dbeafe",
+                          padding: "1px 8px",
+                          borderRadius: 999,
+                        }}
+                      >
+                        {editNewsId ? "Editing" : "New"}
+                      </span>
+                    </div>
+                  </div>
                   <button
-                    className="ne-btn"
+                    className="n-btn n-ghost-btn"
                     onClick={closeNewsPanel}
-                    style={ghostBtn({ padding: "7px 14px", fontSize: 12 })}
+                    style={{ padding: "7px 14px", fontSize: 12 }}
                   >
                     ✕ Close
                   </button>
                 </div>
 
-                <div className="ne-form-2col">
+                <div className="n-form-2col">
                   {/* Title */}
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Title" required />
                     <input
-                      className="ne-input"
-                      style={inputStyle()}
+                      className="n-input"
                       placeholder="Enter post title…"
                       value={newsForm.title}
                       onChange={(e) =>
@@ -1205,12 +1398,12 @@ export default function News() {
                       }
                     />
                   </div>
+
                   {/* Category */}
                   <div>
                     <FieldLabel label="Category" />
                     <select
-                      className="ne-input"
-                      style={inputStyle()}
+                      className="n-input"
                       value={newsForm.category}
                       onChange={(e) =>
                         setNewsForm((f) => ({ ...f, category: e.target.value }))
@@ -1221,12 +1414,12 @@ export default function News() {
                       ))}
                     </select>
                   </div>
+
                   {/* Tag */}
                   <div>
                     <FieldLabel label="Tag" />
                     <input
-                      className="ne-input"
-                      style={inputStyle()}
+                      className="n-input"
                       placeholder="e.g. oncology, AI"
                       value={newsForm.tag}
                       onChange={(e) =>
@@ -1234,12 +1427,12 @@ export default function News() {
                       }
                     />
                   </div>
+
                   {/* Date */}
                   <div>
                     <FieldLabel label="Date" />
                     <input
-                      className="ne-input"
-                      style={inputStyle()}
+                      className="n-input"
                       type="date"
                       value={newsForm.date}
                       onChange={(e) =>
@@ -1247,6 +1440,7 @@ export default function News() {
                       }
                     />
                   </div>
+
                   {/* Status */}
                   <div>
                     <FieldLabel label="Status" />
@@ -1254,37 +1448,29 @@ export default function News() {
                       {["Draft", "Published"].map((s) => (
                         <button
                           key={s}
-                          className="ne-status-btn"
+                          className="n-btn n-status-chip"
                           onClick={() =>
                             setNewsForm((f) => ({ ...f, status: s }))
                           }
                           style={{
-                            padding: "7px 20px",
-                            borderRadius: 8,
-                            border: "1.5px solid",
                             borderColor:
                               newsForm.status === s
                                 ? s === "Published"
-                                  ? "#22c55e"
-                                  : "#f59e0b"
+                                  ? T.green
+                                  : T.amber
                                 : T.border,
                             background:
                               newsForm.status === s
                                 ? s === "Published"
-                                  ? "rgba(34,197,94,.10)"
-                                  : "rgba(245,158,11,.10)"
-                                : "transparent",
+                                  ? "#dcfce7"
+                                  : "#fef3c7"
+                                : "#fff",
                             color:
                               newsForm.status === s
                                 ? s === "Published"
-                                  ? "#22c55e"
-                                  : "#f59e0b"
+                                  ? "#15803d"
+                                  : "#b45309"
                                 : T.text2,
-                            fontSize: 13,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            fontFamily: "'DM Sans',sans-serif",
-                            transition: "all .2s",
                           }}
                         >
                           {s === "Published" ? "🟢" : "🟡"} {s}
@@ -1292,12 +1478,13 @@ export default function News() {
                       ))}
                     </div>
                   </div>
+
                   {/* Short Description */}
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Short Description" />
                     <textarea
-                      className="ne-input"
-                      style={inputStyle({ minHeight: 80, resize: "vertical" })}
+                      className="n-input"
+                      style={{ minHeight: 84, resize: "vertical" }}
                       placeholder="Brief summary…"
                       value={newsForm.content}
                       onChange={(e) =>
@@ -1305,12 +1492,13 @@ export default function News() {
                       }
                     />
                   </div>
+
                   {/* Full Body */}
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Full Body" required />
                     <textarea
-                      className="ne-input"
-                      style={inputStyle({ minHeight: 140, resize: "vertical" })}
+                      className="n-input"
+                      style={{ minHeight: 148, resize: "vertical" }}
                       placeholder="Write the full article…"
                       value={newsForm.body}
                       onChange={(e) =>
@@ -1319,10 +1507,10 @@ export default function News() {
                     />
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 11.5,
                         color: T.text3,
                         textAlign: "right",
-                        marginTop: 4,
+                        marginTop: 5,
                       }}
                     >
                       {newsForm.body.length} chars
@@ -1340,19 +1528,16 @@ export default function News() {
                   }}
                 >
                   <button
-                    className="ne-btn"
+                    className="n-btn n-ghost-btn"
                     onClick={closeNewsPanel}
-                    style={ghostBtn()}
                   >
                     Cancel
                   </button>
                   <button
-                    className="ne-btn"
+                    className={`n-btn n-primary-btn ${editNewsId ? "purple" : ""}`}
                     onClick={saveNews}
                     disabled={newsSaving}
-                    style={solidBtn(editNewsId ? "#8b5cf6" : T.accent, {
-                      minWidth: 140,
-                    })}
+                    style={{ minWidth: 148 }}
                   >
                     {newsSaving && <Spinner />}
                     {newsSaving
@@ -1366,46 +1551,46 @@ export default function News() {
             )}
 
             {/* Count */}
-            <p style={{ fontSize: 13, color: T.text2, marginBottom: 16 }}>
-              News Posts —{" "}
-              <strong style={{ color: T.text1 }}>
-                {visibleNews.length} of {posts.length}
-              </strong>
+            <p
+              style={{
+                fontSize: 13,
+                color: T.text2,
+                marginBottom: 18,
+                fontWeight: 500,
+              }}
+            >
+              Showing{" "}
+              <strong style={{ color: T.text1 }}>{visibleNews.length}</strong>{" "}
+              of <strong style={{ color: T.text1 }}>{posts.length}</strong>{" "}
+              posts
             </p>
 
-            {/* Grid */}
+            {/* Cards Grid */}
             {newsLoading ? (
-              <div className="ne-cards-grid">
+              <div className="n-cards-grid">
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="ne-skeleton"
+                    className="n-skeleton"
                     style={{
-                      height: 170,
-                      borderRadius: 12,
-                      background: CARD_BG,
-                      border: `1.5px solid ${T.border}`,
+                      height: 180,
+                      borderRadius: 16,
+                      background: "#eeeef6",
                     }}
                   />
                 ))}
               </div>
             ) : visibleNews.length === 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "64px 20px",
-                  color: T.text2,
-                }}
-              >
-                <div style={{ fontSize: 40, marginBottom: 14, opacity: 0.3 }}>
+              <div style={{ textAlign: "center", padding: "72px 20px" }}>
+                <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.25 }}>
                   📰
                 </div>
-                <p style={{ fontSize: 14 }}>
+                <p style={{ fontSize: 14, color: T.text2, fontWeight: 500 }}>
                   No posts found. Create one above!
                 </p>
               </div>
             ) : (
-              <div className="ne-cards-grid">
+              <div className="n-cards-grid">
                 {visibleNews.map((post, i) => {
                   const isExpanded = expandedId === post._id;
                   const description =
@@ -1421,16 +1606,13 @@ export default function News() {
                   return (
                     <div
                       key={post._id}
-                      className="ne-card"
+                      className="n-card"
                       style={{
-                        background: CARD_BG,
-                        border: `1.5px solid ${T.border}`,
-                        borderRadius: 12,
-                        padding: 20,
+                        padding: 22,
                         display: "flex",
                         flexDirection: "column",
-                        gap: 12,
-                        animation: `fadeUp .35s ease ${i * 40}ms both`,
+                        gap: 14,
+                        animation: `fadeUp .35s ease ${i * 45}ms both`,
                       }}
                     >
                       {/* Top row */}
@@ -1446,52 +1628,21 @@ export default function News() {
                         <div
                           style={{ display: "flex", gap: 6, flexWrap: "wrap" }}
                         >
-                          <Badge
-                            label={category || "General"}
-                            color={CAT_COLOR[category] || "#64748b"}
-                          />
-                          <Badge
-                            label={post.isActive ? "Active" : "Draft"}
-                            color={post.isActive ? "#22c55e" : "#f59e0b"}
-                          />
+                          <CategoryBadge label={category || "General"} />
+                          <StatusBadge active={post.isActive} />
                         </div>
-                        <div style={{ display: "flex", gap: 5 }}>
+                        <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
                           <button
-                            className="ne-btn ne-icon-btn"
+                            className="n-btn n-icon-btn"
                             onClick={() => openEditNews(post)}
-                            style={{
-                              padding: "5px 12px",
-                              borderRadius: 7,
-                              border: `1.5px solid ${T.border}`,
-                              background: "transparent",
-                              color: T.text2,
-                              fontSize: 11,
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              fontFamily: "'DM Sans',sans-serif",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 5,
-                            }}
                           >
                             ✏️ Edit
                           </button>
                           <button
-                            className="ne-btn ne-del-btn"
+                            className="n-btn n-icon-btn n-del-btn"
                             onClick={() => setDeleteNewsItem(post)}
-                            style={{
-                              padding: "5px 12px",
-                              borderRadius: 7,
-                              border: `1.5px solid ${T.border}`,
-                              background: "transparent",
-                              color: T.text2,
-                              fontSize: 11,
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              fontFamily: "'DM Sans',sans-serif",
-                            }}
                           >
-                            Delete
+                            🗑️
                           </button>
                         </div>
                       </div>
@@ -1499,11 +1650,11 @@ export default function News() {
                       {/* Title */}
                       <h3
                         style={{
-                          fontFamily: "'Sora',sans-serif",
-                          fontSize: 15,
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          fontSize: 15.5,
                           fontWeight: 700,
                           color: T.head,
-                          lineHeight: 1.4,
+                          lineHeight: 1.45,
                           margin: 0,
                         }}
                       >
@@ -1515,7 +1666,7 @@ export default function News() {
                         style={{
                           display: "flex",
                           flexWrap: "wrap",
-                          gap: 10,
+                          gap: 8,
                           alignItems: "center",
                         }}
                       >
@@ -1527,21 +1678,37 @@ export default function News() {
                               display: "flex",
                               alignItems: "center",
                               gap: 4,
+                              fontWeight: 500,
                             }}
                           >
-                            👤 {author}
+                            <span
+                              style={{
+                                width: 20,
+                                height: 20,
+                                borderRadius: "50%",
+                                background: T.accent,
+                                color: "#fff",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 9,
+                                fontWeight: 800,
+                              }}
+                            >
+                              {str(author)[0]?.toUpperCase()}
+                            </span>
+                            {author}
                           </span>
                         )}
                         {tag && (
                           <span
-                            className="ne-tag-badge"
+                            className="n-tag"
                             style={{
-                              fontSize: 11,
+                              fontSize: 11.5,
                               color: T.accent,
-                              background: "rgba(79,124,255,.08)",
-                              border: "1px solid rgba(79,124,255,.18)",
+                              background: "rgba(79,124,255,.09)",
                               borderRadius: 999,
-                              padding: "2px 9px",
+                              padding: "2px 10px",
                               fontWeight: 600,
                             }}
                           >
@@ -1549,7 +1716,13 @@ export default function News() {
                           </span>
                         )}
                         {post.date && (
-                          <span style={{ fontSize: 11, color: T.text3 }}>
+                          <span
+                            style={{
+                              fontSize: 11.5,
+                              color: T.text3,
+                              fontWeight: 500,
+                            }}
+                          >
                             {fmtDate(post.date)}
                           </span>
                         )}
@@ -1560,22 +1733,21 @@ export default function News() {
                         <>
                           <p
                             style={{
-                              fontSize: 13,
+                              fontSize: 13.5,
                               color: T.text2,
-                              lineHeight: 1.6,
+                              lineHeight: 1.65,
                               margin: 0,
                               display: "-webkit-box",
                               WebkitLineClamp: isExpanded ? 100 : 3,
                               WebkitBoxOrient: "vertical",
                               overflow: "hidden",
-                              transition: "all .3s",
                             }}
                           >
                             {description}
                           </p>
                           {isLong && (
                             <button
-                              className="ne-read-more"
+                              className="n-btn n-read-more"
                               onClick={() =>
                                 setExpandedId(isExpanded ? null : post._id)
                               }
@@ -1583,12 +1755,12 @@ export default function News() {
                                 background: "none",
                                 border: "none",
                                 color: T.accent,
-                                fontSize: 12,
+                                fontSize: 12.5,
                                 fontWeight: 600,
                                 cursor: "pointer",
                                 padding: 0,
-                                fontFamily: "'DM Sans',sans-serif",
                                 textAlign: "left",
+                                fontFamily: "'Instrument Sans', sans-serif",
                               }}
                             >
                               {isExpanded ? "Show less ▲" : "Read more ▼"}
@@ -1596,6 +1768,33 @@ export default function News() {
                           )}
                         </>
                       )}
+
+                      {/* Bottom divider + date */}
+                      <div
+                        style={{
+                          borderTop: `1px solid ${T.border}`,
+                          paddingTop: 10,
+                          marginTop: "auto",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: T.text3,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {post.isActive ? "🟢 Live" : "🟡 Draft"}
+                        </span>
+                        {post.createdAt && (
+                          <span style={{ fontSize: 11, color: T.text3 }}>
+                            {fmtDate(post.createdAt)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -1608,8 +1807,9 @@ export default function News() {
         {tab === "events" && (
           <div style={{ animation: "fadeIn .25s ease" }}>
             {/* Stats */}
-            <div className="ne-stats-grid-events">
+            <div className="n-stats-grid-3">
               <StatCard
+                icon="📅"
                 label="Total Events"
                 val={eStats.total}
                 color={T.accent}
@@ -1617,66 +1817,38 @@ export default function News() {
                 delay={0}
               />
               <StatCard
+                icon="🟢"
                 label="Upcoming"
                 val={eStats.upcoming}
-                color="#22c55e"
+                color={T.green}
                 sub="Scheduled"
-                delay={50}
+                delay={60}
               />
               <StatCard
+                icon="⏰"
                 label="Past"
                 val={eStats.past}
-                color="#6b7280"
+                color={T.text3}
                 sub="Completed"
-                delay={100}
+                delay={120}
               />
             </div>
 
-            {/* Search */}
+            {/* Search + Filter */}
             <div
-              className="ne-toolbar"
+              className="n-toolbar"
               style={{ animation: "fadeUp .4s ease .2s both" }}
             >
-              <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
-                <svg
-                  style={{
-                    position: "absolute",
-                    left: 13,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: T.text3,
-                    pointerEvents: "none",
-                  }}
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.35-4.35" />
-                </svg>
-                <input
-                  className="ne-input"
-                  style={inputStyle({ paddingLeft: 38 })}
-                  placeholder="Search events…"
-                  value={eventSearch}
-                  onChange={(e) => setEventSearch(e.target.value)}
-                />
-              </div>
+              <SearchInput
+                value={eventSearch}
+                onChange={setEventSearch}
+                placeholder="Search by title or location…"
+              />
             </div>
 
-            {/* Filters */}
             <div
-              className="ne-filter-row"
-              style={{
-                display: "flex",
-                gap: 8,
-                marginBottom: 22,
-                flexWrap: "wrap",
-                animation: "fadeUp .4s ease .25s both",
-              }}
+              className="n-filter-row"
+              style={{ animation: "fadeUp .4s ease .25s both" }}
             >
               {[
                 { k: "All", l: "All", c: events.length },
@@ -1685,35 +1857,18 @@ export default function News() {
               ].map((f) => (
                 <button
                   key={f.k}
-                  className="ne-filter-btn"
+                  className={`n-btn n-filter-pill ${eventFilter === f.k ? "active" : ""}`}
                   onClick={() => setEventFilter(f.k)}
-                  style={{
-                    padding: "6px 16px",
-                    borderRadius: 8,
-                    border: `1.5px solid ${eventFilter === f.k ? T.accent : T.border}`,
-                    background:
-                      eventFilter === f.k
-                        ? "rgba(79,124,255,.10)"
-                        : "transparent",
-                    color: eventFilter === f.k ? T.accent : T.text2,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    fontFamily: "'DM Sans',sans-serif",
-                    transition: "all .2s",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    flexShrink: 0,
-                  }}
                 >
                   {f.l}
                   <span
                     style={{
-                      background: T.border,
+                      background: eventFilter === f.k ? "#dbeafe" : "#f0f0f6",
+                      color: eventFilter === f.k ? T.accent : T.text3,
                       borderRadius: 999,
-                      padding: "1px 7px",
-                      fontSize: 10,
+                      padding: "1px 8px",
+                      fontSize: 11,
+                      fontWeight: 700,
                     }}
                   >
                     {f.c}
@@ -1722,17 +1877,18 @@ export default function News() {
               ))}
             </div>
 
-            {/* Event form panel */}
+            {/* Event Form Panel */}
             {eventPanel && (
               <div
-                id="ne-event-panel-top"
-                className="ne-panel"
+                id="n-event-panel-top"
+                className="n-panel"
                 style={{
-                  background: PANEL_BG,
+                  background: T.panelBg,
                   border: `1.5px solid ${T.border}`,
-                  borderRadius: 14,
-                  padding: "24px 20px 28px",
+                  borderRadius: 18,
+                  padding: "26px 24px 30px",
                   marginBottom: 28,
+                  boxShadow: "0 4px 20px rgba(0,0,0,.07)",
                 }}
               >
                 <div
@@ -1740,44 +1896,68 @@ export default function News() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    marginBottom: 22,
+                    marginBottom: 24,
                     flexWrap: "wrap",
                     gap: 10,
                   }}
                 >
-                  <h2
-                    style={{
-                      fontFamily: "'Sora',sans-serif",
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: T.head,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      margin: 0,
-                    }}
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 10 }}
                   >
-                    {editEventId ? "✏️ Edit Event" : "📅 New Event"}
-                    <Badge
-                      label={editEventId ? "Editing" : "New"}
-                      color={editEventId ? "#8b5cf6" : "#22c55e"}
-                    />
-                  </h2>
+                    <div
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        background: editEventId ? "#ede9fe" : "#dcfce7",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 18,
+                      }}
+                    >
+                      {editEventId ? "✏️" : "📅"}
+                    </div>
+                    <div>
+                      <h2
+                        style={{
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          fontSize: 16,
+                          fontWeight: 800,
+                          color: T.head,
+                          margin: 0,
+                        }}
+                      >
+                        {editEventId ? "Edit Event" : "New Event"}
+                      </h2>
+                      <span
+                        style={{
+                          fontSize: 11.5,
+                          fontWeight: 600,
+                          color: editEventId ? T.purple : T.green,
+                          background: editEventId ? "#ede9fe" : "#dcfce7",
+                          padding: "1px 8px",
+                          borderRadius: 999,
+                        }}
+                      >
+                        {editEventId ? "Editing" : "New"}
+                      </span>
+                    </div>
+                  </div>
                   <button
-                    className="ne-btn"
+                    className="n-btn n-ghost-btn"
                     onClick={closeEventPanel}
-                    style={ghostBtn({ padding: "7px 14px", fontSize: 12 })}
+                    style={{ padding: "7px 14px", fontSize: 12 }}
                   >
                     ✕ Close
                   </button>
                 </div>
 
-                <div className="ne-form-2col">
+                <div className="n-form-2col">
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Event Title" required />
                     <input
-                      className="ne-input"
-                      style={inputStyle()}
+                      className="n-input"
                       placeholder="e.g. International Oncology Summit 2026"
                       value={eventForm.title}
                       onChange={(e) =>
@@ -1788,8 +1968,7 @@ export default function News() {
                   <div>
                     <FieldLabel label="Event Type" />
                     <select
-                      className="ne-input"
-                      style={inputStyle()}
+                      className="n-input"
                       value={eventForm.type}
                       onChange={(e) =>
                         setEventForm((f) => ({ ...f, type: e.target.value }))
@@ -1803,8 +1982,7 @@ export default function News() {
                   <div>
                     <FieldLabel label="Location" />
                     <input
-                      className="ne-input"
-                      style={inputStyle()}
+                      className="n-input"
                       placeholder="City, Venue or Online"
                       value={eventForm.location}
                       onChange={(e) =>
@@ -1818,8 +1996,7 @@ export default function News() {
                   <div>
                     <FieldLabel label="Date" required />
                     <input
-                      className="ne-input"
-                      style={inputStyle()}
+                      className="n-input"
                       type="date"
                       value={eventForm.date}
                       onChange={(e) =>
@@ -1830,8 +2007,7 @@ export default function News() {
                   <div>
                     <FieldLabel label="Time (optional)" />
                     <input
-                      className="ne-input"
-                      style={inputStyle()}
+                      className="n-input"
                       type="time"
                       value={eventForm.time}
                       onChange={(e) =>
@@ -1845,37 +2021,29 @@ export default function News() {
                       {["Upcoming", "Past"].map((s) => (
                         <button
                           key={s}
-                          className="ne-status-btn"
+                          className="n-btn n-status-chip"
                           onClick={() =>
                             setEventForm((f) => ({ ...f, status: s }))
                           }
                           style={{
-                            padding: "7px 20px",
-                            borderRadius: 8,
-                            border: "1.5px solid",
                             borderColor:
                               eventForm.status === s
                                 ? s === "Upcoming"
-                                  ? "#22c55e"
-                                  : "#6b7280"
+                                  ? T.green
+                                  : "#9ca3af"
                                 : T.border,
                             background:
                               eventForm.status === s
                                 ? s === "Upcoming"
-                                  ? "rgba(34,197,94,.10)"
-                                  : "rgba(107,114,128,.10)"
-                                : "transparent",
+                                  ? "#dcfce7"
+                                  : "#f3f4f6"
+                                : "#fff",
                             color:
                               eventForm.status === s
                                 ? s === "Upcoming"
-                                  ? "#22c55e"
-                                  : "#9ca3af"
+                                  ? "#15803d"
+                                  : "#6b7280"
                                 : T.text2,
-                            fontSize: 13,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            fontFamily: "'DM Sans',sans-serif",
-                            transition: "all .2s",
                           }}
                         >
                           {s === "Upcoming" ? "🟢" : "⚫"} {s}
@@ -1886,8 +2054,8 @@ export default function News() {
                   <div style={{ gridColumn: "1/-1" }}>
                     <FieldLabel label="Description" />
                     <textarea
-                      className="ne-input"
-                      style={inputStyle({ minHeight: 90, resize: "vertical" })}
+                      className="n-input"
+                      style={{ minHeight: 96, resize: "vertical" }}
                       placeholder="Describe the event…"
                       value={eventForm.description}
                       onChange={(e) =>
@@ -1909,12 +2077,13 @@ export default function News() {
                     {eventForm.imagePreview?.startsWith("data:") && (
                       <p
                         style={{
-                          fontSize: 11,
-                          color: "#f59e0b",
-                          marginTop: 6,
+                          fontSize: 11.5,
+                          color: T.amber,
+                          marginTop: 7,
                           display: "flex",
                           alignItems: "center",
                           gap: 5,
+                          fontWeight: 500,
                         }}
                       >
                         ⚠️ Preview only — paste a hosted URL below to save
@@ -1922,8 +2091,8 @@ export default function News() {
                       </p>
                     )}
                     <input
-                      className="ne-input"
-                      style={inputStyle({ marginTop: 8 })}
+                      className="n-input"
+                      style={{ marginTop: 10 }}
                       placeholder="Or paste an image URL (https://…)"
                       value={
                         eventForm.imagePreview?.startsWith("data:")
@@ -1950,19 +2119,16 @@ export default function News() {
                   }}
                 >
                   <button
-                    className="ne-btn"
+                    className="n-btn n-ghost-btn"
                     onClick={closeEventPanel}
-                    style={ghostBtn()}
                   >
                     Cancel
                   </button>
                   <button
-                    className="ne-btn"
+                    className={`n-btn n-primary-btn ${editEventId ? "purple" : "green"}`}
                     onClick={saveEvent}
                     disabled={eventSaving}
-                    style={solidBtn(editEventId ? "#8b5cf6" : "#22c55e", {
-                      minWidth: 140,
-                    })}
+                    style={{ minWidth: 148 }}
                   >
                     {eventSaving && <Spinner />}
                     {eventSaving
@@ -1976,116 +2142,105 @@ export default function News() {
             )}
 
             {/* Count */}
-            <p style={{ fontSize: 13, color: T.text2, marginBottom: 16 }}>
-              Events —{" "}
-              <strong style={{ color: T.text1 }}>
-                {visibleEvents.length} of {events.length}
-              </strong>
+            <p
+              style={{
+                fontSize: 13,
+                color: T.text2,
+                marginBottom: 18,
+                fontWeight: 500,
+              }}
+            >
+              Showing{" "}
+              <strong style={{ color: T.text1 }}>{visibleEvents.length}</strong>{" "}
+              of <strong style={{ color: T.text1 }}>{events.length}</strong>{" "}
+              events
             </p>
 
-            {/* Grid */}
+            {/* Events Grid */}
             {eventsLoading ? (
-              <div className="ne-cards-grid">
+              <div className="n-cards-grid">
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="ne-skeleton"
+                    className="n-skeleton"
                     style={{
-                      height: 220,
-                      borderRadius: 12,
-                      background: CARD_BG,
-                      border: `1.5px solid ${T.border}`,
+                      height: 200,
+                      borderRadius: 16,
+                      background: "#eeeef6",
                     }}
                   />
                 ))}
               </div>
             ) : visibleEvents.length === 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "64px 20px",
-                  color: T.text2,
-                }}
-              >
-                <div style={{ fontSize: 40, marginBottom: 14, opacity: 0.3 }}>
+              <div style={{ textAlign: "center", padding: "72px 20px" }}>
+                <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.25 }}>
                   📅
                 </div>
-                <p style={{ fontSize: 14 }}>
+                <p style={{ fontSize: 14, color: T.text2, fontWeight: 500 }}>
                   No events found. Create one above!
                 </p>
               </div>
             ) : (
-              <div className="ne-cards-grid">
+              <div className="n-cards-grid">
                 {visibleEvents.map((ev, i) => {
-                  const evTitle = str(ev.title);
-                  const evType = str(ev.type);
-                  const evLocation = str(ev.location);
-                  const evDescription = str(ev.description);
-                  const evImageUrl = str(ev.imageUrl);
+                  const imgUrl = str(ev.imageUrl);
+                  const location = str(ev.location);
+                  const description = str(ev.description);
 
                   return (
                     <div
                       key={ev._id}
-                      className="ne-card"
+                      className="n-card"
                       style={{
-                        background: CARD_BG,
-                        border: `1.5px solid ${T.border}`,
-                        borderRadius: 12,
+                        padding: 0,
                         overflow: "hidden",
-                        animation: `fadeUp .35s ease ${i * 40}ms both`,
+                        display: "flex",
+                        flexDirection: "column",
+                        animation: `fadeUp .35s ease ${i * 45}ms both`,
                       }}
                     >
-                      {/* Banner image */}
-                      {evImageUrl && (
+                      {/* Image banner */}
+                      {imgUrl ? (
                         <div
-                          style={{
-                            height: 160,
-                            overflow: "hidden",
-                            position: "relative",
-                          }}
+                          className="n-img-zoom"
+                          style={{ height: 140, background: "#f0f0f6" }}
                         >
                           <img
-                            src={evImageUrl}
-                            alt={evTitle}
-                            className="ne-img-zoom"
+                            src={imgUrl}
+                            alt={str(ev.title)}
                             style={{
                               width: "100%",
-                              height: "100%",
+                              height: 140,
                               objectFit: "cover",
-                              display: "block",
                             }}
                           />
-                          <div
-                            style={{
-                              position: "absolute",
-                              inset: 0,
-                              background:
-                                "linear-gradient(to top, rgba(13,17,23,.75) 0%, transparent 60%)",
-                            }}
-                          />
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: 10,
-                              left: 12,
-                              display: "flex",
-                              gap: 6,
-                            }}
-                          >
-                            <Badge label={evType || "Event"} color={T.accent} />
-                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            height: 80,
+                            background: `linear-gradient(135deg, #dbeafe 0%, #ede9fe 100%)`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 28,
+                            color: T.accent,
+                          }}
+                        >
+                          📅
                         </div>
                       )}
 
                       <div
                         style={{
-                          padding: "16px 18px 18px",
+                          padding: "18px 20px 20px",
                           display: "flex",
                           flexDirection: "column",
-                          gap: 10,
+                          gap: 12,
+                          flex: 1,
                         }}
                       >
-                        {/* Badges + actions */}
+                        {/* Top row */}
                         <div
                           style={{
                             display: "flex",
@@ -2102,54 +2257,34 @@ export default function News() {
                               flexWrap: "wrap",
                             }}
                           >
-                            {!evImageUrl && (
-                              <Badge
-                                label={evType || "Event"}
-                                color={T.accent}
-                              />
-                            )}
-                            <Badge
-                              label={ev.isActive ? "Upcoming" : "Past"}
-                              color={ev.isActive ? "#22c55e" : "#6b7280"}
+                            <EventTypeBadge
+                              label={str(ev.type) || "Conference"}
                             />
+                            <span
+                              style={{
+                                fontSize: 11.5,
+                                fontWeight: 700,
+                                padding: "3px 10px",
+                                borderRadius: 999,
+                                background: ev.isActive ? "#dcfce7" : "#f3f4f6",
+                                color: ev.isActive ? "#15803d" : "#6b7280",
+                              }}
+                            >
+                              {ev.isActive ? "🟢 Upcoming" : "⚫ Past"}
+                            </span>
                           </div>
                           <div style={{ display: "flex", gap: 5 }}>
                             <button
-                              className="ne-btn ne-icon-btn"
+                              className="n-btn n-icon-btn"
                               onClick={() => openEditEvent(ev)}
-                              style={{
-                                padding: "5px 12px",
-                                borderRadius: 7,
-                                border: `1.5px solid ${T.border}`,
-                                background: "transparent",
-                                color: T.text2,
-                                fontSize: 11,
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                fontFamily: "'DM Sans',sans-serif",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 5,
-                              }}
                             >
                               ✏️ Edit
                             </button>
                             <button
-                              className="ne-btn ne-del-btn"
+                              className="n-btn n-icon-btn n-del-btn"
                               onClick={() => setDeleteEventItem(ev)}
-                              style={{
-                                padding: "5px 12px",
-                                borderRadius: 7,
-                                border: `1.5px solid ${T.border}`,
-                                background: "transparent",
-                                color: T.text2,
-                                fontSize: 11,
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                fontFamily: "'DM Sans',sans-serif",
-                              }}
                             >
-                              Delete
+                              🗑️
                             </button>
                           </div>
                         </div>
@@ -2157,52 +2292,64 @@ export default function News() {
                         {/* Title */}
                         <h3
                           style={{
-                            fontFamily: "'Sora',sans-serif",
-                            fontSize: 15,
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
+                            fontSize: 15.5,
                             fontWeight: 700,
                             color: T.head,
                             lineHeight: 1.4,
                             margin: 0,
                           }}
                         >
-                          {evTitle}
+                          {str(ev.title)}
                         </h3>
 
                         {/* Meta */}
                         <div
-                          style={{ display: "flex", flexWrap: "wrap", gap: 10 }}
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 6,
+                          }}
                         >
+                          {location && (
+                            <span
+                              style={{
+                                fontSize: 12.5,
+                                color: T.text2,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                                fontWeight: 500,
+                              }}
+                            >
+                              <span style={{ fontSize: 14 }}>📍</span>
+                              {location}
+                            </span>
+                          )}
                           {ev.date && (
                             <span
                               style={{
-                                fontSize: 12,
+                                fontSize: 12.5,
                                 color: T.text2,
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 4,
+                                gap: 6,
+                                fontWeight: 500,
                               }}
                             >
-                              📅 {fmtDate(ev.date)}
-                              {ev.time ? ` · ${str(ev.time)}` : ""}
-                            </span>
-                          )}
-                          {evLocation && (
-                            <span
-                              style={{
-                                fontSize: 12,
-                                color: T.text2,
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 4,
-                              }}
-                            >
-                              📍 {evLocation}
+                              <span style={{ fontSize: 14 }}>🗓️</span>
+                              {fmtDate(ev.date)}
+                              {ev.time && (
+                                <span style={{ color: T.text3 }}>
+                                  · {str(ev.time)}
+                                </span>
+                              )}
                             </span>
                           )}
                         </div>
 
                         {/* Description */}
-                        {evDescription && (
+                        {description && (
                           <p
                             style={{
                               fontSize: 13,
@@ -2215,9 +2362,36 @@ export default function News() {
                               overflow: "hidden",
                             }}
                           >
-                            {evDescription}
+                            {description}
                           </p>
                         )}
+
+                        {/* Footer */}
+                        <div
+                          style={{
+                            borderTop: `1px solid ${T.border}`,
+                            paddingTop: 10,
+                            marginTop: "auto",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: 11,
+                              color: T.text3,
+                              fontWeight: 500,
+                            }}
+                          >
+                            {ev.isActive ? "Upcoming event" : "Past event"}
+                          </span>
+                          {ev.createdAt && (
+                            <span style={{ fontSize: 11, color: T.text3 }}>
+                              {fmtDate(ev.createdAt)}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -2228,7 +2402,7 @@ export default function News() {
         )}
       </div>
 
-      {/* Modals & Toast */}
+      {/* ── Modals & Toast ── */}
       <ConfirmModal
         item={deleteNewsItem}
         onConfirm={confirmDeleteNews}

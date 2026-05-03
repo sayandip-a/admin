@@ -80,7 +80,7 @@ function ProtectedLayout() {
         display: "flex",
         height: "100vh",
         overflow: "auto",
-        background: "#080f1e",
+        background: "#ffffff",
       }}
     >
       <Sidebar activePage={activePage} setActivePage={handleNavigate} />

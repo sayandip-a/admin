@@ -1,17 +1,20 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+
 const API = `${import.meta.env.VITE_API_URL}/api/contacts`;
 const getToken = () => localStorage.getItem("token") || "";
 const apiHeaders = () => ({
   "Content-Type": "application/json",
   Authorization: `Bearer ${getToken()}`,
 });
-const Ic = ({ d, size = 16, sw = 1.6, style: s, className: c }) => (
+
+/* ─── Inline SVG helper ──────────────────────────────────────────── */
+const Ic = ({ d, size = 16, sw = 1.6, style: s, className: c, color }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 20 20"
     fill="none"
-    stroke="currentColor"
+    stroke={color || "currentColor"}
     strokeWidth={sw}
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -23,39 +26,41 @@ const Ic = ({ d, size = 16, sw = 1.6, style: s, className: c }) => (
     ))}
   </svg>
 );
+
+/* ─── Status config ──────────────────────────────────────────────── */
 const STATUS = {
   new: {
-    bg: "#0D1117",
-    border: "rgba(6,182,212,0.3)",
-    text: "#22d3ee",
-    dot: "#06b6d4",
+    bg: "#eff9fe",
+    border: "#bae6fd",
+    text: "#0284c7",
+    dot: "#0ea5e9",
     label: "New",
   },
   read: {
-    bg: "#0D1117",
-    border: "rgba(148,163,184,0.2)",
-    text: "#94a3b8",
-    dot: "#64748b",
+    bg: "#f8fafc",
+    border: "#e2e8f0",
+    text: "#64748b",
+    dot: "#94a3b8",
     label: "Read",
   },
   replied: {
-    bg: "#0D1117",
-    border: "rgba(16,185,129,0.25)",
-    text: "#34d399",
-    dot: "#10b981",
+    bg: "#f0fdf4",
+    border: "#bbf7d0",
+    text: "#16a34a",
+    dot: "#22c55e",
     label: "Replied",
   },
   archived: {
-    bg: "#0D1117",
-    border: "rgba(107,114,128,0.2)",
-    text: "#6b7280",
-    dot: "#4b5563",
+    bg: "#f8fafc",
+    border: "#e2e8f0",
+    text: "#94a3b8",
+    dot: "#cbd5e1",
     label: "Archived",
   },
 };
 const getSty = (s = "new") => STATUS[s.toLowerCase()] || STATUS.read;
 
-/* ─── FORMAT TIME ────────────────────────────────────────────────────────────── */
+/* ─── Format time ────────────────────────────────────────────────── */
 const fmt = (iso) => {
   if (!iso) return "";
   const d = new Date(iso),
@@ -71,14 +76,14 @@ const fmt = (iso) => {
   });
 };
 
-/* ─── TOAST ──────────────────────────────────────────────────────────────────── */
+/* ─── Toast ──────────────────────────────────────────────────────── */
 function Toast({ items }) {
   return (
     <div
       style={{
         position: "fixed",
         bottom: 24,
-        right: 24,
+        right: 16,
         zIndex: 200,
         display: "flex",
         flexDirection: "column",
@@ -93,19 +98,15 @@ function Toast({ items }) {
             display: "flex",
             alignItems: "center",
             gap: 10,
-            padding: "12px 18px",
-            borderRadius: 14,
+            padding: "11px 16px",
+            borderRadius: 12,
             fontSize: 13,
             fontWeight: 600,
-            background:
-              t.type === "err"
-                ? "rgba(239,68,68,0.14)"
-                : "rgba(16,185,129,0.14)",
-            border: `1px solid ${t.type === "err" ? "rgba(239,68,68,0.3)" : "rgba(16,185,129,0.3)"}`,
-            color: t.type === "err" ? "#f87171" : "#34d399",
-            backdropFilter: "blur(12px)",
+            background: t.type === "err" ? "#fef2f2" : "#f0fdf4",
+            border: `1px solid ${t.type === "err" ? "#fca5a5" : "#86efac"}`,
+            color: t.type === "err" ? "#dc2626" : "#16a34a",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
             animation: "toastIn .35s cubic-bezier(.34,1.56,.64,1) both",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
           }}
         >
           <Ic
@@ -122,6 +123,8 @@ function Toast({ items }) {
     </div>
   );
 }
+
+/* ─── Status Badge ───────────────────────────────────────────────── */
 function StatusBadge({ status }) {
   const s = getSty(status);
   return (
@@ -153,17 +156,17 @@ function StatusBadge({ status }) {
   );
 }
 
-/* ─── AVATAR ─────────────────────────────────────────────────────────────────── */
+/* ─── Avatar ─────────────────────────────────────────────────────── */
 function Avatar({ name, size = 38 }) {
-  const colors = [
-    "#06b6d4",
-    "#7c6af7",
-    "#22d3a0",
+  const palette = [
+    "#5b5ef4",
+    "#0ea5e9",
+    "#10b981",
     "#f59e0b",
     "#f43f5e",
     "#a78bfa",
   ];
-  const color = colors[name?.charCodeAt(0) % colors.length] || "#06b6d4";
+  const color = palette[name?.charCodeAt(0) % palette.length] || "#5b5ef4";
   const initials = name
     ? name
         .split(" ")
@@ -179,21 +182,23 @@ function Avatar({ name, size = 38 }) {
         height: size,
         borderRadius: "50%",
         flexShrink: 0,
-        background: `linear-gradient(135deg, ${color}40, ${color}20)`,
-        border: `1.5px solid ${color}50`,
+        background: `linear-gradient(135deg, ${color}30, ${color}15)`,
+        border: `1.5px solid ${color}40`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         fontSize: size * 0.35,
         fontWeight: 700,
         color,
-        fontFamily: "'Syne', sans-serif",
+        fontFamily: "'Sora',sans-serif",
       }}
     >
       {initials}
     </div>
   );
 }
+
+/* ─── Detail Drawer ──────────────────────────────────────────────── */
 function DetailDrawer({
   contact,
   open,
@@ -225,24 +230,35 @@ function DetailDrawer({
 
   const sty = getSty(contact.status);
 
+  const inpStyle = {
+    width: "100%",
+    borderRadius: 10,
+    border: "1.5px solid #e2e8f0",
+    padding: "10px 14px",
+    fontSize: 13,
+    color: "#1e1f3b",
+    background: "#f8fafc",
+    outline: "none",
+    resize: "vertical",
+    fontFamily: "'DM Sans',sans-serif",
+    boxSizing: "border-box",
+  };
+
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
         style={{
           position: "fixed",
           inset: 0,
           zIndex: 40,
-          background: "#0D1117",
+          background: "rgba(15,15,35,0.45)",
           backdropFilter: "blur(6px)",
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
           transition: "opacity 0.3s",
         }}
       />
-
-      {/* Drawer */}
       <aside
         style={{
           position: "fixed",
@@ -251,26 +267,33 @@ function DetailDrawer({
           bottom: 0,
           zIndex: 50,
           width: "min(560px, 100vw)",
-          background: "linear-gradient(180deg, #0a1220 0%, #080d17 100%)",
-          borderLeft: "1px solid rgba(255,255,255,0.07)",
+          background: "#ffffff",
+          borderLeft: "1px solid #f0f2f8",
           transform: open ? "translateX(0)" : "translateX(100%)",
           transition: "transform 0.36s cubic-bezier(0.32,0.72,0,1)",
-          boxShadow: "-32px 0 80px rgba(0,0,0,0.5)",
+          boxShadow: "-20px 0 60px rgba(0,0,0,0.1)",
           display: "flex",
           flexDirection: "column",
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'DM Sans',sans-serif",
         }}
       >
         {/* Header */}
         <div
           style={{
-            padding: "20px 24px 16px",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
-            background: `linear-gradient(135deg, ${sty.bg}, transparent)`,
+            padding: "20px 24px 0",
+            borderBottom: "1px solid #f0f2f8",
+            background: sty.bg,
             flexShrink: 0,
           }}
         >
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 14,
+              marginBottom: 16,
+            }}
+          >
             <Avatar name={contact.name} size={46} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
@@ -283,7 +306,7 @@ function DetailDrawer({
                 }}
               >
                 <StatusBadge status={contact.status} />
-                <span style={{ fontSize: 11, color: "#4b5563" }}>
+                <span style={{ fontSize: 11, color: "#94a3b8" }}>
                   {fmt(contact.createdAt)}
                 </span>
               </div>
@@ -291,10 +314,10 @@ function DetailDrawer({
                 style={{
                   fontSize: 17,
                   fontWeight: 800,
-                  color: "#fff",
+                  color: "#1e1f3b",
                   margin: 0,
                   lineHeight: 1.3,
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'Sora',sans-serif",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
@@ -305,7 +328,7 @@ function DetailDrawer({
               <p
                 style={{
                   fontSize: 12,
-                  color: "#4b5563",
+                  color: "#94a3b8",
                   margin: "3px 0 0",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -322,23 +345,23 @@ function DetailDrawer({
                 width: 32,
                 height: 32,
                 borderRadius: 9,
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.8)",
+                border: "1px solid #e2e8f0",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                color: "#6b7280",
+                color: "#94a3b8",
                 flexShrink: 0,
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#fff";
-                e.currentTarget.style.background = "rgba(255,255,255,0.1)";
+                e.currentTarget.style.color = "#1e1f3b";
+                e.currentTarget.style.background = "#fff";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "#6b7280";
-                e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                e.currentTarget.style.color = "#94a3b8";
+                e.currentTarget.style.background = "rgba(255,255,255,0.8)";
               }}
             >
               <Ic d="M5 5l10 10M15 5L5 15" size={13} />
@@ -349,11 +372,11 @@ function DetailDrawer({
           <div
             style={{
               display: "flex",
-              gap: 4,
-              marginTop: 16,
-              background: "rgba(255,255,255,0.04)",
+              gap: 2,
+              background: "rgba(0,0,0,0.04)",
               borderRadius: 10,
               padding: 3,
+              marginBottom: 0,
             }}
           >
             {["details", "message", "actions"].map((tab) => (
@@ -362,7 +385,7 @@ function DetailDrawer({
                 onClick={() => setActiveSection(tab)}
                 style={{
                   flex: 1,
-                  padding: "6px 0",
+                  padding: "7px 0",
                   borderRadius: 8,
                   fontSize: 12,
                   fontWeight: 600,
@@ -371,10 +394,12 @@ function DetailDrawer({
                   fontFamily: "inherit",
                   textTransform: "capitalize",
                   transition: "all 0.2s",
-                  background: activeSection === tab ? sty.bg : "transparent",
-                  color: activeSection === tab ? sty.text : "#4b5563",
+                  background: activeSection === tab ? "#ffffff" : "transparent",
+                  color: activeSection === tab ? sty.text : "#94a3b8",
                   boxShadow:
-                    activeSection === tab ? `0 2px 8px ${sty.dot}20` : "none",
+                    activeSection === tab
+                      ? "0 1px 4px rgba(0,0,0,0.08)"
+                      : "none",
                 }}
               >
                 {tab}
@@ -392,7 +417,7 @@ function DetailDrawer({
             scrollbarWidth: "none",
           }}
         >
-          {/* Details tab */}
+          {/* Details */}
           {activeSection === "details" && (
             <div style={{ animation: "slideIn 0.25s ease both" }}>
               <div
@@ -434,8 +459,8 @@ function DetailDrawer({
                     style={{
                       borderRadius: 12,
                       padding: "12px 14px",
-                      background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      background: "#f8fafc",
+                      border: "1px solid #f0f2f8",
                       animation: "slideIn 0.3s ease both",
                       animationDelay: `${i * 40}ms`,
                     }}
@@ -448,16 +473,14 @@ function DetailDrawer({
                         marginBottom: 6,
                       }}
                     >
-                      <span style={{ color: "#4b5563" }}>
-                        <Ic d={f.icon} size={11} />
-                      </span>
+                      <Ic d={f.icon} size={11} color="#94a3b8" />
                       <span
                         style={{
                           fontSize: 9,
                           fontWeight: 700,
                           letterSpacing: "0.12em",
                           textTransform: "uppercase",
-                          color: "#4b5563",
+                          color: "#94a3b8",
                         }}
                       >
                         {f.label}
@@ -466,7 +489,7 @@ function DetailDrawer({
                     <p
                       style={{
                         fontSize: 12,
-                        color: "rgba(255,255,255,0.75)",
+                        color: "#1e1f3b",
                         fontWeight: 500,
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -482,15 +505,15 @@ function DetailDrawer({
             </div>
           )}
 
-          {/* Message tab */}
+          {/* Message */}
           {activeSection === "message" && (
             <div style={{ animation: "slideIn 0.25s ease both" }}>
               <div
                 style={{
                   borderRadius: 14,
                   padding: "18px 20px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "#f8fafc",
+                  border: "1px solid #f0f2f8",
                 }}
               >
                 <div
@@ -501,36 +524,24 @@ function DetailDrawer({
                     marginBottom: 14,
                   }}
                 >
-                  <div
-                    style={{
-                      height: 1,
-                      flex: 1,
-                      background: "rgba(6,182,212,0.2)",
-                    }}
-                  />
+                  <div style={{ height: 1, flex: 1, background: sty.border }} />
                   <span
                     style={{
                       fontSize: 10,
                       fontWeight: 700,
-                      color: "#06b6d4",
+                      color: sty.text,
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
                     }}
                   >
                     Message
                   </span>
-                  <div
-                    style={{
-                      height: 1,
-                      flex: 1,
-                      background: "rgba(6,182,212,0.2)",
-                    }}
-                  />
+                  <div style={{ height: 1, flex: 1, background: sty.border }} />
                 </div>
                 <p
                   style={{
                     fontSize: 14,
-                    color: "rgba(255,255,255,0.8)",
+                    color: "#374151",
                     lineHeight: 1.75,
                     margin: 0,
                   }}
@@ -553,7 +564,7 @@ function DetailDrawer({
                     style={{
                       fontSize: 10,
                       fontWeight: 700,
-                      color: "#06b6d4",
+                      color: "#5b5ef4",
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
                     }}
@@ -568,17 +579,17 @@ function DetailDrawer({
                         alignItems: "center",
                         gap: 5,
                         fontSize: 11,
-                        color: "#4b5563",
+                        color: "#94a3b8",
                         background: "none",
                         border: "none",
                         cursor: "pointer",
                         fontFamily: "inherit",
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.color = "#22d3ee")
+                        (e.currentTarget.style.color = "#5b5ef4")
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = "#4b5563")
+                        (e.currentTarget.style.color = "#94a3b8")
                       }
                     >
                       <Ic d="M13 3l4 4-8 8H5v-4l8-8z" size={11} /> Edit
@@ -592,19 +603,7 @@ function DetailDrawer({
                       onChange={(e) => setNote(e.target.value)}
                       rows={3}
                       placeholder="Add an internal note…"
-                      style={{
-                        width: "100%",
-                        borderRadius: 10,
-                        border: "1px solid rgba(6,182,212,0.3)",
-                        padding: "10px 14px",
-                        fontSize: 13,
-                        color: "rgba(255,255,255,0.85)",
-                        background: "#0D1117",
-                        outline: "none",
-                        resize: "vertical",
-                        fontFamily: "inherit",
-                        boxSizing: "border-box",
-                      }}
+                      style={inpStyle}
                     />
                     <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                       <button
@@ -616,7 +615,7 @@ function DetailDrawer({
                           padding: "7px 14px",
                           borderRadius: 8,
                           fontSize: 12,
-                          color: "#6b7280",
+                          color: "#94a3b8",
                           background: "none",
                           border: "none",
                           cursor: "pointer",
@@ -633,12 +632,13 @@ function DetailDrawer({
                           borderRadius: 8,
                           fontSize: 12,
                           fontWeight: 600,
-                          color: "#fff",
-                          background: "linear-gradient(135deg,#06b6d4,#6366f1)",
+                          color: "white",
+                          background: "#5b5ef4",
                           border: "none",
                           cursor: saving ? "not-allowed" : "pointer",
                           opacity: saving ? 0.7 : 1,
                           fontFamily: "inherit",
+                          boxShadow: "0 4px 12px rgba(91,94,244,0.25)",
                         }}
                       >
                         {saving ? "Saving…" : "Save Note"}
@@ -650,15 +650,15 @@ function DetailDrawer({
                     style={{
                       borderRadius: 10,
                       padding: "12px 16px",
-                      background: "#0D1117",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      background: "#f8fafc",
+                      border: "1px solid #f0f2f8",
                       minHeight: 48,
                     }}
                   >
                     <p
                       style={{
                         fontSize: 13,
-                        color: "#4b5563",
+                        color: "#94a3b8",
                         fontStyle: "italic",
                         margin: 0,
                       }}
@@ -671,14 +671,14 @@ function DetailDrawer({
             </div>
           )}
 
-          {/* Actions tab */}
+          {/* Actions */}
           {activeSection === "actions" && (
             <div style={{ animation: "slideIn 0.25s ease both" }}>
               <p
                 style={{
                   fontSize: 10,
                   fontWeight: 700,
-                  color: "#06b6d4",
+                  color: "#5b5ef4",
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   marginBottom: 12,
@@ -706,9 +706,9 @@ function DetailDrawer({
                         borderRadius: 10,
                         fontSize: 12,
                         fontWeight: 700,
-                        border: `2px solid ${isActive ? st.border : "rgba(255,255,255,0.07)"}`,
-                        background: isActive ? st.bg : "#0D1117",
-                        color: isActive ? st.text : "#4b5563",
+                        border: `1.5px solid ${isActive ? st.border : "#e2e8f0"}`,
+                        background: isActive ? st.bg : "#f8fafc",
+                        color: isActive ? st.text : "#94a3b8",
                         cursor: "pointer",
                         fontFamily: "inherit",
                         transition: "all 0.2s",
@@ -738,7 +738,7 @@ function DetailDrawer({
                 style={{
                   fontSize: 10,
                   fontWeight: 700,
-                  color: "#06b6d4",
+                  color: "#5b5ef4",
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   marginBottom: 12,
@@ -755,10 +755,9 @@ function DetailDrawer({
                     gap: 12,
                     padding: "13px 16px",
                     borderRadius: 12,
-                    background:
-                      "linear-gradient(135deg, rgba(6,182,212,0.12), rgba(99,102,241,0.12))",
-                    border: "1px solid rgba(6,182,212,0.2)",
-                    color: "#22d3ee",
+                    background: "#eff0fe",
+                    border: "1px solid #c7d2fe",
+                    color: "#5b5ef4",
                     textDecoration: "none",
                     fontSize: 13,
                     fontWeight: 600,
@@ -772,12 +771,11 @@ function DetailDrawer({
                   <Ic d={["M2 4h16v12H2z", "M2 4l8 7 8-7"]} size={16} />
                   Reply via Email
                   <span
-                    style={{ marginLeft: "auto", fontSize: 11, opacity: 0.6 }}
+                    style={{ marginLeft: "auto", fontSize: 11, opacity: 0.5 }}
                   >
                     →
                   </span>
                 </a>
-
                 <button
                   onClick={() => onDelete(contact._id)}
                   style={{
@@ -786,9 +784,9 @@ function DetailDrawer({
                     gap: 12,
                     padding: "13px 16px",
                     borderRadius: 12,
-                    background: "rgba(239,68,68,0.08)",
-                    border: "1px solid rgba(239,68,68,0.2)",
-                    color: "#f87171",
+                    background: "#fef2f2",
+                    border: "1px solid #fca5a5",
+                    color: "#ef4444",
                     fontSize: 13,
                     fontWeight: 600,
                     cursor: "pointer",
@@ -797,10 +795,10 @@ function DetailDrawer({
                     width: "100%",
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "rgba(239,68,68,0.16)")
+                    (e.currentTarget.style.background = "#fee2e2")
                   }
                   onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "rgba(239,68,68,0.08)")
+                    (e.currentTarget.style.background = "#fef2f2")
                   }
                 >
                   <Ic
@@ -818,11 +816,11 @@ function DetailDrawer({
         <div
           style={{
             padding: "14px 24px",
-            borderTop: "1px solid rgba(255,255,255,0.05)",
+            borderTop: "1px solid #f0f2f8",
             display: "flex",
             gap: 10,
             flexShrink: 0,
-            background: "rgba(0,0,0,0.2)",
+            background: "#fff",
           }}
         >
           <a
@@ -833,40 +831,36 @@ function DetailDrawer({
               alignItems: "center",
               justifyContent: "center",
               gap: 8,
-              padding: "11px 0",
+              padding: "12px 0",
               borderRadius: 10,
               fontSize: 13,
               fontWeight: 700,
-              color: "#fff",
+              color: "white",
               textDecoration: "none",
-              background: "linear-gradient(135deg,#06b6d4,#6366f1)",
-              boxShadow: "0 4px 14px rgba(6,182,212,0.25)",
+              background: "#5b5ef4",
+              boxShadow: "0 4px 14px rgba(91,94,244,0.3)",
             }}
           >
-            <Ic d={["M2 4h16v12H2z", "M2 4l8 7 8-7"]} size={14} />
+            <Ic d={["M2 4h16v12H2z", "M2 4l8 7 8-7"]} size={14} color="white" />
             Reply via Email
           </a>
           <button
             onClick={() => onDelete(contact._id)}
             style={{
-              width: 42,
-              height: 42,
+              width: 44,
+              height: 44,
               borderRadius: 10,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: "rgba(239,68,68,0.08)",
-              border: "1px solid rgba(239,68,68,0.2)",
-              color: "#f87171",
+              background: "#fef2f2",
+              border: "1px solid #fca5a5",
+              color: "#ef4444",
               cursor: "pointer",
               transition: "background 0.2s",
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(239,68,68,0.18)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(239,68,68,0.08)")
-            }
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#fee2e2")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#fef2f2")}
           >
             <Ic d={["M3 5h14", "M8 5V3h4v2", "M6 5l1 13h6l1-13"]} size={15} />
           </button>
@@ -876,7 +870,7 @@ function DetailDrawer({
   );
 }
 
-/* ─── CONFIRM DELETE ─────────────────────────────────────────────────────────── */
+/* ─── Confirm Delete ─────────────────────────────────────────────── */
 function ConfirmModal({ open, count, onConfirm, onClose }) {
   if (!open) return null;
   return (
@@ -889,7 +883,7 @@ function ConfirmModal({ open, count, onConfirm, onClose }) {
         alignItems: "center",
         justifyContent: "center",
         padding: 20,
-        background: "rgba(0,0,0,0.75)",
+        background: "rgba(15,15,35,0.5)",
         backdropFilter: "blur(8px)",
       }}
     >
@@ -900,10 +894,11 @@ function ConfirmModal({ open, count, onConfirm, onClose }) {
           width: "100%",
           maxWidth: 360,
           textAlign: "center",
-          background: "#0d1420",
-          border: "1px solid rgba(239,68,68,0.2)",
+          background: "#fff",
+          border: "1px solid #fca5a5",
           animation: "popIn .3s cubic-bezier(.34,1.56,.64,1) both",
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'DM Sans',sans-serif",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.15)",
         }}
       >
         <div
@@ -911,12 +906,13 @@ function ConfirmModal({ open, count, onConfirm, onClose }) {
             width: 54,
             height: 54,
             borderRadius: 14,
-            background: "rgba(239,68,68,0.1)",
+            background: "#fef2f2",
+            border: "1px solid #fca5a5",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto 16px",
-            color: "#f87171",
+            color: "#ef4444",
           }}
         >
           <Ic
@@ -929,9 +925,9 @@ function ConfirmModal({ open, count, onConfirm, onClose }) {
           style={{
             fontSize: 18,
             fontWeight: 800,
-            color: "#fff",
+            color: "#1e1f3b",
             margin: "0 0 8px",
-            fontFamily: "'Syne', sans-serif",
+            fontFamily: "'Sora',sans-serif",
           }}
         >
           Delete {count > 1 ? `${count} Messages` : "Message"}?
@@ -939,7 +935,7 @@ function ConfirmModal({ open, count, onConfirm, onClose }) {
         <p
           style={{
             fontSize: 13,
-            color: "#6b7280",
+            color: "#94a3b8",
             lineHeight: 1.6,
             margin: "0 0 24px",
           }}
@@ -951,13 +947,13 @@ function ConfirmModal({ open, count, onConfirm, onClose }) {
             onClick={onClose}
             style={{
               flex: 1,
-              padding: "10px 0",
+              padding: "11px 0",
               borderRadius: 10,
               fontSize: 13,
               fontWeight: 600,
-              color: "#6b7280",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              color: "#64748b",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
               cursor: "pointer",
               fontFamily: "inherit",
             }}
@@ -968,23 +964,17 @@ function ConfirmModal({ open, count, onConfirm, onClose }) {
             onClick={onConfirm}
             style={{
               flex: 1,
-              padding: "10px 0",
+              padding: "11px 0",
               borderRadius: 10,
               fontSize: 13,
               fontWeight: 700,
-              color: "#f87171",
-              background: "rgba(239,68,68,0.14)",
-              border: "1px solid rgba(239,68,68,0.28)",
+              color: "white",
+              background: "#ef4444",
+              border: "none",
               cursor: "pointer",
               fontFamily: "inherit",
-              transition: "background 0.2s",
+              boxShadow: "0 4px 12px rgba(239,68,68,0.3)",
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(239,68,68,0.24)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(239,68,68,0.14)")
-            }
           >
             Delete
           </button>
@@ -994,7 +984,7 @@ function ConfirmModal({ open, count, onConfirm, onClose }) {
   );
 }
 
-/* ─── MESSAGE CARD (mobile) ──────────────────────────────────────────────────── */
+/* ─── Message Card ───────────────────────────────────────────────── */
 function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
   const [hovered, setHovered] = useState(false);
   const isNew = msg.status.toLowerCase() === "new";
@@ -1007,18 +997,18 @@ function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
       style={{
         borderRadius: 14,
         padding: "14px 16px",
-        background: hovered
-          ? "rgba(6,182,212,0.05)"
-          : isSelected
-            ? "rgba(6,182,212,0.04)"
-            : "rgba(255,255,255,0.025)",
-        border: `1px solid ${hovered ? "rgba(6,182,212,0.25)" : isSelected ? "rgba(6,182,212,0.2)" : "rgba(255,255,255,0.06)"}`,
+        background: isSelected ? "#f5f5ff" : hovered ? "#fafbff" : "#ffffff",
+        border: `1.5px solid ${isSelected ? "#c7d2fe" : hovered ? "#e0e2fc" : "#f0f2f8"}`,
         cursor: "pointer",
         transition: "all 0.2s",
         animation: "cardIn 0.4s ease both",
         animationDelay: `${index * 50}ms`,
         position: "relative",
         overflow: "hidden",
+        boxShadow: hovered
+          ? "0 4px 16px rgba(91,94,244,0.08)"
+          : "0 1px 4px rgba(0,0,0,0.04)",
+        transform: hovered ? "translateY(-1px)" : "none",
       }}
     >
       {isNew && (
@@ -1029,11 +1019,12 @@ function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
             top: "15%",
             bottom: "15%",
             width: 3,
-            background: "#06b6d4",
+            background: "#5b5ef4",
             borderRadius: "0 3px 3px 0",
           }}
         />
       )}
+
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
         {/* Checkbox */}
         <div
@@ -1045,23 +1036,19 @@ function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
             width: 18,
             height: 18,
             borderRadius: 5,
-            border: `2px solid ${isSelected ? "#06b6d4" : "rgba(255,255,255,0.15)"}`,
-            background: isSelected ? "rgba(6,182,212,0.2)" : "transparent",
+            border: `2px solid ${isSelected ? "#5b5ef4" : "#e2e8f0"}`,
+            background: isSelected ? "#eff0fe" : "transparent",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
             marginTop: 2,
             transition: "all 0.15s",
+            cursor: "pointer",
           }}
         >
           {isSelected && (
-            <Ic
-              d="M4 10l4 4 8-8"
-              size={10}
-              sw={2.5}
-              style={{ color: "#06b6d4" }}
-            />
+            <Ic d="M4 10l4 4 8-8" size={10} sw={2.5} color="#5b5ef4" />
           )}
         </div>
 
@@ -1081,7 +1068,7 @@ function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
               style={{
                 fontSize: 14,
                 fontWeight: isNew ? 700 : 500,
-                color: isNew ? "#fff" : "rgba(255,255,255,0.7)",
+                color: isNew ? "#1e1f3b" : "#374151",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -1092,7 +1079,7 @@ function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
             <span
               style={{
                 fontSize: 11,
-                color: "#374151",
+                color: "#cbd5e1",
                 whiteSpace: "nowrap",
                 flexShrink: 0,
               }}
@@ -1103,8 +1090,8 @@ function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
           <p
             style={{
               fontSize: 12,
-              color: "#4b5563",
-              margin: "0 0 8px",
+              color: "#94a3b8",
+              margin: "0 0 6px",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -1115,7 +1102,7 @@ function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
           <p
             style={{
               fontSize: 12,
-              color: "#374151",
+              color: "#64748b",
               margin: "0 0 8px",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -1139,9 +1126,9 @@ function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
               <span
                 style={{
                   fontSize: 11,
-                  color: "#374151",
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.07)",
+                  color: "#94a3b8",
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
                   padding: "2px 8px",
                   borderRadius: 20,
                 }}
@@ -1156,7 +1143,7 @@ function MessageCard({ msg, isSelected, onSelect, onClick, index }) {
   );
 }
 
-/* ─── MAIN PAGE ──────────────────────────────────────────────────────────────── */
+/* ─── Main Page ──────────────────────────────────────────────────── */
 export default function ContactAdmin() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1169,7 +1156,7 @@ export default function ContactAdmin() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deletingIds, setDeletingIds] = useState([]);
   const [toasts, setToasts] = useState([]);
-  const [viewMode, setViewMode] = useState("cards"); // "cards" | "table"
+  const [viewMode, setViewMode] = useState("cards");
   const [searchFocus, setSearchFocus] = useState(false);
   const tid = useRef(0);
 
@@ -1321,13 +1308,13 @@ export default function ContactAdmin() {
     {
       label: "Total",
       value: stats.total,
-      color: "#06b6d4",
+      color: "#5b5ef4",
       icon: ["M2 4h16v12H2z", "M2 4l8 7 8-7"],
     },
     {
       label: "New",
       value: stats.new,
-      color: "#22d3ee",
+      color: "#0ea5e9",
       icon: "M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2",
     },
     {
@@ -1339,7 +1326,7 @@ export default function ContactAdmin() {
     {
       label: "Archived",
       value: stats.archived,
-      color: "#6b7280",
+      color: "#94a3b8",
       icon: [
         "M5 3h10a2 2 0 012 2v1H3V5a2 2 0 012-2z",
         "M3 6h14v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6z",
@@ -1350,31 +1337,32 @@ export default function ContactAdmin() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
-        ::placeholder { color: #374151; }
-        ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: #ffffff12; border-radius: 4px; }
-        @keyframes slideUp   { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes slideIn   { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
-        @keyframes cardIn    { from{opacity:0;transform:translateY(12px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
-        @keyframes spin      { to{transform:rotate(360deg)} }
-        @keyframes popIn     { from{opacity:0;transform:scale(.88)} to{opacity:1;transform:scale(1)} }
-        @keyframes toastIn   { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:translateX(0)} }
-        @keyframes pulse     { 0%,100%{opacity:1} 50%{opacity:0.5} }
-        @media (max-width: 640px) {
-          .stat-grid { grid-template-columns: repeat(2,1fr) !important; }
-          .toolbar-row { flex-direction: column !important; }
-          .filter-pills { flex-wrap: wrap !important; }
-          .table-head { display: none !important; }
+        ::placeholder { color: #cbd5e1; }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+        @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes slideIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes cardIn  { from{opacity:0;transform:translateY(12px) scale(.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+        @keyframes spin    { to{transform:rotate(360deg)} }
+        @keyframes popIn   { from{opacity:0;transform:scale(.88)} to{opacity:1;transform:scale(1)} }
+        @keyframes toastIn { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.45} }
+        input:focus { border-color: #818cf8 !important; box-shadow: 0 0 0 3px rgba(91,94,244,0.1) !important; outline: none; }
+        @media(max-width:640px) {
+          .stat-grid      { grid-template-columns: repeat(2,1fr) !important; }
+          .toolbar-row    { flex-direction: column !important; }
+          .filter-pills   { flex-wrap: wrap !important; }
+          .table-head     { display: none !important; }
         }
       `}</style>
 
       <div
         style={{
           minHeight: "100vh",
-          background: "#080d17",
-          color: "#fff",
-          fontFamily: "'DM Sans', sans-serif",
+          background: "#f3f4f8",
+          fontFamily: "'DM Sans',sans-serif",
         }}
       >
         {/* ── Header ── */}
@@ -1383,13 +1371,13 @@ export default function ContactAdmin() {
             position: "sticky",
             top: 0,
             zIndex: 30,
-            padding: "16px 20px",
+            padding: "14px 24px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "rgba(8,13,23,0.92)",
+            background: "rgba(243,244,248,0.92)",
             backdropFilter: "blur(16px)",
-            borderBottom: "1px solid rgba(255,255,255,0.05)",
+            borderBottom: "1px solid #e8eaf4",
             animation: "slideUp 0.4s ease both",
           }}
         >
@@ -1397,10 +1385,10 @@ export default function ContactAdmin() {
             <p
               style={{
                 fontSize: 11,
-                letterSpacing: "0.2em",
-                fontWeight: 600,
+                letterSpacing: "0.18em",
+                fontWeight: 700,
                 textTransform: "uppercase",
-                color: "#6366f1",
+                color: "#5b5ef4",
                 margin: 0,
               }}
             >
@@ -1408,26 +1396,29 @@ export default function ContactAdmin() {
             </p>
             <h1
               style={{
-                fontSize: 22,
+                fontSize: 26,
                 fontWeight: 800,
-                color: "#fff",
+                color: "#1e1f3b",
                 margin: 0,
-                fontFamily: "'Syne', sans-serif",
+                fontFamily: "'Sora',sans-serif",
                 letterSpacing: "-0.5px",
+                lineHeight: 1.1,
               }}
             >
-              Contact Inbox
+              Contact Inbox 💬
             </h1>
           </div>
+
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {/* View toggle */}
             <div
               style={{
                 display: "flex",
-                background: "rgba(255,255,255,0.04)",
+                background: "#ffffff",
                 borderRadius: 9,
                 padding: 3,
-                border: "1px solid rgba(255,255,255,0.07)",
+                border: "1px solid #e2e8f0",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
               }}
             >
               {[
@@ -1447,41 +1438,41 @@ export default function ContactAdmin() {
                     alignItems: "center",
                     justifyContent: "center",
                     transition: "all 0.2s",
-                    background:
-                      viewMode === mode
-                        ? "rgba(6,182,212,0.15)"
-                        : "transparent",
-                    color: viewMode === mode ? "#22d3ee" : "#4b5563",
+                    background: viewMode === mode ? "#eff0fe" : "transparent",
+                    color: viewMode === mode ? "#5b5ef4" : "#94a3b8",
                   }}
                 >
                   <Ic d={d} size={13} />
                 </button>
               ))}
             </div>
+
             {/* Refresh */}
             <button
               onClick={fetchContacts}
               style={{
-                width: 34,
-                height: 34,
+                width: 36,
+                height: 36,
                 borderRadius: 9,
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.07)",
+                background: "#ffffff",
+                border: "1px solid #e2e8f0",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                color: "#6b7280",
+                color: "#94a3b8",
                 transition: "color 0.2s",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#22d3ee")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#6b7280")}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#5b5ef4")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#94a3b8")}
             >
               <Ic
                 d="M4 4a8 8 0 0112 0M16 16a8 8 0 01-12 0M18 10h-4M6 10H2"
                 size={14}
               />
             </button>
+
             {stats.new > 0 && (
               <div
                 style={{
@@ -1490,8 +1481,8 @@ export default function ContactAdmin() {
                   gap: 6,
                   padding: "6px 12px",
                   borderRadius: 10,
-                  background: "rgba(6,182,212,0.1)",
-                  border: "1px solid rgba(6,182,212,0.25)",
+                  background: "#eff9fe",
+                  border: "1px solid #bae6fd",
                   animation: "slideUp 0.4s ease 0.1s both",
                 }}
               >
@@ -1500,13 +1491,12 @@ export default function ContactAdmin() {
                     width: 7,
                     height: 7,
                     borderRadius: "50%",
-                    background: "#06b6d4",
-                    boxShadow: "0 0 6px #06b6d4",
+                    background: "#0ea5e9",
                     animation: "pulse 2s infinite",
                   }}
                 />
                 <span
-                  style={{ fontSize: 12, fontWeight: 700, color: "#22d3ee" }}
+                  style={{ fontSize: 12, fontWeight: 700, color: "#0284c7" }}
                 >
                   {stats.new} new
                 </span>
@@ -1515,17 +1505,17 @@ export default function ContactAdmin() {
           </div>
         </div>
 
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 20px" }}>
-          {/* Error */}
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 24px" }}>
+          {/* Error banner */}
           {fetchErr && (
             <div
               style={{
                 marginBottom: 20,
                 padding: "14px 18px",
                 borderRadius: 14,
-                background: "rgba(239,68,68,0.08)",
-                border: "1px solid rgba(239,68,68,0.2)",
-                color: "#f87171",
+                background: "#fef2f2",
+                border: "1px solid #fca5a5",
+                color: "#dc2626",
                 fontSize: 13,
                 display: "flex",
                 alignItems: "center",
@@ -1542,7 +1532,7 @@ export default function ContactAdmin() {
                 style={{
                   marginLeft: "auto",
                   fontSize: 12,
-                  color: "#f87171",
+                  color: "#dc2626",
                   background: "none",
                   border: "none",
                   cursor: "pointer",
@@ -1563,15 +1553,15 @@ export default function ContactAdmin() {
                 justifyContent: "center",
                 padding: "100px 0",
                 gap: 16,
-                color: "#374151",
+                color: "#94a3b8",
               }}
             >
               <div
                 style={{
                   width: 36,
                   height: 36,
-                  border: "3px solid rgba(6,182,212,0.2)",
-                  borderTopColor: "#06b6d4",
+                  border: "3px solid #e2e8f0",
+                  borderTopColor: "#5b5ef4",
                   borderRadius: "50%",
                   animation: "spin 0.8s linear infinite",
                 }}
@@ -1580,7 +1570,7 @@ export default function ContactAdmin() {
             </div>
           ) : (
             <>
-              {/* ── KPI Grid ── */}
+              {/* ── Stat Cards ── */}
               <div
                 className="stat-grid"
                 style={{
@@ -1596,32 +1586,35 @@ export default function ContactAdmin() {
                     style={{
                       borderRadius: 14,
                       padding: "16px 18px",
-                      background: "rgba(255,255,255,0.025)",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      background: "#ffffff",
+                      border: "1px solid #f0f2f8",
                       display: "flex",
                       alignItems: "center",
                       gap: 12,
                       animation: "slideUp 0.5s ease both",
                       animationDelay: `${i * 60}ms`,
-                      transition: "transform 0.2s, border-color 0.2s",
+                      transition: "transform 0.2s, box-shadow 0.2s",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
                       cursor: "default",
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = "translateY(-2px)";
-                      e.currentTarget.style.borderColor = `${s.color}30`;
+                      e.currentTarget.style.boxShadow =
+                        "0 8px 24px rgba(0,0,0,0.08)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = "";
-                      e.currentTarget.style.borderColor =
-                        "rgba(255,255,255,0.06)";
+                      e.currentTarget.style.boxShadow =
+                        "0 1px 4px rgba(0,0,0,0.05)";
                     }}
                   >
                     <div
                       style={{
-                        width: 40,
-                        height: 40,
+                        width: 42,
+                        height: 42,
                         borderRadius: 11,
                         background: `${s.color}18`,
+                        border: `1px solid ${s.color}28`,
                         color: s.color,
                         display: "flex",
                         alignItems: "center",
@@ -1637,14 +1630,14 @@ export default function ContactAdmin() {
                           fontSize: 24,
                           fontWeight: 800,
                           color: s.color,
-                          fontFamily: "'Syne', sans-serif",
+                          fontFamily: "'Sora',sans-serif",
                           lineHeight: 1,
                         }}
                       >
                         {s.value}
                       </div>
                       <div
-                        style={{ fontSize: 11, color: "#4b5563", marginTop: 3 }}
+                        style={{ fontSize: 11, color: "#94a3b8", marginTop: 3 }}
                       >
                         {s.label}
                       </div>
@@ -1671,7 +1664,7 @@ export default function ContactAdmin() {
                       left: 12,
                       top: "50%",
                       transform: "translateY(-50%)",
-                      color: "#374151",
+                      color: "#cbd5e1",
                     }}
                   >
                     <Ic
@@ -1692,17 +1685,17 @@ export default function ContactAdmin() {
                       paddingTop: 9,
                       paddingBottom: 9,
                       borderRadius: 10,
-                      border: `1px solid ${searchFocus ? "rgba(6,182,212,0.4)" : "rgba(255,255,255,0.08)"}`,
-                      background: "rgba(255,255,255,0.04)",
-                      color: "#fff",
+                      border: `1.5px solid ${searchFocus ? "#818cf8" : "#e2e8f0"}`,
+                      background: "#ffffff",
+                      color: "#1e1f3b",
                       fontSize: 13,
                       outline: "none",
                       fontFamily: "inherit",
                       boxSizing: "border-box",
-                      transition: "border-color 0.2s",
+                      transition: "border-color 0.2s, box-shadow 0.2s",
                       boxShadow: searchFocus
-                        ? "0 0 0 3px rgba(6,182,212,0.08)"
-                        : "none",
+                        ? "0 0 0 3px rgba(91,94,244,0.1)"
+                        : "0 1px 3px rgba(0,0,0,0.05)",
                     }}
                   />
                 </div>
@@ -1724,15 +1717,18 @@ export default function ContactAdmin() {
                           borderRadius: 20,
                           fontSize: 12,
                           fontWeight: 600,
-                          border: `1px solid ${isActive ? st?.border || "rgba(6,182,212,0.3)" : "rgba(255,255,255,0.07)"}`,
+                          border: `1.5px solid ${isActive ? st?.border || "#c7d2fe" : "#e2e8f0"}`,
                           background: isActive
-                            ? st?.bg || "rgba(6,182,212,0.1)"
-                            : "rgba(255,255,255,0.03)",
-                          color: isActive ? st?.text || "#22d3ee" : "#4b5563",
+                            ? st?.bg || "#eff0fe"
+                            : "#ffffff",
+                          color: isActive ? st?.text || "#5b5ef4" : "#94a3b8",
                           cursor: "pointer",
                           fontFamily: "inherit",
                           transition: "all 0.18s",
                           whiteSpace: "nowrap",
+                          boxShadow: isActive
+                            ? "0 2px 8px rgba(0,0,0,0.06)"
+                            : "none",
                         }}
                       >
                         {tab}
@@ -1741,7 +1737,7 @@ export default function ContactAdmin() {
                             style={{
                               marginLeft: 5,
                               fontSize: 10,
-                              opacity: 0.7,
+                              opacity: 0.65,
                             }}
                           >
                             {
@@ -1769,9 +1765,9 @@ export default function ContactAdmin() {
                       borderRadius: 10,
                       fontSize: 12,
                       fontWeight: 700,
-                      background: "rgba(239,68,68,0.1)",
-                      color: "#f87171",
-                      border: "1px solid rgba(239,68,68,0.22)",
+                      background: "#fef2f2",
+                      color: "#ef4444",
+                      border: "1px solid #fca5a5",
                       cursor: "pointer",
                       fontFamily: "inherit",
                       animation: "slideUp 0.2s ease both",
@@ -1787,7 +1783,7 @@ export default function ContactAdmin() {
                 )}
               </div>
 
-              {/* Count */}
+              {/* Count row */}
               <div
                 style={{
                   display: "flex",
@@ -1796,8 +1792,8 @@ export default function ContactAdmin() {
                   marginBottom: 12,
                 }}
               >
-                <p style={{ fontSize: 12, color: "#374151", margin: 0 }}>
-                  <span style={{ color: "#fff", fontWeight: 600 }}>
+                <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
+                  <span style={{ color: "#1e1f3b", fontWeight: 600 }}>
                     {filtered.length}
                   </span>{" "}
                   messages
@@ -1810,13 +1806,14 @@ export default function ContactAdmin() {
                     }}
                     style={{
                       fontSize: 11,
-                      color: "#22d3ee",
+                      color: "#5b5ef4",
                       background: "none",
                       border: "none",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       gap: 4,
+                      fontFamily: "inherit",
                     }}
                   >
                     <Ic d="M5 5l10 10M15 5L5 15" size={11} /> Clear
@@ -1824,7 +1821,7 @@ export default function ContactAdmin() {
                 )}
               </div>
 
-              {/* ── Cards / Table ── */}
+              {/* ── Content ── */}
               {filtered.length === 0 ? (
                 <div
                   style={{
@@ -1833,8 +1830,8 @@ export default function ContactAdmin() {
                     alignItems: "center",
                     justifyContent: "center",
                     padding: "72px 20px",
-                    background: "rgba(255,255,255,0.02)",
-                    border: "1.5px dashed rgba(255,255,255,0.07)",
+                    background: "#ffffff",
+                    border: "1.5px dashed #e2e8f0",
                     borderRadius: 16,
                     textAlign: "center",
                     animation: "slideUp 0.4s ease both",
@@ -1843,9 +1840,9 @@ export default function ContactAdmin() {
                   <Ic
                     d={["M2 4h16v12H2z", "M2 4l8 7 8-7"]}
                     size={40}
-                    style={{ color: "#1f2937", marginBottom: 12 }}
+                    style={{ color: "#e2e8f0", marginBottom: 12 }}
                   />
-                  <p style={{ fontSize: 14, color: "#374151", margin: 0 }}>
+                  <p style={{ fontSize: 14, color: "#94a3b8", margin: 0 }}>
                     No messages match your filters
                   </p>
                 </div>
@@ -1870,8 +1867,9 @@ export default function ContactAdmin() {
                   style={{
                     borderRadius: 14,
                     overflow: "hidden",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                    background: "rgba(255,255,255,0.018)",
+                    border: "1px solid #f0f2f8",
+                    background: "#ffffff",
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
                   }}
                 >
                   <div
@@ -1881,7 +1879,8 @@ export default function ContactAdmin() {
                       gridTemplateColumns: "2rem 2fr 1.5fr 1fr 1fr 6rem",
                       alignItems: "center",
                       padding: "12px 18px",
-                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      borderBottom: "1px solid #f0f2f8",
+                      background: "#f8fafc",
                     }}
                   >
                     <button
@@ -1890,11 +1889,11 @@ export default function ContactAdmin() {
                         width: 18,
                         height: 18,
                         borderRadius: 5,
-                        border: `2px solid ${selected.length === filtered.length && filtered.length > 0 ? "#06b6d4" : "rgba(255,255,255,0.12)"}`,
+                        border: `2px solid ${selected.length === filtered.length && filtered.length > 0 ? "#5b5ef4" : "#e2e8f0"}`,
                         background:
                           selected.length === filtered.length &&
                           filtered.length > 0
-                            ? "rgba(6,182,212,0.2)"
+                            ? "#eff0fe"
                             : "transparent",
                         display: "flex",
                         alignItems: "center",
@@ -1908,7 +1907,7 @@ export default function ContactAdmin() {
                             d="M4 10l4 4 8-8"
                             size={10}
                             sw={2.5}
-                            style={{ color: "#06b6d4" }}
+                            color="#5b5ef4"
                           />
                         )}
                     </button>
@@ -1921,7 +1920,7 @@ export default function ContactAdmin() {
                             fontWeight: 700,
                             textTransform: "uppercase",
                             letterSpacing: "0.1em",
-                            color: "#374151",
+                            color: "#94a3b8",
                             margin: 0,
                           }}
                         >
@@ -1930,6 +1929,7 @@ export default function ContactAdmin() {
                       ),
                     )}
                   </div>
+
                   {filtered.map((msg, i) => {
                     const isNew = msg.status.toLowerCase() === "new";
                     const isSel = selected.includes(msg._id);
@@ -1941,23 +1941,20 @@ export default function ContactAdmin() {
                           display: "grid",
                           gridTemplateColumns: "2rem 2fr 1.5fr 1fr 1fr 6rem",
                           alignItems: "center",
-                          padding: "14px 18px",
-                          borderBottom: "1px solid rgba(255,255,255,0.04)",
-                          background: isSel
-                            ? "rgba(6,182,212,0.04)"
-                            : "transparent",
+                          padding: "13px 18px",
+                          borderBottom: "1px solid #f8fafc",
+                          background: isSel ? "#f5f5ff" : "transparent",
                           cursor: "pointer",
                           transition: "background 0.15s",
                           animation: "cardIn 0.35s ease both",
                           animationDelay: `${i * 35}ms`,
                         }}
                         onMouseEnter={(e) =>
-                          (e.currentTarget.style.background =
-                            "rgba(255,255,255,0.025)")
+                          (e.currentTarget.style.background = "#fafbff")
                         }
                         onMouseLeave={(e) =>
                           (e.currentTarget.style.background = isSel
-                            ? "rgba(6,182,212,0.04)"
+                            ? "#f5f5ff"
                             : "transparent")
                         }
                       >
@@ -1970,13 +1967,12 @@ export default function ContactAdmin() {
                             width: 18,
                             height: 18,
                             borderRadius: 5,
-                            border: `2px solid ${isSel ? "#06b6d4" : "rgba(255,255,255,0.1)"}`,
-                            background: isSel
-                              ? "rgba(6,182,212,0.2)"
-                              : "transparent",
+                            border: `2px solid ${isSel ? "#5b5ef4" : "#e2e8f0"}`,
+                            background: isSel ? "#eff0fe" : "transparent",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
+                            cursor: "pointer",
                           }}
                         >
                           {isSel && (
@@ -1984,76 +1980,68 @@ export default function ContactAdmin() {
                               d="M4 10l4 4 8-8"
                               size={10}
                               sw={2.5}
-                              style={{ color: "#06b6d4" }}
+                              color="#5b5ef4"
                             />
                           )}
                         </div>
-                        <div style={{ minWidth: 0, paddingRight: 12 }}>
-                          <p
-                            style={{
-                              fontSize: 13,
-                              fontWeight: isNew ? 700 : 500,
-                              color: isNew ? "#fff" : "rgba(255,255,255,0.65)",
-                              margin: 0,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {isNew && (
-                              <span
-                                style={{
-                                  display: "inline-block",
-                                  width: 6,
-                                  height: 6,
-                                  borderRadius: "50%",
-                                  background: "#06b6d4",
-                                  marginRight: 6,
-                                  verticalAlign: "middle",
-                                }}
-                              />
-                            )}
-                            {msg.name}
-                          </p>
-                          <p
-                            style={{
-                              fontSize: 11,
-                              color: "#374151",
-                              margin: "2px 0 0",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {msg.email}
-                          </p>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            minWidth: 0,
+                          }}
+                        >
+                          <Avatar name={msg.name} size={30} />
+                          <div style={{ minWidth: 0 }}>
+                            <p
+                              style={{
+                                fontSize: 13,
+                                fontWeight: isNew ? 700 : 500,
+                                color: "#1e1f3b",
+                                margin: 0,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {msg.name}
+                            </p>
+                            <p
+                              style={{
+                                fontSize: 11,
+                                color: "#94a3b8",
+                                margin: 0,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {msg.email}
+                            </p>
+                          </div>
                         </div>
                         <p
                           style={{
                             fontSize: 12,
-                            color: "rgba(255,255,255,0.5)",
+                            color: "#64748b",
                             margin: 0,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
-                            paddingRight: 8,
                           }}
                         >
                           {msg.company || "—"}
                         </p>
                         <p
-                          style={{ fontSize: 12, color: "#4b5563", margin: 0 }}
+                          style={{ fontSize: 12, color: "#64748b", margin: 0 }}
                         >
                           {msg.country || "—"}
                         </p>
                         <StatusBadge status={msg.status} />
                         <p
-                          style={{
-                            fontSize: 11,
-                            color: "#374151",
-                            margin: 0,
-                            textAlign: "right",
-                          }}
+                          style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}
                         >
                           {fmt(msg.createdAt)}
                         </p>
@@ -2062,17 +2050,6 @@ export default function ContactAdmin() {
                   })}
                 </div>
               )}
-
-              <p
-                style={{
-                  fontSize: 11,
-                  color: "#1f2937",
-                  textAlign: "center",
-                  marginTop: 16,
-                }}
-              >
-                {filtered.length} of {messages.length} messages
-              </p>
             </>
           )}
         </div>
@@ -2084,16 +2061,16 @@ export default function ContactAdmin() {
         onClose={() => setDrawerOpen(false)}
         onStatusChange={handleStatusChange}
         onNoteChange={handleNoteChange}
-        onDelete={(id) => triggerDelete([id])}
+        onDelete={(id) => {
+          triggerDelete([id]);
+          setDrawerOpen(false);
+        }}
       />
       <ConfirmModal
         open={confirmOpen}
         count={deletingIds.length}
         onConfirm={confirmDelete}
-        onClose={() => {
-          setConfirmOpen(false);
-          setDeletingIds([]);
-        }}
+        onClose={() => setConfirmOpen(false)}
       />
       <Toast items={toasts} />
     </>

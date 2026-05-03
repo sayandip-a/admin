@@ -1,28 +1,27 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
 const API = "https://accelia-backend.onrender.com/api/solutions";
 const getToken = () => localStorage.getItem("token");
-
-/* ─── FONTS ── */
 const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');`;
-
-// ── THEME: base #0D1117 (GitHub-dark-inspired deep navy) ──────────────────
 const T = {
-  bg: "#0d1117", // page base
-  bg2: "#111720", // card / panel surface
-  bg3: "#161e2d", // input / raised surface
-  bg4: "#1b2538", // hover / active surface
-  accent: "#4f9cf9", // blue accent (unchanged — good contrast on dark)
-  accent2: "#7c6af7", // purple accent
-  green: "#22d3a0",
+  bg: "#f5f7fb",
+  bg2: "#ffffff",
+  bg3: "#f1f4f9",
+  bg4: "#e9eef6",
+
+  accent: "#6c63ff",
+  accent2: "#8b7dff",
+
+  green: "#22c55e",
   amber: "#f59e0b",
-  rose: "#f43f5e",
-  text1: "#e8edf5", // primary text
-  text2: "#8b99b5", // secondary / label text  (slightly lighter than before)
-  text3: "#3d4f6e", // muted / placeholder
-  border: "rgba(79,156,249,0.08)",
-  border2: "rgba(79,156,249,0.16)",
+  rose: "#ef4444",
+
+  text1: "#0f172a",
+  text2: "#64748b",
+  text3: "#94a3b8",
+
+  border: "#e2e8f0",
+  border2: "#cbd5e1",
 };
 
 const STATUS_META = {
@@ -1226,15 +1225,6 @@ export default function Solutions() {
                 marginBottom: 6,
               }}
             >
-              <div
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: T.accent,
-                  boxShadow: `0 0 0 3px rgba(79,156,249,0.18)`,
-                }}
-              />
               <span
                 style={{
                   fontSize: 11,
@@ -1243,9 +1233,7 @@ export default function Solutions() {
                   textTransform: "uppercase",
                   fontWeight: 500,
                 }}
-              >
-                Manage Your Solutions
-              </span>
+              ></span>
             </div>
             <h1
               style={{
@@ -1257,7 +1245,7 @@ export default function Solutions() {
                 margin: 0,
               }}
             >
-              Solutions
+              Manage Your Solutions😎
             </h1>
           </div>
           <button

@@ -2,98 +2,80 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hook/useAuth";
 
-const stars = Array.from({ length: 60 }, (_, i) => ({
-  id: i,
-  top: `${((Math.sin(i * 97.3) * 0.5 + 0.5) * 100).toFixed(2)}%`,
-  left: `${((Math.cos(i * 61.7) * 0.5 + 0.5) * 100).toFixed(2)}%`,
-  size: i % 4 === 0 ? 2.5 : i % 3 === 0 ? 2 : 1.5,
-  opacity: 0.08 + (i % 6) * 0.04,
-}));
-
-function Stars() {
+// Diagonal geometric lines for left panel background
+function GeometricLines() {
   return (
-    <div
+    <svg
       style={{
         position: "absolute",
         inset: 0,
-        overflow: "hidden",
+        width: "100%",
+        height: "100%",
         pointerEvents: "none",
+        opacity: 0.18,
       }}
+      viewBox="0 0 600 800"
+      preserveAspectRatio="xMidYMid slice"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      {stars.map((s) => (
-        <div
-          key={s.id}
-          style={{
-            position: "absolute",
-            borderRadius: "50%",
-            background: "#fff",
-            top: s.top,
-            left: s.left,
-            width: s.size,
-            height: s.size,
-            opacity: s.opacity,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function StatCard({ icon, title, subtitle, delay }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 14,
-        borderRadius: 14,
-        padding: "13px 16px",
-        background: "rgba(255,255,255,0.05)",
-        border: "1px solid rgba(255,255,255,0.09)",
-        animation: `fadeUp 0.5s ease both`,
-        animationDelay: `${delay}ms`,
-      }}
-    >
-      <div
-        style={{
-          flexShrink: 0,
-          borderRadius: 10,
-          width: 36,
-          height: 36,
-          background: "rgba(139,92,246,0.18)",
-          border: "1px solid rgba(139,92,246,0.25)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 16,
-        }}
-      >
-        {icon}
-      </div>
-      <div>
-        <p
-          style={{
-            color: "#e2e8f0",
-            fontWeight: 600,
-            fontSize: 13,
-            lineHeight: 1.3,
-            margin: 0,
-          }}
-        >
-          {title}
-        </p>
-        <p
-          style={{
-            color: "rgba(148,163,184,0.7)",
-            fontSize: 12,
-            lineHeight: 1.3,
-            margin: 0,
-          }}
-        >
-          {subtitle}
-        </p>
-      </div>
-    </div>
+      {/* Large diagonal rectangles (outlines) */}
+      <rect
+        x="60"
+        y="-80"
+        width="320"
+        height="420"
+        rx="18"
+        fill="none"
+        stroke="white"
+        strokeWidth="1.5"
+        transform="rotate(-15 200 200)"
+      />
+      <rect
+        x="180"
+        y="80"
+        width="280"
+        height="380"
+        rx="18"
+        fill="none"
+        stroke="white"
+        strokeWidth="1.2"
+        transform="rotate(-15 300 280)"
+      />
+      <rect
+        x="-40"
+        y="300"
+        width="260"
+        height="340"
+        rx="18"
+        fill="none"
+        stroke="white"
+        strokeWidth="1"
+        transform="rotate(-15 100 450)"
+      />
+      <rect
+        x="300"
+        y="400"
+        width="240"
+        height="320"
+        rx="18"
+        fill="none"
+        stroke="white"
+        strokeWidth="0.9"
+        transform="rotate(-15 420 560)"
+      />
+      {/* Extra subtle lines */}
+      <rect
+        x="120"
+        y="500"
+        width="300"
+        height="360"
+        rx="18"
+        fill="none"
+        stroke="white"
+        strokeWidth="0.7"
+        transform="rotate(-15 270 680)"
+      />
+    </svg>
   );
 }
 
@@ -147,394 +129,354 @@ export default function LoginPage() {
     }
   };
 
-  const inputBase = {
-    width: "100%",
-    padding: "13px 16px 13px 44px",
-    fontSize: 14,
-    border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: 12,
-    background: "rgba(255,255,255,0.05)",
-    color: "#e2e8f0",
-    outline: "none",
-    transition: "all 0.2s",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
-  };
-
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; }
-        input::placeholder { color: rgba(148,163,184,0.5) !important; }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
+        html, body { height: 100%; }
+        body { font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+        #root { min-height: 100%; }
+
+        @keyframes fadeInLeft {
+          from { opacity: 0; transform: translateX(-40px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeInRight {
+          from { opacity: 0; transform: translateX(40px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.85); }
+          to   { opacity: 1; transform: scale(1); }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; box-shadow: 0 0 8px #8b5cf6, 0 0 20px rgba(139,92,246,0.4); }
-          50% { opacity: 0.7; box-shadow: 0 0 4px #8b5cf6, 0 0 10px rgba(139,92,246,0.2); }
+        @keyframes waveHand {
+          0%,100% { transform: rotate(0deg); transform-origin: 70% 70%; }
+          15%      { transform: rotate(14deg); transform-origin: 70% 70%; }
+          30%      { transform: rotate(-8deg); transform-origin: 70% 70%; }
+          45%      { transform: rotate(14deg); transform-origin: 70% 70%; }
+          60%      { transform: rotate(-4deg); transform-origin: 70% 70%; }
+          75%      { transform: rotate(10deg); transform-origin: 70% 70%; }
         }
-        @keyframes shimmer {
-          0% { background-position: -200% center; }
+        @keyframes float {
+          0%,100% { transform: translateY(0px) rotate(0deg); }
+          33%      { transform: translateY(-10px) rotate(3deg); }
+          66%      { transform: translateY(-5px) rotate(-2deg); }
+        }
+        @keyframes rotateLines {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes shimmerBtn {
+          0%   { background-position: -200% center; }
           100% { background-position: 200% center; }
         }
-        .login-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(139,92,246,0.45) !important; }
+        @keyframes inputSlideIn {
+          from { opacity: 0; transform: translateX(-16px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes underlineGrow {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
+        }
+        @keyframes badgePop {
+          0%   { opacity: 0; transform: scale(0.7) translateY(10px); }
+          70%  { transform: scale(1.05) translateY(-2px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes glowPulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(59,72,212,0.0); }
+          50%      { box-shadow: 0 0 24px 6px rgba(59,72,212,0.18); }
+        }
+
+        .wave-emoji { display: inline-block; animation: waveHand 2.2s ease-in-out 0.8s 2; }
+
+        .login-input {
+          width: 100%;
+          padding: 14px 16px 14px 0;
+          font-size: 15px;
+          font-family: 'DM Sans', sans-serif;
+          border: none;
+          border-bottom: 2px solid #e5e7eb;
+          border-radius: 0;
+          background: transparent;
+          color: #111827;
+          outline: none;
+          transition: border-color 0.25s ease;
+        }
+        .login-input::placeholder { color: #c4c8d4; }
+
+        .input-wrap { position: relative; }
+        .input-underline {
+          position: absolute;
+          bottom: 0; left: 0;
+          height: 2px;
+          width: 100%;
+          background: #3b48d4;
+          transform: scaleX(0);
+          transform-origin: left center;
+          transition: transform 0.3s cubic-bezier(.22,1,.36,1);
+        }
+        .input-focused .input-underline { transform: scaleX(1); }
+
+        .login-btn {
+          width: 100%;
+          padding: 16px 24px;
+          border-radius: 8px;
+          border: none;
+          background: linear-gradient(90deg, #111827 0%, #1a2ab8 50%, #111827 100%);
+          background-size: 200% auto;
+          color: #fff;
+          font-weight: 700;
+          font-size: 15px;
+          font-family: 'DM Sans', sans-serif;
+          cursor: pointer;
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
+          letter-spacing: 0.02em;
+          animation: glowPulse 3s ease-in-out infinite;
+        }
+        .login-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 28px rgba(59,72,212,0.35);
+          animation: shimmerBtn 1.4s linear infinite, glowPulse 3s ease-in-out infinite;
+        }
         .login-btn:active:not(:disabled) { transform: translateY(0); }
-        .stat-card:hover { background: rgba(139,92,246,0.08) !important; border-color: rgba(139,92,246,0.2) !important; }
+        .login-btn:disabled { opacity: 0.65; cursor: not-allowed; animation: none; }
+
+        .left-panel { animation: fadeInLeft 0.8s cubic-bezier(.22,1,.36,1) both; }
+        .right-panel { animation: fadeInRight 0.8s cubic-bezier(.22,1,.36,1) 0.1s both; }
+
+        .logo-anim  { animation: fadeInDown 0.6s cubic-bezier(.22,1,.36,1) 0.2s both; }
+        .hero-anim  { animation: fadeInUp   0.7s cubic-bezier(.22,1,.36,1) 0.35s both; }
+        .desc-anim  { animation: fadeInUp   0.7s cubic-bezier(.22,1,.36,1) 0.5s both; }
+        .foot-anim  { animation: fadeInUp   0.6s cubic-bezier(.22,1,.36,1) 0.65s both; }
+
+        .brand-anim   { animation: fadeInDown 0.5s ease 0.2s both; }
+        .title-anim   { animation: scaleIn   0.55s cubic-bezier(.22,1,.36,1) 0.3s both; }
+        .sub-anim     { animation: fadeInUp  0.5s ease 0.42s both; }
+        .field1-anim  { animation: inputSlideIn 0.5s cubic-bezier(.22,1,.36,1) 0.52s both; }
+        .field2-anim  { animation: inputSlideIn 0.5s cubic-bezier(.22,1,.36,1) 0.62s both; }
+        .btn-anim     { animation: fadeInUp  0.5s cubic-bezier(.22,1,.36,1) 0.72s both; }
+        .foot2-anim   { animation: badgePop  0.5s cubic-bezier(.22,1,.36,1) 0.85s both; }
+
+        .asterisk-icon { animation: float 4s ease-in-out infinite; }
+
+        .trust-badge {
+          display: inline-flex; align-items: center; gap: 5px;
+          background: rgba(59,72,212,0.08);
+          border: 1px solid rgba(59,72,212,0.15);
+          border-radius: 20px;
+          padding: 5px 12px;
+          font-size: 11px;
+          color: #3b48d4;
+          font-weight: 600;
+          letter-spacing: 0.04em;
+          animation: badgePop 0.5s cubic-bezier(.22,1,.36,1) both;
+        }
+        .trust-badge:nth-child(2) { animation-delay: 0.95s; }
+        .trust-badge:nth-child(3) { animation-delay: 1.05s; }
+
+        .forgot-link {
+          color: #3b48d4; font-size: 13px; font-weight: 500;
+          text-decoration: underline; background: none; border: none;
+          cursor: pointer; font-family: 'DM Sans', sans-serif;
+          transition: color 0.15s;
+        }
+        .forgot-link:hover { color: #2130a8; }
+        .create-link { color: #3b48d4; font-size: 13px; text-decoration: underline; cursor: pointer; transition: color 0.15s; }
+        .create-link:hover { color: #2130a8; }
       `}</style>
 
+      {/* Outer wrapper: scrollable on mobile, fixed row on desktop */}
       <div
         style={{
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
           minHeight: "100vh",
           width: "100%",
-          fontFamily: "'Inter', sans-serif",
-          background: "#0f1117",
-          overflow: isMobile ? "auto" : "hidden",
+          fontFamily: "'DM Sans', sans-serif",
+          background: "#fff",
+          /* KEY FIX: let the page scroll naturally on mobile */
+          overflowY: isMobile ? "auto" : "hidden",
+          overflowX: "hidden",
         }}
       >
         {/* ── LEFT PANEL ── */}
-        {(!isMobile || true) && (
+        <div
+          className="left-panel"
+          style={{
+            flex: isMobile ? "none" : "0 0 58%",
+            background:
+              "linear-gradient(150deg, #4756e8 0%, #3040d8 35%, #1a2ab8 100%)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            padding: isMobile ? "40px 28px 36px" : "56px 64px",
+            position: "relative",
+            overflow: "hidden",
+            /* On mobile, let it shrink to content; no fixed minHeight that fights scroll */
+            minHeight: isMobile ? "auto" : "100vh",
+            height: isMobile ? "auto" : "100vh",
+          }}
+        >
+          <GeometricLines />
+
+          {/* Logo */}
           <div
-            style={{
-              flex: isMobile ? "none" : 1,
-              background: "#0d1117",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: isMobile ? "flex-start" : "space-between",
-              padding: isMobile ? "32px 24px 28px" : "48px 52px",
-              position: "relative",
-              overflow: "hidden",
-              borderRight: isMobile
-                ? "none"
-                : "1px solid rgba(255,255,255,0.06)",
-              borderBottom: isMobile
-                ? "1px solid rgba(255,255,255,0.06)"
-                : "none",
-              gap: isMobile ? 32 : 0,
-              borderRight: isMobile ? "none" : "none",
-            }}
+            className="logo-anim"
+            style={{ position: "relative", zIndex: 1 }}
           >
-            {/* BG glow */}
-            <div
-              style={{
-                position: "absolute",
-                top: "15%",
-                left: "-10%",
-                width: 500,
-                height: 500,
-                borderRadius: "50%",
-                background:
-                  "radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 65%)",
-                pointerEvents: "none",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: "10%",
-                right: "5%",
-                width: 300,
-                height: 300,
-                borderRadius: "50%",
-                background:
-                  "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 65%)",
-                pointerEvents: "none",
-              }}
-            />
-            <Stars />
-
-            {/* Logo */}
-            <div
-              style={{
-                position: "relative",
-                zIndex: 1,
-                animation: "fadeUp 0.5s ease both",
-                animationDelay: "0ms",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    background: "rgba(139,92,246,0.18)",
-                    border: "1px solid rgba(139,92,246,0.35)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                      stroke="#8b5cf6"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p
-                    style={{
-                      color: "#f1f5f9",
-                      fontWeight: 700,
-                      fontSize: 15,
-                      letterSpacing: "0.02em",
-                      lineHeight: 1,
-                    }}
-                  >
-                    Accelia
-                  </p>
-                  <p
-                    style={{
-                      color: "#8b5cf6",
-                      fontSize: 10,
-                      letterSpacing: "0.2em",
-                      textTransform: "uppercase",
-                      marginTop: 3,
-                      lineHeight: 1,
-                    }}
-                  >
-                    Clinical Solutions
-                  </p>
-                </div>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  marginTop: 12,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 10,
-                    color: "rgba(148,163,184,0.5)",
-                    letterSpacing: "0.15em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Admin Portal v2.4
-                </span>
-              </div>
-            </div>
-
-            {/* Headline */}
-            <div
-              style={{
-                position: "relative",
-                zIndex: 1,
-                animation: "fadeUp 0.5s ease both",
-                animationDelay: "100ms",
-              }}
-            >
-              <h1
-                style={{
-                  fontWeight: 800,
-                  lineHeight: 0.88,
-                  margin: 0,
-                  fontSize: isMobile ? 48 : 68,
-                  letterSpacing: isMobile ? "-1.5px" : "-2.5px",
-                }}
-              >
-                <span style={{ display: "block", color: "#f1f5f9" }}>
-                  Admin
-                </span>
-                <span
-                  style={{
-                    display: "block",
-                    background: "linear-gradient(135deg, #8b5cf6, #6366f1)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  Portal
-                </span>
-              </h1>
-              <p
-                style={{
-                  marginTop: 16,
-                  color: "rgba(148,163,184,0.65)",
-                  fontSize: 14,
-                  lineHeight: 1.7,
-                  maxWidth: 300,
-                }}
-              >
-                Secure, centralized control for clinical operations, trial
-                management, and advanced analytics.
-              </p>
-            </div>
-
-            {/* Stats */}
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  marginBottom: 16,
-                  animation: "fadeUp 0.5s ease both",
-                  animationDelay: "200ms",
-                }}
-              >
-                <div
-                  style={{
-                    flex: 1,
-                    height: "1px",
-                    background: "rgba(255,255,255,0.08)",
-                  }}
+            <div className="asterisk-icon" style={{ display: "inline-block" }}>
+              <svg width="42" height="42" viewBox="0 0 42 42" fill="none">
+                <line
+                  x1="21"
+                  y1="4"
+                  x2="21"
+                  y2="38"
+                  stroke="white"
+                  strokeWidth="4"
+                  strokeLinecap="round"
                 />
-                <p
-                  style={{
-                    color: "rgba(148,163,184,0.45)",
-                    fontSize: 10,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Enterprise Grade
-                </p>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <StatCard
-                  icon="👤"
-                  title="250+ Clinicians"
-                  subtitle="Active network"
-                  delay={250}
+                <line
+                  x1="4"
+                  y1="21"
+                  x2="38"
+                  y2="21"
+                  stroke="white"
+                  strokeWidth="4"
+                  strokeLinecap="round"
                 />
-                <StatCard
-                  icon="🧪"
-                  title="30+ Clinical Trials"
-                  subtitle="Across 6 states"
-                  delay={300}
+                <line
+                  x1="8"
+                  y1="8"
+                  x2="34"
+                  y2="34"
+                  stroke="white"
+                  strokeWidth="4"
+                  strokeLinecap="round"
                 />
-                <StatCard
-                  icon="⚡"
-                  title="99.9% Uptime"
-                  subtitle="Last 12 months"
-                  delay={350}
+                <line
+                  x1="34"
+                  y1="8"
+                  x2="8"
+                  y2="34"
+                  stroke="white"
+                  strokeWidth="4"
+                  strokeLinecap="round"
                 />
-              </div>
+              </svg>
             </div>
           </div>
-        )}
+
+          {/* Headline */}
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <h1
+              className="hero-anim"
+              style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontWeight: 400,
+                color: "#fff",
+                lineHeight: 1.08,
+                margin: 0,
+                fontSize: isMobile ? 46 : 72,
+                letterSpacing: "-1.5px",
+              }}
+            >
+              Hello
+              <br />
+              <span>
+                Accelia! <span className="wave-emoji">👋</span>
+              </span>
+            </h1>
+            <p
+              className="desc-anim"
+              style={{
+                marginTop: 20,
+                color: "rgba(255,255,255,0.72)",
+                fontSize: isMobile ? 14 : 15,
+                lineHeight: 1.8,
+                maxWidth: 380,
+                fontWeight: 400,
+              }}
+            >
+              Secure, centralized control for clinical operations, trial
+              management, and advanced analytics — all in one place.
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div
+            className="foot-anim"
+            style={{ position: "relative", zIndex: 1 }}
+          >
+            <p style={{ color: "rgba(255,255,255,0.38)", fontSize: 12 }}>
+              © 2026 Accelia Clinical Solutions. All rights reserved.
+            </p>
+          </div>
+        </div>
 
         {/* ── RIGHT PANEL — LOGIN FORM ── */}
         <div
+          className="right-panel"
           style={{
-            flex: isMobile ? "none" : 1,
-            background: "#0d1117",
+            flex: 1,
+            background: "#fff",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            padding: isMobile ? "36px 24px 52px" : "52px 60px",
+            padding: isMobile ? "44px 28px 52px" : "52px 64px",
             position: "relative",
-            overflow: "hidden",
           }}
         >
           <div
             style={{
-              position: "absolute",
-              top: "20%",
-              right: "-5%",
-              width: 400,
-              height: 400,
-              borderRadius: "50%",
-              background:
-                "radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 65%)",
-              pointerEvents: "none",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: "10%",
-              left: "5%",
-              width: 300,
-              height: 300,
-              borderRadius: "50%",
-              background:
-                "radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 65%)",
-              pointerEvents: "none",
-            }}
-          />
-          <Stars />
-
-          <div
-            style={{
-              position: "relative",
-              zIndex: 1,
               width: "100%",
-              maxWidth: 420,
-              animation: "fadeUp 0.6s ease both",
-              animationDelay: "150ms",
+              maxWidth: 400,
             }}
           >
-            {/* Secure badge */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginBottom: 28,
-              }}
-            >
-              <span
-                style={{
-                  display: "inline-block",
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: "#8b5cf6",
-                  animation: "pulse 2s ease-in-out infinite",
-                }}
-              />
-              <span
-                style={{
-                  color: "#8b5cf6",
-                  fontSize: 11,
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  fontWeight: 600,
-                }}
-              >
-                Secure Access
-              </span>
-            </div>
-
-            <h2
-              style={{
-                color: "#f1f5f9",
-                fontSize: isMobile ? 30 : 38,
-                fontWeight: 800,
-                lineHeight: 1.05,
-                marginBottom: 8,
-                letterSpacing: "-1px",
-              }}
-            >
-              Welcome back
-            </h2>
+            {/* Brand name top */}
             <p
               style={{
-                color: "rgba(148,163,184,0.6)",
-                fontSize: 14,
-                marginBottom: 32,
+                fontWeight: 800,
+                fontSize: 22,
+                color: "#111827",
+                marginBottom: 48,
+                letterSpacing: "-0.5px",
               }}
             >
-              Sign in to your administrator account
+              Accelia Clinical Solutions
             </p>
+
+            {/* Heading */}
+            <div className="form-field">
+              <h2
+                style={{
+                  fontSize: isMobile ? 30 : 36,
+                  fontWeight: 800,
+                  color: "#111827",
+                  letterSpacing: "-1px",
+                  marginBottom: 8,
+                  lineHeight: 1.1,
+                }}
+              >
+                Welcome Back!
+              </h2>
+              <p style={{ color: "#6b7280", fontSize: 13, marginBottom: 36 }}>
+                Don't have an account?{" "}
+                <span className="create-link">Create a new account now.</span>{" "}
+                It's FREE! Takes less than a minute.
+              </p>
+            </div>
 
             {/* Error */}
             {error && (
@@ -542,18 +484,18 @@ export default function LoginPage() {
                 style={{
                   marginBottom: 20,
                   padding: "12px 16px",
-                  borderRadius: 12,
-                  background: "rgba(239,68,68,0.1)",
-                  border: "1px solid rgba(239,68,68,0.25)",
-                  color: "#fca5a5",
+                  borderRadius: 8,
+                  background: "#fef2f2",
+                  border: "1px solid #fecaca",
+                  color: "#dc2626",
                   fontSize: 13,
                   display: "flex",
                   alignItems: "center",
-                  gap: 10,
-                  animation: "fadeUp 0.3s ease both",
+                  gap: 8,
+                  animation: "fadeInUp 0.3s ease both",
                 }}
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="#ef4444">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#dc2626">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                 </svg>
                 {error}
@@ -562,145 +504,29 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} noValidate>
               {/* EMAIL */}
-              <div style={{ marginBottom: 16 }}>
-                <label
-                  style={{
-                    display: "block",
-                    color: "rgba(148,163,184,0.7)",
-                    fontSize: 11,
-                    letterSpacing: "0.15em",
-                    textTransform: "uppercase",
-                    fontWeight: 600,
-                    marginBottom: 8,
+              <div className="form-field" style={{ marginBottom: 28 }}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError("");
                   }}
-                >
-                  Email Address
-                </label>
-                <div
+                  onFocus={() => setFocusedField("email")}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="hisalim.ux@gmail.com"
+                  autoComplete="email"
+                  className="login-input"
                   style={{
-                    position: "relative",
-                    display: "flex",
-                    alignItems: "center",
+                    borderBottomColor:
+                      focusedField === "email" ? "#3b48d4" : "#e5e7eb",
                   }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: 14,
-                      lineHeight: 0,
-                      pointerEvents: "none",
-                      color:
-                        focusedField === "email"
-                          ? "#8b5cf6"
-                          : "rgba(148,163,184,0.5)",
-                      transition: "color 0.2s",
-                    }}
-                  >
-                    <svg
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                    </svg>
-                  </span>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setError("");
-                    }}
-                    onFocus={() => setFocusedField("email")}
-                    onBlur={() => setFocusedField(null)}
-                    placeholder="admin@accelia.in"
-                    autoComplete="email"
-                    style={{
-                      ...inputBase,
-                      borderColor:
-                        focusedField === "email"
-                          ? "rgba(139,92,246,0.5)"
-                          : "rgba(255,255,255,0.08)",
-                      boxShadow:
-                        focusedField === "email"
-                          ? "0 0 0 3px rgba(139,92,246,0.12)"
-                          : "none",
-                      background:
-                        focusedField === "email"
-                          ? "rgba(139,92,246,0.06)"
-                          : "rgba(255,255,255,0.04)",
-                    }}
-                  />
-                </div>
+                />
               </div>
 
               {/* PASSWORD */}
-              <div style={{ marginBottom: 28 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <label
-                    style={{
-                      color: "rgba(148,163,184,0.7)",
-                      fontSize: 11,
-                      letterSpacing: "0.15em",
-                      textTransform: "uppercase",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    style={{
-                      color: "#8b5cf6",
-                      fontSize: 12,
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: 0,
-                      fontWeight: 500,
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-                <div
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: 14,
-                      lineHeight: 0,
-                      pointerEvents: "none",
-                      color:
-                        focusedField === "password"
-                          ? "#8b5cf6"
-                          : "rgba(148,163,184,0.5)",
-                      transition: "color 0.2s",
-                    }}
-                  >
-                    <svg
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M18 8h-1V6A5 5 0 007 6v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3.1-9H8.9V6a3.1 3.1 0 016.2 0v2z" />
-                    </svg>
-                  </span>
+              <div className="form-field" style={{ marginBottom: 8 }}>
+                <div style={{ position: "relative" }}>
                   <input
                     type={showPw ? "text" : "password"}
                     value={password}
@@ -710,23 +536,13 @@ export default function LoginPage() {
                     }}
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
-                    placeholder="Enter your password"
+                    placeholder="Password"
                     autoComplete="current-password"
+                    className="login-input"
                     style={{
-                      ...inputBase,
-                      paddingRight: 46,
-                      borderColor:
-                        focusedField === "password"
-                          ? "rgba(139,92,246,0.5)"
-                          : "rgba(255,255,255,0.08)",
-                      boxShadow:
-                        focusedField === "password"
-                          ? "0 0 0 3px rgba(139,92,246,0.12)"
-                          : "none",
-                      background:
-                        focusedField === "password"
-                          ? "rgba(139,92,246,0.06)"
-                          : "rgba(255,255,255,0.04)",
+                      paddingRight: 44,
+                      borderBottomColor:
+                        focusedField === "password" ? "#3b48d4" : "#e5e7eb",
                     }}
                   />
                   <button
@@ -734,19 +550,21 @@ export default function LoginPage() {
                     onClick={() => setShowPw(!showPw)}
                     style={{
                       position: "absolute",
-                      right: 12,
+                      right: 2,
+                      top: "50%",
+                      transform: "translateY(-50%)",
                       background: "none",
                       border: "none",
                       cursor: "pointer",
+                      color: "#9ca3af",
                       lineHeight: 0,
                       padding: 6,
-                      color: "rgba(148,163,184,0.5)",
                     }}
                   >
                     {showPw ? (
                       <svg
-                        width="15"
-                        height="15"
+                        width="16"
+                        height="16"
                         viewBox="0 0 24 24"
                         fill="currentColor"
                       >
@@ -754,12 +572,18 @@ export default function LoginPage() {
                       </svg>
                     ) : (
                       <svg
-                        width="15"
-                        height="15"
+                        width="16"
+                        height="16"
                         viewBox="0 0 24 24"
                         fill="currentColor"
                       >
-                        <path d="M17.9 11.5C17 9.5 14.7 8 12 8c-.8 0-1.6.2-2.3.4L11 9.7c.3-.1.6-.2 1-.2 1.9 0 3.5 1.6 3.5 3.5 0 .4-.1.7-.2 1l1.3 1.3c.6-.7 1.1-1.5 1.3-2.8zm-5.9 4c-1.9 0-3.5-1.6-3.5-3.5 0-.4.1-.7.2-1L7.4 9.6C6.8 10.3 6.3 11.1 6 12c.9 2 3.2 3.5 6 3.5.8 0 1.6-.2 2.3-.4l-1.3-1.3c-.3.1-.6.2-1 .2z" />
+                        <path
+                          d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          fill="none"
+                        />
                       </svg>
                     )}
                   </button>
@@ -767,100 +591,49 @@ export default function LoginPage() {
               </div>
 
               {/* SUBMIT */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="login-btn"
-                style={{
-                  width: "100%",
-                  padding: "14px 24px",
-                  borderRadius: 12,
-                  border: "none",
-                  background: loading
-                    ? "rgba(139,92,246,0.5)"
-                    : "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
-                  color: "#fff",
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: loading ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 10,
-                  boxShadow: "0 4px 20px rgba(139,92,246,0.3)",
-                  transition: "all 0.2s",
-                  fontFamily: "inherit",
-                  letterSpacing: "0.01em",
-                }}
-              >
-                {loading ? (
-                  <>
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="2.5"
-                      style={{ animation: "spin 0.8s linear infinite" }}
+              <div className="form-field" style={{ marginTop: 32 }}>
+                <button type="submit" disabled={loading} className="login-btn">
+                  {loading ? (
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 10,
+                      }}
                     >
-                      <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
-                      <path d="M12 2a10 10 0 0110 10" />
-                    </svg>
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    Sign In to Portal
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </>
-                )}
-              </button>
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="2.5"
+                        style={{ animation: "spin 0.8s linear infinite" }}
+                      >
+                        <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+                        <path d="M12 2a10 10 0 0110 10" />
+                      </svg>
+                      Signing in...
+                    </span>
+                  ) : (
+                    "Login Now"
+                  )}
+                </button>
+              </div>
             </form>
 
-            {/* Trust badges */}
+            {/* Forgot password */}
             <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 20,
-                flexWrap: "wrap",
-                marginTop: 28,
-                paddingTop: 24,
-                borderTop: "1px solid rgba(255,255,255,0.07)",
-              }}
+              className="form-field"
+              style={{ marginTop: 20, textAlign: "center" }}
             >
-              {["256-bit SSL", "HIPAA Compliant", "SOC 2"].map((b) => (
-                <div
-                  key={b}
-                  style={{ display: "flex", alignItems: "center", gap: 6 }}
-                >
-                  <svg
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="#8b5cf6"
-                  >
-                    <path d="M12 1L3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4zm-2 16l-4-4 1.4-1.4L10 14.2l6.6-6.6L18 9l-8 8z" />
-                  </svg>
-                  <span
-                    style={{ color: "rgba(148,163,184,0.5)", fontSize: 12 }}
-                  >
-                    {b}
-                  </span>
-                </div>
-              ))}
+              <span style={{ color: "#6b7280", fontSize: 13 }}>
+                Forget password{" "}
+              </span>
+              <button type="button" className="forgot-link">
+                Click here
+              </button>
             </div>
           </div>
         </div>

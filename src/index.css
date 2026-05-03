@@ -1,30 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap");
 
+/* RESET */
 * {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: "Inter", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  background: #030712;
-}
-
-/* ✅ ADD THESE 4 LINES */
 html,
 body,
 #root {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  background: #ffffff; /* ✅ ONLY ONE SOURCE OF TRUTH */
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* rest of your file stays exactly the same... */
+/* ⚠️ REMOVE overflow hidden (it breaks scroll) */
+/* DO NOT USE:
+overflow: hidden;
+*/
 
+/* SCROLLBAR */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -40,16 +41,19 @@ body,
   background: rgba(99, 179, 237, 0.35);
 }
 
+/* MONO FONT */
 .font-mono {
   font-family: "JetBrains Mono", monospace;
 }
 
-/* Smooth animations */
+/* SMOOTH UI */
 * {
   transition-property:
     color, background-color, border-color, box-shadow, opacity, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ⚠️ FIX INPUT DARK ISSUE */
 .input {
-  @apply px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-sm outline-none focus:border-blue-500;
+  @apply px-3 py-2 rounded-lg bg-white border border-gray-300 text-sm outline-none focus:border-blue-500;
 }

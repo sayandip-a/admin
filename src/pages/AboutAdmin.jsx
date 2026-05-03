@@ -1,15 +1,14 @@
 /**
- * AboutAdmin.jsx
- * Admin page to manage the public "About" page content.
- * Dark theme · matches Accelia admin portal aesthetic
- * Sections: Hero, Story, Stats, Mission/Vision, Team Highlights, Values
- * Features: inline edit, add/delete stats & values, image upload, toast, animated
+ * AboutAdmin.jsx — Accelia Admin Portal
+ * Light theme · matches Jobs page reference aesthetic
+ * Blue accent #2B3AE7 · white backgrounds · clean typography
+ * FIX: scroll background bleed removed (solid topbar bg, isolated banner)
  */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 /* ══════════════════════════════════════════════════════
-   MOCK DATA — mirrors what the public About page shows
+   MOCK DATA
 ══════════════════════════════════════════════════════ */
 const INITIAL_DATA = {
   hero: {
@@ -82,13 +81,13 @@ const INITIAL_DATA = {
 let _sid = 10,
   _vid = 10;
 
-/* ── helpers ── */
-const Ic = ({ d, size = 16, sw = 1.6, col }) => (
+/* ── Icon helper ── */
+const Ic = ({ d, size = 16, sw = 1.6, col, fill = "none" }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 20 20"
-    fill="none"
+    fill={fill}
     stroke={col || "currentColor"}
     strokeWidth={sw}
     strokeLinecap="round"
@@ -100,6 +99,174 @@ const Ic = ({ d, size = 16, sw = 1.6, col }) => (
   </svg>
 );
 
+/* ── Design tokens ── */
+const T = {
+  blue: "#2B3AE7",
+  blueDk: "#1E2BC4",
+  blueLt: "#EEF0FD",
+  blueMid: "#5B6CF5",
+  bg: "#F4F5FA",
+  bgCard: "#FFFFFF",
+  border: "#E8E9F4",
+  borderMd: "#D0D3EE",
+  text1: "#0F1035",
+  text2: "#4B5280",
+  text3: "#9094B8",
+  green: "#22C55E",
+  greenBg: "#F0FDF4",
+  red: "#EF4444",
+  redBg: "#FFF1F1",
+  shadow: "0 1px 3px rgba(43,58,231,0.06), 0 4px 16px rgba(43,58,231,0.04)",
+  shadowMd: "0 4px 24px rgba(43,58,231,0.10), 0 1px 3px rgba(43,58,231,0.06)",
+  shadowLg: "0 8px 40px rgba(43,58,231,0.14), 0 2px 8px rgba(43,58,231,0.08)",
+};
+
+/* ══ GLOBAL STYLES ══ */
+const GLOBAL_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F4F5FA !important; }
+  html { background: #F4F5FA !important; }
+
+  @keyframes fadeUp    { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:none } }
+  @keyframes fadeIn    { from { opacity:0 } to { opacity:1 } }
+  @keyframes scaleIn   { from { opacity:0; transform:scale(.94) } to { opacity:1; transform:none } }
+  @keyframes popIn     { from { opacity:0; transform:scale(.9) translateY(8px) } to { opacity:1; transform:none } }
+  @keyframes toastIn   { from { opacity:0; transform:translateX(20px) scale(.95) } to { opacity:1; transform:none } }
+  @keyframes spinDot   { to { transform: rotate(360deg) } }
+  @keyframes shimmer   { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: ${T.borderMd}; border-radius: 10px; }
+
+  input::placeholder, textarea::placeholder { color: ${T.text3} !important; }
+  textarea { font-family: 'Plus Jakarta Sans', sans-serif !important; line-height: 1.6; }
+  input, textarea, button { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+  .ab-btn-primary {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:9px 20px; border-radius:12px; font-size:13px; font-weight:700;
+    color:white; background:${T.blue}; border:none; cursor:pointer;
+    transition: background .2s, box-shadow .2s, transform .15s;
+    box-shadow: 0 4px 14px rgba(43,58,231,0.35);
+  }
+  .ab-btn-primary:hover { background:${T.blueDk}; box-shadow:0 6px 20px rgba(43,58,231,0.45); transform:translateY(-1px); }
+
+  .ab-btn-ghost {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 16px; border-radius:10px; font-size:12px; font-weight:600;
+    color:${T.text2}; background:white; border:1px solid ${T.border}; cursor:pointer;
+    transition: all .2s; box-shadow: ${T.shadow};
+  }
+  .ab-btn-ghost:hover { border-color:${T.borderMd}; color:${T.text1}; box-shadow:${T.shadowMd}; transform:translateY(-1px); }
+
+  .ab-btn-danger {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 16px; border-radius:10px; font-size:12px; font-weight:600;
+    color:${T.red}; background:${T.redBg}; border:1px solid rgba(239,68,68,0.2); cursor:pointer;
+    transition: all .2s;
+  }
+  .ab-btn-danger:hover { background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.35); }
+
+  .ab-card {
+    background:${T.bgCard}; border:1px solid ${T.border}; border-radius:16px;
+    box-shadow:${T.shadow}; transition: box-shadow .25s; animation: fadeUp .5s ease both;
+  }
+
+  .ab-input {
+    width:100%; padding:9px 13px; border-radius:10px; font-size:13px;
+    color:${T.text1}; background:${T.bg}; border:1.5px solid ${T.border};
+    outline:none; transition: border-color .2s, box-shadow .2s;
+    font-family:'Plus Jakarta Sans',sans-serif;
+  }
+  .ab-input:focus { border-color:${T.blue}; box-shadow:0 0 0 3px rgba(43,58,231,0.10); background:white; }
+
+  .ab-textarea {
+    width:100%; padding:10px 13px; border-radius:10px; font-size:13px;
+    color:${T.text1}; background:${T.bg}; border:1.5px solid ${T.border};
+    outline:none; resize:vertical; min-height:90px; line-height:1.6;
+    transition: border-color .2s, box-shadow .2s; font-family:'Plus Jakarta Sans',sans-serif;
+  }
+  .ab-textarea:focus { border-color:${T.blue}; box-shadow:0 0 0 3px rgba(43,58,231,0.10); background:white; }
+
+  .stat-card {
+    background:white; border:1px solid ${T.border}; border-radius:14px;
+    padding:18px 16px; position:relative; overflow:hidden;
+    transition: box-shadow .25s, border-color .25s, transform .2s; box-shadow:${T.shadow};
+  }
+  .stat-card:hover { box-shadow:${T.shadowMd}; border-color:${T.borderMd}; transform:translateY(-2px); }
+  .stat-card:hover .stat-actions { opacity:1 !important; }
+
+  .val-card {
+    background:white; border:1px solid ${T.border}; border-radius:14px;
+    padding:20px; position:relative; overflow:hidden;
+    transition: box-shadow .25s, border-color .25s, transform .2s; box-shadow:${T.shadow};
+  }
+  .val-card:hover { box-shadow:${T.shadowMd}; border-color:rgba(43,58,231,0.2); transform:translateY(-2px); }
+  .val-card:hover .val-actions { opacity:1 !important; }
+
+  .edit-btn {
+    width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    background:${T.blueLt}; border:1px solid rgba(43,58,231,0.15); color:${T.blue}; cursor:pointer; transition: all .2s;
+  }
+  .edit-btn:hover { background:${T.blue}; color:white; border-color:${T.blue}; }
+
+  .del-btn {
+    width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    background:${T.redBg}; border:1px solid rgba(239,68,68,0.2); color:${T.red}; cursor:pointer; transition: all .2s;
+  }
+  .del-btn:hover { background:${T.red}; color:white; border-color:${T.red}; }
+
+  .ghost-add {
+    border:2px dashed ${T.borderMd}; border-radius:14px; background:transparent; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px; color:${T.text3}; transition: all .2s;
+  }
+  .ghost-add:hover { border-color:${T.blue}; color:${T.blue}; background:${T.blueLt}; }
+
+  .field-edit-btn {
+    display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600;
+    color:${T.blue}; background:none; border:none; cursor:pointer; padding:3px 7px;
+    border-radius:6px; transition: background .2s;
+  }
+  .field-edit-btn:hover { background:${T.blueLt}; }
+
+  .section-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 22px; border-bottom:1px solid ${T.border};
+  }
+
+  .ab-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .ab-grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .ab-grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+
+  /* Tab active indicator */
+  .ab-tab { position:relative; transition: color .2s; }
+  .ab-tab::after {
+    content:''; position:absolute; bottom:-1px; left:0; right:0; height:2px;
+    background:${T.blue}; transform:scaleX(0); transition: transform .2s;
+    border-radius:2px 2px 0 0;
+  }
+  .ab-tab.active { color:${T.blue} !important; }
+  .ab-tab.active::after { transform:scaleX(1); }
+
+  @media(max-width:1024px) {
+    .ab-grid-4 { grid-template-columns:1fr 1fr !important; }
+    .ab-grid-3 { grid-template-columns:1fr 1fr !important; }
+  }
+  @media(max-width:768px) {
+    .ab-grid-2 { grid-template-columns:1fr !important; }
+    .ab-grid-3 { grid-template-columns:1fr 1fr !important; }
+    .ab-grid-4 { grid-template-columns:1fr 1fr !important; }
+  }
+  @media(max-width:480px) {
+    .ab-grid-3 { grid-template-columns:1fr !important; }
+    .ab-grid-4 { grid-template-columns:1fr !important; }
+    .section-header { flex-direction:column; align-items:flex-start; gap:10px; }
+  }
+`;
+
 /* ══ TOAST ══ */
 function Toast({ items }) {
   return (
@@ -107,13 +274,13 @@ function Toast({ items }) {
       style={{
         position: "fixed",
         bottom: 24,
-        right: 16,
+        right: 20,
         zIndex: 9999,
         display: "flex",
         flexDirection: "column",
         gap: 8,
         pointerEvents: "none",
-        maxWidth: "calc(100vw - 2rem)",
+        maxWidth: "calc(100vw - 40px)",
       }}
     >
       {items.map((t) => (
@@ -123,19 +290,15 @@ function Toast({ items }) {
             display: "flex",
             alignItems: "center",
             gap: 10,
-            padding: "10px 16px",
+            padding: "11px 16px",
             borderRadius: 14,
             fontSize: 13,
             fontWeight: 600,
-            background:
-              t.type === "err"
-                ? "rgba(239,68,68,0.15)"
-                : "rgba(16,185,129,0.15)",
-            border: `1px solid ${t.type === "err" ? "rgba(239,68,68,0.35)" : "rgba(16,185,129,0.35)"}`,
-            color: t.type === "err" ? "#f87171" : "#34d399",
-            backdropFilter: "blur(12px)",
+            background: t.type === "err" ? T.redBg : "white",
+            border: `1.5px solid ${t.type === "err" ? "rgba(239,68,68,0.3)" : T.border}`,
+            color: t.type === "err" ? T.red : T.text1,
+            boxShadow: T.shadowLg,
             animation: "toastIn .35s cubic-bezier(.34,1.56,.64,1) both",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
           }}
         >
           <Ic
@@ -144,7 +307,8 @@ function Toast({ items }) {
                 ? ["M10 3l7 14H3L10 3z", "M10 8v4", "M10 14h.01"]
                 : "M4 10l4 4 8-8"
             }
-            size={13}
+            size={14}
+            col={t.type === "err" ? T.red : T.blue}
           />
           {t.msg}
         </div>
@@ -166,19 +330,20 @@ function ConfirmModal({ open, label, onConfirm, onClose }) {
         alignItems: "center",
         justifyContent: "center",
         padding: 16,
-        background: "rgba(0,0,0,0.72)",
-        backdropFilter: "blur(8px)",
+        background: "rgba(15,16,53,0.5)",
+        backdropFilter: "blur(6px)",
       }}
     >
       <div
         style={{
-          background: "#0d1420",
-          border: "1px solid rgba(239,68,68,0.2)",
-          borderRadius: 20,
+          background: "white",
+          border: `1px solid ${T.border}`,
+          borderRadius: 24,
           padding: 32,
           width: "100%",
           maxWidth: 360,
           textAlign: "center",
+          boxShadow: T.shadowLg,
           animation: "popIn .3s cubic-bezier(.34,1.56,.64,1) both",
         }}
       >
@@ -187,8 +352,8 @@ function ConfirmModal({ open, label, onConfirm, onClose }) {
             width: 52,
             height: 52,
             borderRadius: "50%",
-            background: "rgba(239,68,68,0.12)",
-            border: "1px solid rgba(239,68,68,0.25)",
+            background: T.redBg,
+            border: "1.5px solid rgba(239,68,68,0.25)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -198,12 +363,12 @@ function ConfirmModal({ open, label, onConfirm, onClose }) {
           <Ic
             d={["M3 5h14", "M8 5V3h4v2", "M6 5l1 13h6l1-13"]}
             size={20}
-            col="#f87171"
+            col={T.red}
           />
         </div>
         <h3
           style={{
-            color: "#f1f5f9",
+            color: T.text1,
             fontSize: 17,
             fontWeight: 800,
             marginBottom: 8,
@@ -214,7 +379,7 @@ function ConfirmModal({ open, label, onConfirm, onClose }) {
         </h3>
         <p
           style={{
-            color: "#64748b",
+            color: T.text2,
             fontSize: 13,
             marginBottom: 24,
             lineHeight: 1.6,
@@ -225,17 +390,8 @@ function ConfirmModal({ open, label, onConfirm, onClose }) {
         <div style={{ display: "flex", gap: 10 }}>
           <button
             onClick={onClose}
-            style={{
-              flex: 1,
-              padding: "10px 0",
-              borderRadius: 12,
-              fontSize: 13,
-              fontWeight: 600,
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "#94a3b8",
-              cursor: "pointer",
-            }}
+            className="ab-btn-ghost"
+            style={{ flex: 1, justifyContent: "center" }}
           >
             Cancel
           </button>
@@ -247,8 +403,8 @@ function ConfirmModal({ open, label, onConfirm, onClose }) {
               borderRadius: 12,
               fontSize: 13,
               fontWeight: 700,
-              background: "rgba(239,68,68,0.7)",
-              border: "1px solid rgba(239,68,68,0.4)",
+              background: T.red,
+              border: "none",
               color: "white",
               cursor: "pointer",
             }}
@@ -261,67 +417,211 @@ function ConfirmModal({ open, label, onConfirm, onClose }) {
   );
 }
 
-/* ══ SECTION CARD WRAPPER ══ */
-function SectionCard({ title, icon, children, delay = 0 }) {
+/* ══ ADD MODAL ══ */
+function AddModal({ open, title, fields, onAdd, onClose }) {
+  const [form, setForm] = useState({});
+  useEffect(() => {
+    if (open) setForm({});
+  }, [open]);
+  if (!open) return null;
+  const submit = () => {
+    const required = fields.filter((f) => f.required !== false);
+    if (required.some((f) => !form[f.key]?.trim())) return;
+    onAdd(form);
+    onClose();
+  };
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.025)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 20,
-        overflow: "hidden",
-        animation: "fadeUp .5s ease both",
-        animationDelay: `${delay}ms`,
+        position: "fixed",
+        inset: 0,
+        zIndex: 9998,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+        background: "rgba(15,16,53,0.5)",
+        backdropFilter: "blur(6px)",
       }}
     >
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "16px 24px",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          background: "rgba(255,255,255,0.02)",
+          background: "white",
+          border: `1px solid ${T.border}`,
+          borderRadius: 24,
+          padding: 28,
+          width: "100%",
+          maxWidth: 400,
+          boxShadow: T.shadowLg,
+          animation: "popIn .3s cubic-bezier(.34,1.56,.64,1) both",
         }}
       >
-        <span style={{ fontSize: 16 }}>{icon}</span>
-        <h2
+        <div
           style={{
-            color: "#e2e8f0",
-            fontSize: 14,
-            fontWeight: 700,
-            fontFamily: "'Syne',sans-serif",
-            letterSpacing: "0.02em",
-            margin: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 22,
           }}
         >
-          {title}
-        </h2>
+          <h3
+            style={{
+              color: T.text1,
+              fontSize: 16,
+              fontWeight: 800,
+              fontFamily: "'Syne',sans-serif",
+            }}
+          >
+            {title}
+          </h3>
+          <button
+            onClick={onClose}
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              background: T.bg,
+              border: `1px solid ${T.border}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: T.text2,
+            }}
+          >
+            <Ic d="M5 5l10 10M15 5l-10 10" size={14} />
+          </button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {fields.map(({ key, label, placeholder, multiline, wide }) => (
+            <div key={key}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: T.text3,
+                  marginBottom: 5,
+                }}
+              >
+                {label}
+              </label>
+              {multiline ? (
+                <textarea
+                  className="ab-textarea"
+                  value={form[key] || ""}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, [key]: e.target.value }))
+                  }
+                  placeholder={placeholder}
+                  rows={3}
+                />
+              ) : (
+                <input
+                  className="ab-input"
+                  value={form[key] || ""}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, [key]: e.target.value }))
+                  }
+                  placeholder={placeholder}
+                  style={wide ? { fontSize: 22 } : {}}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 8, marginTop: 22 }}>
+          <button
+            onClick={onClose}
+            className="ab-btn-ghost"
+            style={{ flex: 1, justifyContent: "center" }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            className="ab-btn-primary"
+            style={{ flex: 1, justifyContent: "center" }}
+          >
+            Add {title.replace("Add ", "")}
+          </button>
+        </div>
       </div>
-      <div style={{ padding: 24 }}>{children}</div>
     </div>
   );
 }
 
-/* ══ INLINE FIELD ══ */
-function EditField({
-  label,
-  value,
-  onChange,
-  multiline = false,
-  mono = false,
-}) {
+/* ══ SECTION CARD ══ */
+function SectionCard({ title, icon, badge, children, actions, delay = 0 }) {
+  return (
+    <div
+      className="ab-card"
+      style={{
+        borderRadius: 18,
+        animationDelay: `${delay}ms`,
+        overflow: "hidden",
+      }}
+    >
+      <div className="section-header">
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              background: T.blueLt,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 16,
+              flexShrink: 0,
+            }}
+          >
+            {icon}
+          </div>
+          <div>
+            <h2
+              style={{
+                color: T.text1,
+                fontSize: 14,
+                fontWeight: 700,
+                fontFamily: "'Syne',sans-serif",
+                letterSpacing: "0.01em",
+              }}
+            >
+              {title}
+            </h2>
+            {badge && (
+              <span style={{ fontSize: 11, color: T.text3, fontWeight: 500 }}>
+                {badge}
+              </span>
+            )}
+          </div>
+        </div>
+        {actions && (
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+            {actions}
+          </div>
+        )}
+      </div>
+      <div style={{ padding: 22 }}>{children}</div>
+    </div>
+  );
+}
+
+/* ══ EDIT FIELD ══ */
+function EditField({ label, value, onChange, multiline = false }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
-  const inputRef = useRef();
-
+  const ref = useRef();
   useEffect(() => {
     setDraft(value);
   }, [value]);
   useEffect(() => {
-    if (editing) inputRef.current?.focus();
+    if (editing) ref.current?.focus();
   }, [editing]);
-
   const save = () => {
     onChange(draft);
     setEditing(false);
@@ -331,21 +631,8 @@ function EditField({
     setEditing(false);
   };
 
-  const inputStyle = {
-    width: "100%",
-    background: "rgba(6,182,212,0.06)",
-    border: "1px solid rgba(6,182,212,0.3)",
-    borderRadius: 10,
-    padding: "8px 12px",
-    color: "#e2e8f0",
-    fontSize: 13,
-    fontFamily: mono ? "monospace" : "'Outfit',sans-serif",
-    outline: "none",
-    resize: "vertical",
-  };
-
   return (
-    <div style={{ marginBottom: 14 }}>
+    <div style={{ marginBottom: 16 }}>
       <div
         style={{
           display: "flex",
@@ -354,70 +641,53 @@ function EditField({
           marginBottom: 5,
         }}
       >
-        <label
-          style={{
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "#475569",
-          }}
-        >
-          {label}
-        </label>
-        {!editing && (
-          <button
-            onClick={() => setEditing(true)}
+        {label && (
+          <label
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: 11,
-              color: "#06b6d4",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: "2px 6px",
-              borderRadius: 6,
-              transition: "background .2s",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: T.text3,
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(6,182,212,0.1)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
           >
+            {label}
+          </label>
+        )}
+        {!editing && (
+          <button className="field-edit-btn" onClick={() => setEditing(true)}>
             <Ic d="M13 3l4 4-8 8H5v-4l8-8z" size={11} /> Edit
           </button>
         )}
       </div>
       {editing ? (
-        <>
+        <div style={{ animation: "fadeIn .15s ease" }}>
           {multiline ? (
             <textarea
-              ref={inputRef}
+              ref={ref}
+              className="ab-textarea"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              rows={4}
-              style={inputStyle}
             />
           ) : (
             <input
-              ref={inputRef}
+              ref={ref}
+              className="ab-input"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              style={{ ...inputStyle, resize: undefined }}
             />
           )}
-          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+          <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
             <button
               onClick={cancel}
               style={{
-                padding: "5px 12px",
+                padding: "6px 14px",
                 borderRadius: 8,
-                fontSize: 11,
-                color: "#64748b",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                fontSize: 12,
+                fontWeight: 600,
+                color: T.text2,
+                background: T.bg,
+                border: `1px solid ${T.border}`,
                 cursor: "pointer",
               }}
             >
@@ -425,44 +695,33 @@ function EditField({
             </button>
             <button
               onClick={save}
-              style={{
-                padding: "5px 14px",
-                borderRadius: 8,
-                fontSize: 11,
-                fontWeight: 700,
-                color: "white",
-                background: "linear-gradient(135deg,#06b6d4,#6366f1)",
-                border: "none",
-                cursor: "pointer",
-              }}
+              className="ab-btn-primary"
+              style={{ padding: "6px 16px", fontSize: 12 }}
             >
               Save
             </button>
           </div>
-        </>
+        </div>
       ) : (
         <div
           style={{
-            padding: "8px 12px",
+            padding: "10px 13px",
             borderRadius: 10,
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            minHeight: 36,
+            background: T.bg,
+            border: `1px solid ${T.border}`,
+            minHeight: 38,
           }}
         >
           <p
             style={{
-              color: "rgba(255,255,255,0.65)",
+              color: T.text2,
               fontSize: 13,
               lineHeight: 1.6,
-              margin: 0,
               whiteSpace: "pre-wrap",
             }}
           >
             {value || (
-              <span style={{ color: "#475569", fontStyle: "italic" }}>
-                Empty
-              </span>
+              <span style={{ color: T.text3, fontStyle: "italic" }}>Empty</span>
             )}
           </p>
         </div>
@@ -471,74 +730,63 @@ function EditField({
   );
 }
 
-/* ══ STAT CARD EDIT ══ */
+/* ══ STAT CARD ══ */
 function StatItem({ stat, onEdit, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState({ value: stat.value, label: stat.label });
-
   const save = () => {
     onEdit(stat._id, draft);
     setEditing(false);
   };
-
   return (
-    <div
-      style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        borderRadius: 16,
-        padding: 16,
-        position: "relative",
-        transition: "border-color .2s",
-      }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(6,182,212,0.25)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")
-      }
-    >
+    <div className="stat-card">
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: `linear-gradient(90deg,${T.blue},${T.blueMid})`,
+          opacity: editing ? 1 : 0,
+          transition: "opacity .2s",
+        }}
+      />
       {editing ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            animation: "fadeIn .15s ease",
+          }}
+        >
           <input
+            className="ab-input"
             value={draft.value}
             onChange={(e) => setDraft((d) => ({ ...d, value: e.target.value }))}
             placeholder="Value (e.g. 30+)"
-            style={{
-              background: "rgba(6,182,212,0.07)",
-              border: "1px solid rgba(6,182,212,0.3)",
-              borderRadius: 8,
-              padding: "6px 10px",
-              color: "#e2e8f0",
-              fontSize: 13,
-              outline: "none",
-            }}
+            autoFocus
           />
           <input
+            className="ab-input"
             value={draft.label}
             onChange={(e) => setDraft((d) => ({ ...d, label: e.target.value }))}
             placeholder="Label"
-            style={{
-              background: "rgba(6,182,212,0.07)",
-              border: "1px solid rgba(6,182,212,0.3)",
-              borderRadius: 8,
-              padding: "6px 10px",
-              color: "#e2e8f0",
-              fontSize: 12,
-              outline: "none",
-            }}
+            style={{ fontSize: 12 }}
           />
           <div style={{ display: "flex", gap: 6 }}>
             <button
               onClick={() => setEditing(false)}
               style={{
                 flex: 1,
-                padding: "5px 0",
-                borderRadius: 7,
+                padding: "6px 0",
+                borderRadius: 8,
                 fontSize: 11,
-                color: "#64748b",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                fontWeight: 600,
+                color: T.text2,
+                background: T.bg,
+                border: `1px solid ${T.border}`,
                 cursor: "pointer",
               }}
             >
@@ -546,16 +794,12 @@ function StatItem({ stat, onEdit, onDelete }) {
             </button>
             <button
               onClick={save}
+              className="ab-btn-primary"
               style={{
                 flex: 1,
-                padding: "5px 0",
-                borderRadius: 7,
+                justifyContent: "center",
+                padding: "6px 0",
                 fontSize: 11,
-                fontWeight: 700,
-                color: "white",
-                background: "linear-gradient(135deg,#06b6d4,#6366f1)",
-                border: "none",
-                cursor: "pointer",
               }}
             >
               Save
@@ -566,67 +810,44 @@ function StatItem({ stat, onEdit, onDelete }) {
         <>
           <p
             style={{
-              color: "#22d3ee",
-              fontSize: 22,
-              fontWeight: 800,
+              color: T.blue,
+              fontSize: 26,
+              fontWeight: 900,
               fontFamily: "'Syne',sans-serif",
-              margin: "0 0 4px",
-              lineHeight: 1,
+              lineHeight: 1.1,
+              marginBottom: 5,
             }}
           >
             {stat.value}
           </p>
           <p
             style={{
-              color: "#64748b",
+              color: T.text3,
               fontSize: 11,
-              margin: 0,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
               lineHeight: 1.4,
             }}
           >
             {stat.label}
           </p>
           <div
+            className="stat-actions"
             style={{
               position: "absolute",
               top: 10,
               right: 10,
               display: "flex",
               gap: 5,
+              opacity: 0,
+              transition: "opacity .2s",
             }}
           >
-            <button
-              onClick={() => setEditing(true)}
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 7,
-                background: "rgba(6,182,212,0.1)",
-                border: "1px solid rgba(6,182,212,0.2)",
-                color: "#22d3ee",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <button className="edit-btn" onClick={() => setEditing(true)}>
               <Ic d="M13 3l4 4-8 8H5v-4l8-8z" size={11} />
             </button>
-            <button
-              onClick={() => onDelete(stat._id)}
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 7,
-                background: "rgba(239,68,68,0.1)",
-                border: "1px solid rgba(239,68,68,0.2)",
-                color: "#f87171",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <button className="del-btn" onClick={() => onDelete(stat._id)}>
               <Ic d={["M3 5h14", "M8 5V3h4v2", "M6 5l1 13h6l1-13"]} size={11} />
             </button>
           </div>
@@ -636,7 +857,7 @@ function StatItem({ stat, onEdit, onDelete }) {
   );
 }
 
-/* ══ VALUE CARD EDIT ══ */
+/* ══ VALUE CARD ══ */
 function ValueItem({ val, onEdit, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState({
@@ -644,87 +865,67 @@ function ValueItem({ val, onEdit, onDelete }) {
     title: val.title,
     desc: val.desc,
   });
-
   const save = () => {
     onEdit(val._id, draft);
     setEditing(false);
   };
-
   return (
-    <div
-      style={{
-        background: "rgba(255,255,255,0.025)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 16,
-        padding: 18,
-        position: "relative",
-        transition: "border-color .2s",
-      }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(6,182,212,0.2)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)")
-      }
-    >
+    <div className="val-card">
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: `linear-gradient(90deg,${T.blue},${T.blueMid})`,
+          opacity: editing ? 1 : 0,
+          transition: "opacity .2s",
+        }}
+      />
       {editing ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            animation: "fadeIn .15s ease",
+          }}
+        >
           <input
+            className="ab-input"
             value={draft.icon}
             onChange={(e) => setDraft((d) => ({ ...d, icon: e.target.value }))}
-            placeholder="Emoji icon"
-            style={{
-              background: "rgba(6,182,212,0.07)",
-              border: "1px solid rgba(6,182,212,0.3)",
-              borderRadius: 8,
-              padding: "6px 10px",
-              color: "#e2e8f0",
-              fontSize: 20,
-              outline: "none",
-              width: 60,
-            }}
+            placeholder="Emoji"
+            style={{ fontSize: 22, width: 60 }}
+            autoFocus
           />
           <input
+            className="ab-input"
             value={draft.title}
             onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
             placeholder="Title"
-            style={{
-              background: "rgba(6,182,212,0.07)",
-              border: "1px solid rgba(6,182,212,0.3)",
-              borderRadius: 8,
-              padding: "6px 10px",
-              color: "#e2e8f0",
-              fontSize: 13,
-              outline: "none",
-            }}
           />
           <textarea
+            className="ab-textarea"
             value={draft.desc}
+            rows={3}
             onChange={(e) => setDraft((d) => ({ ...d, desc: e.target.value }))}
             placeholder="Description"
-            rows={3}
-            style={{
-              background: "rgba(6,182,212,0.07)",
-              border: "1px solid rgba(6,182,212,0.3)",
-              borderRadius: 8,
-              padding: "6px 10px",
-              color: "#e2e8f0",
-              fontSize: 12,
-              outline: "none",
-              resize: "none",
-            }}
+            style={{ minHeight: 70 }}
           />
           <div style={{ display: "flex", gap: 6 }}>
             <button
               onClick={() => setEditing(false)}
               style={{
                 flex: 1,
-                padding: "5px 0",
-                borderRadius: 7,
+                padding: "6px 0",
+                borderRadius: 8,
                 fontSize: 11,
-                color: "#64748b",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                fontWeight: 600,
+                color: T.text2,
+                background: T.bg,
+                border: `1px solid ${T.border}`,
                 cursor: "pointer",
               }}
             >
@@ -732,16 +933,12 @@ function ValueItem({ val, onEdit, onDelete }) {
             </button>
             <button
               onClick={save}
+              className="ab-btn-primary"
               style={{
                 flex: 1,
-                padding: "5px 0",
-                borderRadius: 7,
+                justifyContent: "center",
+                padding: "6px 0",
                 fontSize: 11,
-                fontWeight: 700,
-                color: "white",
-                background: "linear-gradient(135deg,#06b6d4,#6366f1)",
-                border: "none",
-                cursor: "pointer",
               }}
             >
               Save
@@ -750,339 +947,56 @@ function ValueItem({ val, onEdit, onDelete }) {
         </div>
       ) : (
         <>
-          <div style={{ fontSize: 26, marginBottom: 8 }}>{val.icon}</div>
+          <div
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: 12,
+              background: T.blueLt,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 22,
+              marginBottom: 12,
+            }}
+          >
+            {val.icon}
+          </div>
           <p
             style={{
-              color: "#e2e8f0",
+              color: T.text1,
               fontSize: 13,
               fontWeight: 700,
-              margin: "0 0 5px",
+              marginBottom: 5,
               fontFamily: "'Syne',sans-serif",
             }}
           >
             {val.title}
           </p>
-          <p
-            style={{
-              color: "#64748b",
-              fontSize: 12,
-              margin: 0,
-              lineHeight: 1.5,
-            }}
-          >
+          <p style={{ color: T.text2, fontSize: 12, lineHeight: 1.6 }}>
             {val.desc}
           </p>
           <div
+            className="val-actions"
             style={{
               position: "absolute",
-              top: 10,
-              right: 10,
+              top: 12,
+              right: 12,
               display: "flex",
               gap: 5,
+              opacity: 0,
+              transition: "opacity .2s",
             }}
           >
-            <button
-              onClick={() => setEditing(true)}
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 7,
-                background: "rgba(6,182,212,0.1)",
-                border: "1px solid rgba(6,182,212,0.2)",
-                color: "#22d3ee",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <button className="edit-btn" onClick={() => setEditing(true)}>
               <Ic d="M13 3l4 4-8 8H5v-4l8-8z" size={11} />
             </button>
-            <button
-              onClick={() => onDelete(val._id)}
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 7,
-                background: "rgba(239,68,68,0.1)",
-                border: "1px solid rgba(239,68,68,0.2)",
-                color: "#f87171",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <button className="del-btn" onClick={() => onDelete(val._id)}>
               <Ic d={["M3 5h14", "M8 5V3h4v2", "M6 5l1 13h6l1-13"]} size={11} />
             </button>
           </div>
         </>
       )}
-    </div>
-  );
-}
-
-/* ══ ADD STAT MODAL ══ */
-function AddStatModal({ open, onAdd, onClose }) {
-  const [form, setForm] = useState({ value: "", label: "" });
-  if (!open) return null;
-  const submit = () => {
-    if (!form.value.trim() || !form.label.trim()) return;
-    onAdd(form);
-    setForm({ value: "", label: "" });
-    onClose();
-  };
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9998,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-        background: "rgba(0,0,0,0.7)",
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      <div
-        style={{
-          background: "#0d1420",
-          border: "1px solid rgba(6,182,212,0.2)",
-          borderRadius: 20,
-          padding: 28,
-          width: "100%",
-          maxWidth: 340,
-          animation: "popIn .3s cubic-bezier(.34,1.56,.64,1) both",
-        }}
-      >
-        <h3
-          style={{
-            color: "#e2e8f0",
-            fontSize: 16,
-            fontWeight: 800,
-            marginBottom: 20,
-            fontFamily: "'Syne',sans-serif",
-          }}
-        >
-          Add Stat
-        </h3>
-        {[
-          ["Value", "value", "e.g. 30+"],
-          ["Label", "label", "e.g. Trials Completed"],
-        ].map(([lbl, k, ph]) => (
-          <div key={k} style={{ marginBottom: 12 }}>
-            <label
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "#475569",
-                display: "block",
-                marginBottom: 5,
-              }}
-            >
-              {lbl}
-            </label>
-            <input
-              value={form[k]}
-              onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))}
-              placeholder={ph}
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 10,
-                padding: "8px 12px",
-                color: "#e2e8f0",
-                fontSize: 13,
-                outline: "none",
-              }}
-            />
-          </div>
-        ))}
-        <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
-          <button
-            onClick={onClose}
-            style={{
-              flex: 1,
-              padding: "10px 0",
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 600,
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.09)",
-              color: "#94a3b8",
-              cursor: "pointer",
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={submit}
-            style={{
-              flex: 1,
-              padding: "10px 0",
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              color: "white",
-              background: "linear-gradient(135deg,#06b6d4,#6366f1)",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Add
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ══ ADD VALUE MODAL ══ */
-function AddValueModal({ open, onAdd, onClose }) {
-  const [form, setForm] = useState({ icon: "", title: "", desc: "" });
-  if (!open) return null;
-  const submit = () => {
-    if (!form.title.trim()) return;
-    onAdd(form);
-    setForm({ icon: "", title: "", desc: "" });
-    onClose();
-  };
-  return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9998,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-        background: "rgba(0,0,0,0.7)",
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      <div
-        style={{
-          background: "#0d1420",
-          border: "1px solid rgba(6,182,212,0.2)",
-          borderRadius: 20,
-          padding: 28,
-          width: "100%",
-          maxWidth: 380,
-          animation: "popIn .3s cubic-bezier(.34,1.56,.64,1) both",
-        }}
-      >
-        <h3
-          style={{
-            color: "#e2e8f0",
-            fontSize: 16,
-            fontWeight: 800,
-            marginBottom: 20,
-            fontFamily: "'Syne',sans-serif",
-          }}
-        >
-          Add Value
-        </h3>
-        {[
-          ["Icon (emoji)", "icon", "🔬"],
-          ["Title", "title", "e.g. Scientific Rigour"],
-          ["Description", "desc", "Short description…"],
-        ].map(([lbl, k, ph]) => (
-          <div key={k} style={{ marginBottom: 12 }}>
-            <label
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "#475569",
-                display: "block",
-                marginBottom: 5,
-              }}
-            >
-              {lbl}
-            </label>
-            {k === "desc" ? (
-              <textarea
-                value={form[k]}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, [k]: e.target.value }))
-                }
-                placeholder={ph}
-                rows={3}
-                style={{
-                  width: "100%",
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 10,
-                  padding: "8px 12px",
-                  color: "#e2e8f0",
-                  fontSize: 13,
-                  outline: "none",
-                  resize: "none",
-                }}
-              />
-            ) : (
-              <input
-                value={form[k]}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, [k]: e.target.value }))
-                }
-                placeholder={ph}
-                style={{
-                  width: "100%",
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 10,
-                  padding: "8px 12px",
-                  color: "#e2e8f0",
-                  fontSize: k === "icon" ? 20 : 13,
-                  outline: "none",
-                }}
-              />
-            )}
-          </div>
-        ))}
-        <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
-          <button
-            onClick={onClose}
-            style={{
-              flex: 1,
-              padding: "10px 0",
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 600,
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.09)",
-              color: "#94a3b8",
-              cursor: "pointer",
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={submit}
-            style={{
-              flex: 1,
-              padding: "10px 0",
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              color: "white",
-              background: "linear-gradient(135deg,#06b6d4,#6366f1)",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Add
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -1093,31 +1007,30 @@ function AddValueModal({ open, onAdd, onClose }) {
 export default function AboutAdmin() {
   const [data, setData] = useState(INITIAL_DATA);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [toasts, setToasts] = useState([]);
-  const [confirmDel, setConfirmDel] = useState(null); // { type, id, label }
+  const [confirmDel, setConfirmDel] = useState(null);
   const [addStatOpen, setAddStatOpen] = useState(false);
   const [addValOpen, setAddValOpen] = useState(false);
   const [storyImgPreview, setStoryImgPreview] = useState(null);
+  const [activeTab, setActiveTab] = useState("content");
   const imgRef = useRef();
   const tid = useRef(0);
 
-  const toast = (msg, type = "ok") => {
+  const toast = useCallback((msg, type = "ok") => {
     const id = ++tid.current;
     setToasts((t) => [...t, { id, msg, type }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3000);
-  };
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3200);
+  }, []);
 
-  /* ── hero ── */
-  const updateHero = (key, val) => {
-    setData((d) => ({ ...d, hero: { ...d.hero, [key]: val } }));
-    toast("Hero updated ✓");
+  const updateHero = (k, v) => {
+    setData((d) => ({ ...d, hero: { ...d.hero, [k]: v } }));
+    toast("Hero updated");
   };
-  /* ── story ── */
-  const updateStory = (key, val) => {
-    setData((d) => ({ ...d, story: { ...d.story, [key]: val } }));
-    toast("Story updated ✓");
+  const updateStory = (k, v) => {
+    setData((d) => ({ ...d, story: { ...d.story, [k]: v } }));
+    toast("Story updated");
   };
-  /* ── story image ── */
   const handleStoryImg = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -1128,49 +1041,45 @@ export default function AboutAdmin() {
     };
     r.readAsDataURL(file);
   };
-  /* ── stats ── */
-  const editStat = (id, patch) => {
+  const editStat = (id, p) => {
     setData((d) => ({
       ...d,
-      stats: d.stats.map((s) => (s._id === id ? { ...s, ...patch } : s)),
+      stats: d.stats.map((s) => (s._id === id ? { ...s, ...p } : s)),
     }));
-    toast("Stat updated ✓");
+    toast("Stat updated");
   };
   const deleteStat = (id) => setConfirmDel({ type: "stat", id, label: "Stat" });
-  const addStat = (form) => {
+  const addStat = (f) => {
     setData((d) => ({
       ...d,
-      stats: [...d.stats, { _id: `s${++_sid}`, ...form }],
+      stats: [...d.stats, { _id: `s${++_sid}`, ...f }],
     }));
-    toast("Stat added ✓");
+    toast("Stat added");
   };
-  /* ── mission/vision ── */
-  const updateMission = (val) => {
-    setData((d) => ({ ...d, mission: val }));
-    toast("Mission updated ✓");
+  const updateMission = (v) => {
+    setData((d) => ({ ...d, mission: v }));
+    toast("Mission updated");
   };
-  const updateVision = (val) => {
-    setData((d) => ({ ...d, vision: val }));
-    toast("Vision updated ✓");
+  const updateVision = (v) => {
+    setData((d) => ({ ...d, vision: v }));
+    toast("Vision updated");
   };
-  /* ── values ── */
-  const editValue = (id, patch) => {
+  const editValue = (id, p) => {
     setData((d) => ({
       ...d,
-      values: d.values.map((v) => (v._id === id ? { ...v, ...patch } : v)),
+      values: d.values.map((v) => (v._id === id ? { ...v, ...p } : v)),
     }));
-    toast("Value updated ✓");
+    toast("Value updated");
   };
   const deleteValue = (id) =>
     setConfirmDel({ type: "value", id, label: "Value" });
-  const addValue = (form) => {
+  const addValue = (f) => {
     setData((d) => ({
       ...d,
-      values: [...d.values, { _id: `v${++_vid}`, ...form }],
+      values: [...d.values, { _id: `v${++_vid}`, ...f }],
     }));
-    toast("Value added ✓");
+    toast("Value added");
   };
-
   const confirmDelete = () => {
     const { type, id } = confirmDel;
     if (type === "stat")
@@ -1180,713 +1089,896 @@ export default function AboutAdmin() {
     toast("Deleted", "err");
     setConfirmDel(null);
   };
-
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    setSaving(true);
+    await new Promise((r) => setTimeout(r, 1100));
+    setSaving(false);
     setSaved(true);
     toast("Changes published to public site ✓");
-    setTimeout(() => setSaved(false), 2500);
+    setTimeout(() => setSaved(false), 3000);
   };
 
-  const inputCss = {
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.09)",
-    borderRadius: 10,
-    padding: "8px 12px",
-    color: "#e2e8f0",
-    fontSize: 13,
-    outline: "none",
-    fontFamily: "'Outfit',sans-serif",
-  };
+  const totalStats = data.stats.length;
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Outfit:wght@300;400;500;600&display=swap');
-        *, *::before, *::after { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        @keyframes fadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
-        @keyframes popIn   { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:none} }
-        @keyframes toastIn { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:none} }
-        @keyframes spin    { to{transform:rotate(360deg)} }
-        @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.4} }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
-        input::placeholder, textarea::placeholder { color: #334155 !important; }
-        textarea { font-family: 'Outfit', sans-serif !important; }
-        .ab-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        .ab-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        @media(max-width: 640px) {
-          .ab-grid-2 { grid-template-columns: 1fr !important; }
-          .ab-grid-3 { grid-template-columns: 1fr 1fr !important; }
-        }
-        @media(max-width: 400px) {
-          .ab-grid-3 { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
+      <style>{GLOBAL_CSS}</style>
 
+      {/*
+        KEY FIX: The root wrapper uses a solid #F4F5FA background with NO transparency.
+        This prevents the dark bleed artifact caused by backdrop-filter on the sticky bar
+        compositing with the gradient banner below it during scroll.
+      */}
       <div
-        style={{ minHeight: "100vh", background: "#080d17", color: "#e2e8f0" }}
+        style={{ minHeight: "100vh", background: T.bg, isolation: "isolate" }}
       >
-        {/* ══ TOP BAR ══ */}
+        {/* ══ STICKY TOP BAR — solid bg, NO backdrop-filter ══ */}
         <div
           style={{
             position: "sticky",
             top: 0,
-            zIndex: 30,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "14px 20px",
-            background: "rgba(8,13,23,0.92)",
-            backdropFilter: "blur(16px)",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            zIndex: 40,
+            /* FIXED: solid color instead of rgba + backdropFilter which caused bleed */
+            background: T.bg,
+            borderBottom: `1px solid ${T.border}`,
+            boxShadow: "0 1px 0 rgba(43,58,231,0.06)",
             animation: "fadeUp .4s ease both",
           }}
         >
-          <div>
-            <p
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                color: "rgba(6,182,212,0.6)",
-                margin: 0,
-              }}
-            >
-              Accelia Admin
-            </p>
-            <h1
-              style={{
-                fontSize: 22,
-                fontWeight: 800,
-                color: "white",
-                margin: 0,
-                fontFamily: "'Syne',sans-serif",
-              }}
-            >
-              About Page Manager
-            </h1>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <a
-              href="/about"
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 14px",
-                borderRadius: 10,
-                fontSize: 12,
-                fontWeight: 600,
-                color: "#94a3b8",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                textDecoration: "none",
-                cursor: "pointer",
-              }}
-            >
-              <Ic
-                d={[
-                  "M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z",
-                  "M10 10a1 1 0 100-2 1 1 0 000 2z",
-                ]}
-                size={13}
-              />{" "}
-              Preview
-            </a>
-            <button
-              onClick={handlePublish}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 7,
-                padding: "9px 18px",
-                borderRadius: 12,
-                fontSize: 13,
-                fontWeight: 700,
-                color: "white",
-                cursor: "pointer",
-                border: "none",
-                background: saved
-                  ? "rgba(16,185,129,0.8)"
-                  : "linear-gradient(135deg,#06b6d4,#6366f1)",
-                boxShadow: "0 4px 18px rgba(6,182,212,0.3)",
-                transition: "all .3s",
-              }}
-            >
-              {saved ? (
-                <>
-                  <Ic d="M4 10l4 4 8-8" size={14} /> Published!
-                </>
-              ) : (
-                <>
-                  <Ic d={["M4 14l1-5 4 4 5-8", "M2 16h16"]} size={14} /> Publish
-                  Changes
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        <div
-          style={{
-            maxWidth: 900,
-            margin: "0 auto",
-            padding: "28px 16px 60px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 20,
-          }}
-        >
-          {/* ══ PREVIEW BANNER ══ */}
           <div
             style={{
-              borderRadius: 20,
-              overflow: "hidden",
-              position: "relative",
-              background:
-                "linear-gradient(135deg, #0a1628 0%, #0d2040 50%, #081525 100%)",
-              border: "1px solid rgba(6,182,212,0.15)",
-              animation: "fadeUp .4s ease both",
+              maxWidth: 1100,
+              margin: "0 auto",
+              padding: "0 20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              height: 64,
+              gap: 12,
             }}
           >
+            {/* Left */}
             <div
               style={{
-                position: "absolute",
-                inset: 0,
-                background:
-                  "radial-gradient(ellipse at 60% 50%, rgba(6,182,212,0.06) 0%, transparent 70%)",
-                pointerEvents: "none",
-              }}
-            />
-            <div
-              style={{
-                padding: "32px 28px",
-                textAlign: "center",
-                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                minWidth: 0,
               }}
             >
-              <span
-                style={{
-                  display: "inline-block",
-                  padding: "4px 14px",
-                  borderRadius: 20,
-                  background: "rgba(6,182,212,0.12)",
-                  border: "1px solid rgba(6,182,212,0.25)",
-                  color: "#22d3ee",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  marginBottom: 14,
-                }}
-              >
-                {data.hero.badge}
-              </span>
-              <h2
-                style={{
-                  fontSize: "clamp(26px,5vw,42px)",
-                  fontWeight: 900,
-                  color: "white",
-                  fontFamily: "'Syne',sans-serif",
-                  margin: "0 0 14px",
-                  lineHeight: 1.15,
-                }}
-              >
-                {data.hero.heading}
-              </h2>
-              <p
-                style={{
-                  color: "#94a3b8",
-                  fontSize: 14,
-                  maxWidth: 560,
-                  margin: "0 auto",
-                  lineHeight: 1.7,
-                }}
-              >
-                {data.hero.subheading}
-              </p>
-            </div>
-            <div
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 14,
-                background: "rgba(6,182,212,0.12)",
-                border: "1px solid rgba(6,182,212,0.2)",
-                borderRadius: 8,
-                padding: "3px 10px",
-                fontSize: 10,
-                fontWeight: 700,
-                color: "#22d3ee",
-                letterSpacing: "0.08em",
-              }}
-            >
-              LIVE PREVIEW
-            </div>
-          </div>
-
-          {/* ══ HERO SECTION ══ */}
-          <SectionCard title="Hero Section" icon="🎯" delay={60}>
-            <EditField
-              label="Badge Text"
-              value={data.hero.badge}
-              onChange={(v) => updateHero("badge", v)}
-            />
-            <EditField
-              label="Main Heading"
-              value={data.hero.heading}
-              onChange={(v) => updateHero("heading", v)}
-            />
-            <EditField
-              label="Subheading / Description"
-              value={data.hero.subheading}
-              onChange={(v) => updateHero("subheading", v)}
-              multiline
-            />
-          </SectionCard>
-
-          {/* ══ OUR STORY ══ */}
-          <SectionCard title="Our Story Section" icon="📖" delay={100}>
-            <div className="ab-grid-2" style={{ marginBottom: 16 }}>
               <div>
-                <EditField
-                  label="Section Badge"
-                  value={data.story.badge}
-                  onChange={(v) => updateStory("badge", v)}
-                />
-                <EditField
-                  label="Heading"
-                  value={data.story.heading}
-                  onChange={(v) => updateStory("heading", v)}
-                  multiline
-                />
-                <EditField
-                  label="Paragraph 1"
-                  value={data.story.body1}
-                  onChange={(v) => updateStory("body1", v)}
-                  multiline
-                />
-                <EditField
-                  label="Paragraph 2"
-                  value={data.story.body2}
-                  onChange={(v) => updateStory("body2", v)}
-                  multiline
-                />
-              </div>
-
-              {/* Story Image */}
-              <div>
-                <label
+                <div
                   style={{
                     fontSize: 10,
                     fontWeight: 700,
-                    letterSpacing: "0.12em",
+                    letterSpacing: "0.15em",
                     textTransform: "uppercase",
-                    color: "#475569",
-                    display: "block",
-                    marginBottom: 8,
+                    color: T.blue,
+                    marginBottom: 1,
                   }}
                 >
-                  Story Image
-                </label>
-                {storyImgPreview || data.story.image ? (
-                  <div
-                    style={{
-                      position: "relative",
-                      borderRadius: 14,
-                      overflow: "hidden",
-                      height: 200,
-                    }}
-                  >
-                    <img
-                      src={storyImgPreview || data.story.image}
-                      alt=""
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
+                  About Page Manager
+                </div>
+                <h1
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 800,
+                    color: T.text1,
+                    fontFamily: "'Syne',sans-serif",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Manage <span style={{ color: T.blue }}>&</span> Edit Content
+                </h1>
+              </div>
+            </div>
+            {/* Right */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flexShrink: 0,
+              }}
+            >
+              <a
+                href="/about"
+                target="_blank"
+                rel="noreferrer"
+                style={{ textDecoration: "none" }}
+              >
+                <button className="ab-btn-ghost">
+                  <Ic
+                    d={[
+                      "M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z",
+                      "M10 10a1 1 0 100-2 1 1 0 000 2z",
+                    ]}
+                    size={13}
+                  />
+                  Preview
+                </button>
+              </a>
+              <button
+                onClick={handlePublish}
+                className="ab-btn-primary"
+                style={{
+                  minWidth: 148,
+                  justifyContent: "center",
+                  background: saved ? T.green : T.blue,
+                  opacity: saving ? 0.85 : 1,
+                }}
+              >
+                {saving ? (
+                  <>
                     <div
                       style={{
-                        position: "absolute",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.45)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
+                        width: 14,
+                        height: 14,
+                        borderRadius: "50%",
+                        border: "2px solid rgba(255,255,255,0.3)",
+                        borderTopColor: "white",
+                        animation: "spinDot .7s linear infinite",
+                      }}
+                    />{" "}
+                    Publishing…
+                  </>
+                ) : saved ? (
+                  <>
+                    <Ic d="M4 10l4 4 8-8" size={14} /> Published!
+                  </>
+                ) : (
+                  <>
+                    <Ic d={["M4 14l1-5 4 4 5-8", "M2 16h16"]} size={14} />{" "}
+                    Publish Changes
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Tab bar */}
+          <div
+            style={{
+              maxWidth: 1100,
+              margin: "0 auto",
+              padding: "0 20px",
+              display: "flex",
+              gap: 0,
+              borderTop: `1px solid ${T.border}`,
+            }}
+          >
+            {[
+              ["content", "Content Sections", "📝"],
+              ["stats", "Stats & Numbers", "📊"],
+              ["values", "Core Values", "💎"],
+            ].map(([id, label, ico]) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`ab-tab${activeTab === id ? " active" : ""}`}
+                style={{
+                  padding: "10px 18px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: activeTab === id ? T.blue : T.text2,
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  borderBottom:
+                    activeTab === id
+                      ? `2px solid ${T.blue}`
+                      : "2px solid transparent",
+                  transition: "color .2s, border-color .2s",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <span style={{ fontSize: 13 }}>{ico}</span> {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ══ HERO PREVIEW BANNER
+            FIX: wrapped in a div with background: T.bg so there's no bg gap
+            between the sticky bar and the banner. The gradient is self-contained
+            inside a card — it cannot bleed outside its border-radius. ══ */}
+        <div style={{ background: T.bg, paddingTop: 20, paddingBottom: 0 }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 20px" }}>
+            <div
+              style={{
+                borderRadius: 20,
+                overflow: "hidden",
+                position: "relative",
+                /* FIXED: isolated compositing context so gradient never bleeds upward */
+                isolation: "isolate",
+                background: `linear-gradient(135deg,${T.blue} 0%,${T.blueMid} 100%)`,
+                padding: "28px 32px",
+                color: "white",
+                animation: "fadeUp .45s ease both",
+              }}
+            >
+              {/* Decorative circles — clipped inside overflow:hidden, cannot leak */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: -40,
+                  right: -40,
+                  width: 200,
+                  height: 200,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.06)",
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: -60,
+                  right: 60,
+                  width: 160,
+                  height: 160,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.04)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "3px 12px",
+                        borderRadius: 20,
+                        background: "rgba(255,255,255,0.2)",
+                        border: "1px solid rgba(255,255,255,0.3)",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        letterSpacing: "0.12em",
+                        textTransform: "uppercase",
+                        marginBottom: 12,
                       }}
                     >
+                      {data.hero.badge}
+                    </span>
+                    <h2
+                      style={{
+                        fontSize: "clamp(22px,4vw,34px)",
+                        fontWeight: 900,
+                        fontFamily: "'Syne',sans-serif",
+                        lineHeight: 1.15,
+                        marginBottom: 10,
+                      }}
+                    >
+                      {data.hero.heading}
+                    </h2>
+                    <p
+                      style={{
+                        fontSize: 13,
+                        opacity: 0.8,
+                        maxWidth: 520,
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {data.hero.subheading}
+                    </p>
+                  </div>
+                  <span
+                    style={{
+                      background: "rgba(255,255,255,0.2)",
+                      border: "1px solid rgba(255,255,255,0.3)",
+                      borderRadius: 8,
+                      padding: "4px 12px",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.08em",
+                      flexShrink: 0,
+                      alignSelf: "flex-start",
+                    }}
+                  >
+                    ● LIVE PREVIEW
+                  </span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 24,
+                    marginTop: 20,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {data.stats.slice(0, 4).map((s) => (
+                    <div key={s._id}>
+                      <div
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 900,
+                          fontFamily: "'Syne',sans-serif",
+                        }}
+                      >
+                        {s.value}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 10,
+                          opacity: 0.65,
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em",
+                        }}
+                      >
+                        {s.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ══ MAIN CONTENT — always on T.bg ══ */}
+        <div
+          style={{
+            background: T.bg,
+            maxWidth: 1100,
+            margin: "0 auto",
+            padding: "16px 20px 60px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+          }}
+        >
+          {/* ── TAB: CONTENT ── */}
+          {activeTab === "content" && (
+            <>
+              {/* Hero */}
+              <SectionCard
+                title="Hero Section"
+                icon="🎯"
+                delay={0}
+                badge="Public page header"
+              >
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 0 }}
+                >
+                  <EditField
+                    label="Badge Text"
+                    value={data.hero.badge}
+                    onChange={(v) => updateHero("badge", v)}
+                  />
+                  <EditField
+                    label="Main Heading"
+                    value={data.hero.heading}
+                    onChange={(v) => updateHero("heading", v)}
+                  />
+                  <EditField
+                    label="Subheading / Description"
+                    value={data.hero.subheading}
+                    onChange={(v) => updateHero("subheading", v)}
+                    multiline
+                  />
+                </div>
+              </SectionCard>
+
+              {/* Our Story */}
+              <SectionCard
+                title="Our Story"
+                icon="📖"
+                delay={60}
+                badge="Origin and background narrative"
+              >
+                <div className="ab-grid-2">
+                  <div>
+                    <EditField
+                      label="Section Badge"
+                      value={data.story.badge}
+                      onChange={(v) => updateStory("badge", v)}
+                    />
+                    <EditField
+                      label="Section Heading"
+                      value={data.story.heading}
+                      onChange={(v) => updateStory("heading", v)}
+                      multiline
+                    />
+                    <EditField
+                      label="Paragraph 1"
+                      value={data.story.body1}
+                      onChange={(v) => updateStory("body1", v)}
+                      multiline
+                    />
+                    <EditField
+                      label="Paragraph 2"
+                      value={data.story.body2}
+                      onChange={(v) => updateStory("body2", v)}
+                      multiline
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        color: T.text3,
+                        marginBottom: 8,
+                      }}
+                    >
+                      Story Image
+                    </label>
+                    {storyImgPreview || data.story.image ? (
+                      <div
+                        style={{
+                          position: "relative",
+                          borderRadius: 14,
+                          overflow: "hidden",
+                          height: 220,
+                        }}
+                      >
+                        <img
+                          src={storyImgPreview || data.story.image}
+                          alt=""
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            background: "rgba(15,16,53,0.5)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 8,
+                            opacity: 0,
+                            transition: "opacity .2s",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.opacity = 1)
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.opacity = 0)
+                          }
+                        >
+                          <button
+                            onClick={() => imgRef.current?.click()}
+                            className="ab-btn-primary"
+                            style={{ fontSize: 12, padding: "7px 14px" }}
+                          >
+                            Change
+                          </button>
+                          <button
+                            onClick={() => {
+                              setStoryImgPreview(null);
+                              updateStory("image", null);
+                            }}
+                            className="ab-btn-danger"
+                            style={{ fontSize: 12, padding: "7px 14px" }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
                       <button
                         onClick={() => imgRef.current?.click()}
                         style={{
-                          padding: "6px 14px",
-                          borderRadius: 9,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: "white",
-                          background: "rgba(6,182,212,0.85)",
-                          border: "none",
+                          width: "100%",
+                          height: 180,
+                          borderRadius: 14,
+                          border: `2px dashed ${T.borderMd}`,
+                          background: T.blueLt,
                           cursor: "pointer",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 10,
+                          color: T.text3,
+                          transition: "all .2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = T.blue;
+                          e.currentTarget.style.color = T.blue;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = T.borderMd;
+                          e.currentTarget.style.color = T.text3;
                         }}
                       >
-                        Change
+                        <div
+                          style={{
+                            width: 46,
+                            height: 46,
+                            borderRadius: 14,
+                            background: "white",
+                            border: `1px solid ${T.border}`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxShadow: T.shadow,
+                          }}
+                        >
+                          <Ic
+                            d={["M4 14l4-4 3 3 4-5 5 6H4z", "M3 3h14v14H3z"]}
+                            size={22}
+                            col={T.blue}
+                          />
+                        </div>
+                        <div style={{ textAlign: "center" }}>
+                          <p
+                            style={{
+                              color: T.text1,
+                              fontSize: 13,
+                              fontWeight: 600,
+                              marginBottom: 3,
+                            }}
+                          >
+                            Upload story image
+                          </p>
+                          <p style={{ color: T.text3, fontSize: 11 }}>
+                            PNG, JPG up to 5 MB
+                          </p>
+                        </div>
                       </button>
-                      <button
-                        onClick={() => {
-                          setStoryImgPreview(null);
-                          updateStory("image", null);
-                        }}
-                        style={{
-                          padding: "6px 14px",
-                          borderRadius: 9,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: "white",
-                          background: "rgba(239,68,68,0.8)",
-                          border: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Remove
-                      </button>
-                    </div>
+                    )}
+                    <input
+                      ref={imgRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleStoryImg}
+                    />
                   </div>
-                ) : (
-                  <button
-                    onClick={() => imgRef.current?.click()}
+                </div>
+              </SectionCard>
+
+              {/* Mission & Vision */}
+              <SectionCard
+                title="Mission & Vision"
+                icon="🎯"
+                delay={120}
+                badge="Strategic direction statements"
+              >
+                <div className="ab-grid-2">
+                  <div
                     style={{
-                      width: "100%",
-                      height: 160,
+                      background: `linear-gradient(135deg,${T.blueLt},rgba(91,108,245,0.06))`,
+                      border: `1.5px solid rgba(43,58,231,0.12)`,
                       borderRadius: 14,
-                      border: "2px dashed rgba(255,255,255,0.1)",
-                      background: "rgba(255,255,255,0.02)",
-                      cursor: "pointer",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
-                      color: "#334155",
-                      transition: "border-color .2s",
+                      padding: 18,
                     }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.borderColor =
-                        "rgba(6,182,212,0.3)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.borderColor =
-                        "rgba(255,255,255,0.1)")
-                    }
                   >
                     <div
                       style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 12,
-                        background: "rgba(6,182,212,0.1)",
-                        border: "1px solid rgba(6,182,212,0.2)",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
+                        gap: 6,
+                        marginBottom: 14,
                       }}
                     >
-                      <Ic
-                        d={["M4 14l4-4 3 3 4-5 5 6H4z", "M3 3h14v14H3z"]}
-                        size={20}
-                        col="#06b6d4"
-                      />
-                    </div>
-                    <div style={{ textAlign: "center" }}>
+                      <span style={{ fontSize: 16 }}>🎯</span>
                       <p
                         style={{
-                          color: "#94a3b8",
-                          fontSize: 13,
-                          fontWeight: 600,
-                          margin: 0,
-                        }}
-                      >
-                        Upload image
-                      </p>
-                      <p
-                        style={{
-                          color: "#475569",
                           fontSize: 11,
-                          margin: "2px 0 0",
+                          fontWeight: 700,
+                          letterSpacing: "0.12em",
+                          textTransform: "uppercase",
+                          color: T.blue,
                         }}
                       >
-                        PNG, JPG up to 5MB
+                        Mission
                       </p>
                     </div>
+                    <EditField
+                      label=""
+                      value={data.mission}
+                      onChange={updateMission}
+                      multiline
+                    />
+                  </div>
+                  <div
+                    style={{
+                      background:
+                        "linear-gradient(135deg,rgba(99,102,241,0.05),rgba(139,92,246,0.05))",
+                      border: "1.5px solid rgba(99,102,241,0.15)",
+                      borderRadius: 14,
+                      padding: 18,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        marginBottom: 14,
+                      }}
+                    >
+                      <span style={{ fontSize: 16 }}>🔭</span>
+                      <p
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: "0.12em",
+                          textTransform: "uppercase",
+                          color: "#6366f1",
+                        }}
+                      >
+                        Vision
+                      </p>
+                    </div>
+                    <EditField
+                      label=""
+                      value={data.vision}
+                      onChange={updateVision}
+                      multiline
+                    />
+                  </div>
+                </div>
+              </SectionCard>
+
+              {/* Raw JSON */}
+              <SectionCard
+                title="Raw Data Preview"
+                icon="⚙️"
+                delay={180}
+                badge="JSON snapshot"
+                actions={
+                  <button
+                    className="ab-btn-ghost"
+                    style={{ fontSize: 11, padding: "6px 12px" }}
+                    onClick={() => {
+                      navigator.clipboard?.writeText(
+                        JSON.stringify(data, null, 2),
+                      );
+                      toast("JSON copied ✓");
+                    }}
+                  >
+                    <Ic
+                      d="M6 2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zM2 6h2v12h10v2H2V6z"
+                      size={13}
+                    />{" "}
+                    Copy
                   </button>
-                )}
-                <input
-                  ref={imgRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handleStoryImg}
-                />
-              </div>
-            </div>
-          </SectionCard>
-
-          {/* ══ STATS ══ */}
-          <SectionCard title="Stats / Numbers" icon="📊" delay={140}>
-            <div className="ab-grid-3">
-              {data.stats.map((s) => (
-                <StatItem
-                  key={s._id}
-                  stat={s}
-                  onEdit={editStat}
-                  onDelete={deleteStat}
-                />
-              ))}
-              {/* Add stat ghost */}
-              <button
-                onClick={() => setAddStatOpen(true)}
-                style={{
-                  borderRadius: 16,
-                  border: "2px dashed rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.02)",
-                  cursor: "pointer",
-                  padding: 16,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                  color: "#334155",
-                  minHeight: 80,
-                  transition: "border-color .2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.borderColor = "rgba(6,182,212,0.3)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")
                 }
               >
-                <div
+                <pre
                   style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 9,
-                    border: "1px dashed currentColor",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 18,
+                    background: T.bg,
+                    borderRadius: 12,
+                    padding: 16,
+                    fontSize: 11,
+                    color: T.text2,
+                    overflow: "auto",
+                    maxHeight: 180,
+                    border: `1px solid ${T.border}`,
+                    lineHeight: 1.7,
+                    fontFamily: "'JetBrains Mono',monospace",
                   }}
                 >
-                  +
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 600 }}>Add Stat</span>
-              </button>
-            </div>
-          </SectionCard>
+                  {JSON.stringify(
+                    {
+                      hero: data.hero,
+                      mission: data.mission,
+                      vision: data.vision,
+                      statsCount: data.stats.length,
+                      valuesCount: data.values.length,
+                    },
+                    null,
+                    2,
+                  )}
+                </pre>
+              </SectionCard>
+            </>
+          )}
 
-          {/* ══ MISSION & VISION ══ */}
-          <SectionCard title="Mission & Vision" icon="🎯" delay={180}>
-            <div className="ab-grid-2">
-              <div
-                style={{
-                  background: "rgba(6,182,212,0.04)",
-                  border: "1px solid rgba(6,182,212,0.1)",
-                  borderRadius: 14,
-                  padding: 16,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    marginBottom: 12,
-                  }}
+          {/* ── TAB: STATS ── */}
+          {activeTab === "stats" && (
+            <SectionCard
+              title="Stats & Numbers"
+              icon="📊"
+              delay={0}
+              badge={`${totalStats} stats · shown on public site`}
+              actions={
+                <button
+                  className="ab-btn-primary"
+                  style={{ fontSize: 12, padding: "7px 14px" }}
+                  onClick={() => setAddStatOpen(true)}
                 >
-                  <span style={{ fontSize: 14 }}>🎯</span>
-                  <p
+                  <Ic d="M10 4v12M4 10h12" size={14} /> Add Stat
+                </button>
+              }
+            >
+              <div className="ab-grid-4" style={{ marginBottom: 20 }}>
+                {[
+                  ["Total Stats", totalStats, T.blue, "📊"],
+                  ["Visible", totalStats, T.green, "✅"],
+                  ["Sections", "Hero, Story", "#f59e0b", "📄"],
+                  ["Last Edit", "Just now", T.text2, "🕐"],
+                ].map(([lbl, val, col, ico]) => (
+                  <div
+                    key={lbl}
                     style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: "#06b6d4",
-                      margin: 0,
+                      background: "white",
+                      border: `1px solid ${T.border}`,
+                      borderRadius: 12,
+                      padding: "14px 16px",
+                      boxShadow: T.shadow,
                     }}
                   >
-                    Mission
-                  </p>
-                </div>
-                <EditField
-                  label=""
-                  value={data.mission}
-                  onChange={updateMission}
-                  multiline
-                />
+                    <div style={{ fontSize: 13, marginBottom: 5 }}>{ico}</div>
+                    <div
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 800,
+                        color: col,
+                        fontFamily: "'Syne',sans-serif",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {val}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: T.text3,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                        marginTop: 4,
+                      }}
+                    >
+                      {lbl}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div
-                style={{
-                  background: "rgba(99,102,241,0.04)",
-                  border: "1px solid rgba(99,102,241,0.12)",
-                  borderRadius: 14,
-                  padding: 16,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    marginBottom: 12,
-                  }}
+              <div className="ab-grid-3">
+                {data.stats.map((s) => (
+                  <StatItem
+                    key={s._id}
+                    stat={s}
+                    onEdit={editStat}
+                    onDelete={deleteStat}
+                  />
+                ))}
+                <button
+                  className="ghost-add"
+                  style={{ minHeight: 92, padding: 16 }}
+                  onClick={() => setAddStatOpen(true)}
                 >
-                  <span style={{ fontSize: 14 }}>🔭</span>
-                  <p
+                  <div
                     style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: "#818cf8",
-                      margin: 0,
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      border: `1.5px dashed ${T.borderMd}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 20,
                     }}
                   >
-                    Vision
-                  </p>
-                </div>
-                <EditField
-                  label=""
-                  value={data.vision}
-                  onChange={updateVision}
-                  multiline
-                />
+                    +
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    Add Stat
+                  </span>
+                </button>
               </div>
-            </div>
-          </SectionCard>
+            </SectionCard>
+          )}
 
-          {/* ══ VALUES ══ */}
-          <SectionCard title="Core Values" icon="💎" delay={220}>
-            <div className="ab-grid-3">
-              {data.values.map((v) => (
-                <ValueItem
-                  key={v._id}
-                  val={v}
-                  onEdit={editValue}
-                  onDelete={deleteValue}
-                />
-              ))}
-              <button
-                onClick={() => setAddValOpen(true)}
-                style={{
-                  borderRadius: 16,
-                  border: "2px dashed rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.02)",
-                  cursor: "pointer",
-                  padding: 18,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6,
-                  color: "#334155",
-                  minHeight: 100,
-                  transition: "border-color .2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.borderColor = "rgba(6,182,212,0.3)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")
-                }
-              >
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    border: "1px dashed currentColor",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 20,
-                  }}
+          {/* ── TAB: VALUES ── */}
+          {activeTab === "values" && (
+            <SectionCard
+              title="Core Values"
+              icon="💎"
+              delay={0}
+              badge={`${data.values.length} values · displayed on about page`}
+              actions={
+                <button
+                  className="ab-btn-primary"
+                  style={{ fontSize: 12, padding: "7px 14px" }}
+                  onClick={() => setAddValOpen(true)}
                 >
-                  +
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 600 }}>Add Value</span>
-              </button>
-            </div>
-          </SectionCard>
-
-          {/* ══ JSON PREVIEW ══ */}
-          <SectionCard title="Raw Data Preview" icon="⚙️" delay={260}>
-            <div style={{ position: "relative" }}>
-              <pre
-                style={{
-                  background: "rgba(0,0,0,0.4)",
-                  borderRadius: 12,
-                  padding: 16,
-                  fontSize: 11,
-                  color: "#64748b",
-                  overflow: "auto",
-                  maxHeight: 200,
-                  border: "1px solid rgba(255,255,255,0.05)",
-                  lineHeight: 1.7,
-                  margin: 0,
-                }}
-              >
-                {JSON.stringify(
-                  {
-                    hero: data.hero,
-                    mission: data.mission,
-                    vision: data.vision,
-                    statsCount: data.stats.length,
-                    valuesCount: data.values.length,
-                  },
-                  null,
-                  2,
-                )}
-              </pre>
-              <button
-                onClick={() => {
-                  navigator.clipboard?.writeText(JSON.stringify(data, null, 2));
-                  toast("JSON copied ✓");
-                }}
-                style={{
-                  position: "absolute",
-                  top: 10,
-                  right: 10,
-                  padding: "4px 10px",
-                  borderRadius: 7,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: "#94a3b8",
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  cursor: "pointer",
-                }}
-              >
-                Copy
-              </button>
-            </div>
-          </SectionCard>
+                  <Ic d="M10 4v12M4 10h12" size={14} /> Add Value
+                </button>
+              }
+            >
+              <div className="ab-grid-3">
+                {data.values.map((v) => (
+                  <ValueItem
+                    key={v._id}
+                    val={v}
+                    onEdit={editValue}
+                    onDelete={deleteValue}
+                  />
+                ))}
+                <button
+                  className="ghost-add"
+                  style={{ minHeight: 120, padding: 18 }}
+                  onClick={() => setAddValOpen(true)}
+                >
+                  <div
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 12,
+                      border: `1.5px dashed ${T.borderMd}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 22,
+                    }}
+                  >
+                    +
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    Add Value
+                  </span>
+                </button>
+              </div>
+            </SectionCard>
+          )}
         </div>
       </div>
 
-      {/* Modals */}
-      <AddStatModal
+      {/* ══ MODALS ══ */}
+      <AddModal
         open={addStatOpen}
+        title="Add Stat"
+        fields={[
+          {
+            key: "value",
+            label: "Value",
+            placeholder: "e.g. 30+",
+            required: true,
+          },
+          {
+            key: "label",
+            label: "Label",
+            placeholder: "e.g. Clinical Trials Completed",
+            required: true,
+          },
+        ]}
         onAdd={addStat}
         onClose={() => setAddStatOpen(false)}
       />
-      <AddValueModal
+      <AddModal
         open={addValOpen}
+        title="Add Value"
+        fields={[
+          { key: "icon", label: "Icon (emoji)", placeholder: "🔬", wide: true },
+          {
+            key: "title",
+            label: "Title",
+            placeholder: "e.g. Scientific Rigour",
+            required: true,
+          },
+          {
+            key: "desc",
+            label: "Description",
+            placeholder: "Short description…",
+            multiline: true,
+          },
+        ]}
         onAdd={addValue}
         onClose={() => setAddValOpen(false)}
       />
